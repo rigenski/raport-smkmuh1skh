@@ -36,7 +36,7 @@
                     <tr>
                         <th scope="col">No</th>
                         <th scope="col">Kelas</th>
-                        <th scope="col">Kode Guru</th>
+                        <th scope="col">Guru</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -47,14 +47,14 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->kelas_id }}</td>
-                        <td>{{ $data->guru_id }}</td>
+                        <td>{{ $data->kelas }}</td>
+                        <td>{{ $data->guru->nama }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'wali_kelas/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'wali-kelas/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}');"
                                 class="btn btn-warning">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'wali_kelas/{{$data->id}}/destroy')"
+                                onclick="$('#modalDelete #formDelete').attr('action', 'wali-kelas/{{$data->id}}/destroy')"
                                 class="btn btn-danger ml-2">Hapus</a>
                         </td>
                     </tr>
@@ -130,14 +130,13 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="kode_guru">Kode Guru <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('kode_guru') is-invalid @enderror"
-                            id="kode_guru" name="kode_guru" value="">
-                        @error('kode_guru')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
+                        <label for="guru">Guru <span class="text-danger">*</span></label>
+                        <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" id="guru"
+                            name="guru" required>
+                            @foreach($guru as $data)
+                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                            @endforeach
+                        </select>
                     </div>
             </div>
             <div class="modal-footer">

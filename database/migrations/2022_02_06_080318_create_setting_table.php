@@ -15,11 +15,11 @@ class CreateSettingTable extends Migration
     {
         Schema::create('setting', function (Blueprint $table) {
             $table->id();
-            $table->string('sekolah');
-            $table->string('kepala_sekolah');
-            $table->string('alamat');
-            $table->string('npsn');
-            $table->string('logo');
+            $table->string('sekolah')->nullable();
+            $table->string('kepala_sekolah')->nullable();
+            $table->string('alamat')->nullable();
+            $table->string('npsn')->nullable();
+            $table->string('logo')->nullable();
             $table->timestamps();
         });
     }

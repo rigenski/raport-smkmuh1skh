@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\WaliKelasFormatExport;
+use App\Models\Guru;
 use App\Models\WaliKelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -13,38 +14,43 @@ class WaliKelasController extends Controller
     public function index()
     {
         $wali_kelas = WaliKelas::all();
+        $guru = Guru::all();
 
-        return view('admin.wali-kelas.index', compact('wali_kelas'));
+        return view('admin.wali-kelas.index', compact('wali_kelas', 'guru'));
     }
 
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'kelas' => 'required',
-            'kode_guru' => 'required',
+            'guru' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->route('admin.wali_kelas')->with('error', 'Data wali kelas gagal diperbarui');
+            return redirect()->back()->with('error', 'Data wali kelas gagal diperbarui');
         }
 
         $wali_kelas = WaliKelas::find($id);
 
         $wali_kelas->update([
             'kelas' => $request->kelas,
-            'kode_guru' => $request->kode_guru,
+            'guru_id' => $request->guru,
         ]);
 
-        return redirect()->route('admin.wali_kelas')->with('success', 'Data wali kelas berhasil diperbarui');
+        return redirect()->back()->with('success', 'Data wali kelas berhasil diperbarui');
     }
 
     public function destroy($id)
     {
         $wali_kelas = WaliKelas::find($id);
 
+        $wali_kelas->guru->user->update([
+            'role' => 'guru'
+        ]);
+
         $wali_kelas->delete();
 
-        return redirect()->route('admin.wali_kelas')->with('success', 'Data wali kelas berhasil dihapus');
+        return redirect()->back()->with('success', 'Data wali kelas berhasil dihapus');
     }
 
     public function import()
@@ -52,10 +58,10 @@ class WaliKelasController extends Controller
         try {
             Excel::import(new \App\Imports\WaliKelasImport, request()->file('data_wali_kelas'));
         } catch (\Exception $ex) {
-            return redirect()->route('admin.wali_kelas')->with('error', 'Data wali kelas gagal diimport');
+            return redirect()->back()->with('error', 'Data wali kelas gagal diimport');
         }
 
-        return redirect()->route('admin.wali_kelas')->with('success', 'Data wali kelas berhasil diimport');
+        return redirect()->back()->with('success', 'Data wali kelas berhasil diimport');
     }
 
     public function export_format()

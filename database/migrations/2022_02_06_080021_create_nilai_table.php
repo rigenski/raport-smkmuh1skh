@@ -17,6 +17,8 @@ class CreateNilaiTable extends Migration
             $table->id();
             $table->string('nilai');
             $table->string('keterangan');
+            $table->string('tahun_pelajaran');
+            $table->string('semester');
             $table->foreignId('mapel_id')->constrained('mapel');
             $table->foreignId('siswa_id')->constrained('siswa');
             $table->foreignId('guru_id')->constrained('guru');

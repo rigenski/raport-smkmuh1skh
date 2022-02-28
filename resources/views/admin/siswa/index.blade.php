@@ -35,7 +35,6 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Tahun Pelajaran</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
                         <th scope="col">Kelas</th>
@@ -50,7 +49,6 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->tahun_pelajaran }}</td>
                         <td>{{ $data->nis }}</td>
                         <td>{{ $data->nama }}</td>
                         <td>{{ $data->kelas }}</td>
@@ -125,16 +123,6 @@
             <div class="modal-body">
                 <form id="formEdit" action="" method="post">
                     @csrf
-                    <div class="form-group">
-                        <label for="tahun_pelajaran">Tahun Pelajaran <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('tahun_pelajaran') is-invalid @enderror"
-                            id="tahun_pelajaran" name="tahun_pelajaran" value="">
-                        @error('tahun_pelajaran')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
-                    </div>
                     <div class="form-group">
                         <label for="nis">NIS <span class="text-danger">*</span></label>
                         <input type="text" required class="form-control @error('nis') is-invalid @enderror" id="nis"

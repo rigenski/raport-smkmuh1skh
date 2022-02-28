@@ -130,14 +130,13 @@
                         @enderror
                     </div>
                     <div class="form-group">
-                        <label for="kode_guru">Kode Guru <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('kode_guru') is-invalid @enderror"
-                            id="kode_guru" name="kode_guru" value="">
-                        @error('kode_guru')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
+                        <label for="guru">Guru <span class="text-danger">*</span></label>
+                        <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" id="guru"
+                            name="guru" required>
+                            @foreach($guru as $data)
+                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                            @endforeach
+                        </select>
                     </div>
             </div>
             <div class="modal-footer">

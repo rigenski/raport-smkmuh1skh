@@ -48,7 +48,7 @@ class GuruController extends Controller
             "username" => $request->kode_guru,
         ]);
 
-        return redirect()->route('admin.guru')->with('success', 'Data guru berhasil diperbarui');
+        return redirect()->back()->with('success', 'Data guru berhasil diperbarui');
     }
 
     public function destroy($id)
@@ -59,7 +59,7 @@ class GuruController extends Controller
 
         User::find($guru->user_id)->delete();
 
-        return redirect()->route('admin.guru')->with('success', 'Data guru berhasil dihapus');
+        return redirect()->back()->with('success', 'Data guru berhasil dihapus');
     }
 
     public function import()
@@ -67,10 +67,10 @@ class GuruController extends Controller
         try {
             Excel::import(new \App\Imports\GuruImport, request()->file('data_guru'));
         } catch (\Exception $ex) {
-            return redirect()->route('admin.guru')->with('error', 'Data guru gagal diimport');
+            return redirect()->back()->with('error', 'Data guru gagal diimport');
         }
 
-        return redirect()->route('admin.guru')->with('success', 'Data guru berhasil diimport');
+        return redirect()->back()->with('success', 'Data guru berhasil diimport');
     }
 
     public function export_format()

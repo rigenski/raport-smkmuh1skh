@@ -12,11 +12,6 @@ class Siswa extends Model
     protected $table = 'siswa';
     protected $guarded = [];
 
-    public function siswa()
-    {
-        return $this->hasOne(Siswa::class);
-    }
-
     public function nilai()
     {
         return $this->hasMany(Nilai::class);

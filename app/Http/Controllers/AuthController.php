@@ -7,6 +7,15 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+    public function home()
+    {
+        if (Auth::check()) {
+            return redirect()->route('admin');
+        }
+
+        return redirect()->route('login');
+    }
+
     public function index()
     {
         return view('login');

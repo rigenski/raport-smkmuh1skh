@@ -54,17 +54,17 @@
                 <span>Dashboard</span>
               </a>
             </li>
+            <li class="@yield('nav__item-setting')">
+              <a class="nav-link" href="{{ route('admin.setting') }}">
+                <i class="fas fa-cog"></i>
+                <span>Setting</span>
+              </a>
+            </li>
             <li class="menu-header">UNIT</li>
             <li class="@yield('nav__item-guru')">
               <a class="nav-link" href="{{ route('admin.guru') }}">
                 <i class="fas fa-users"></i>
                 <span>Guru</span>
-              </a>
-            </li>
-            <li class="@yield('nav__item-kelas')">
-              <a class="nav-link" href="{{ route('admin.kelas') }}">
-                <i class="fas fa-door-closed"></i>
-                <span>Kelas</span>
               </a>
             </li>
             <li class="@yield('nav__item-wali__kelas')">
@@ -92,7 +92,12 @@
                 <span>Nilai</span>
               </a>
             </li>
-            <li class="menu-header">WALI KELAS</li>
+            <li class="@yield('nav__item-ranking')">
+              <a class="nav-link" href="{{ route('admin.ranking') }}">
+                <i class="fas fa-trophy"></i>
+                <span>Ranking</span>
+              </a>
+            </li>
 
             @elseif(auth()->user()->role === 'guru')
             <li class="menu-header">MAIN</li>
@@ -109,7 +114,19 @@
               </a>
             </li>
             @elseif(auth()->user()->role === 'wali kelas')
-
+            <li class="menu-header">MAIN</li>
+            <li class="@yield('nav__item-admin')">
+              <a class="nav-link" href="{{ route('admin') }}">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="@yield('nav__item-nilai')">
+              <a class="nav-link" href="{{ route('admin.nilai') }}">
+                <i class="fas fa-sort-numeric-up"></i>
+                <span>Nilai</span>
+              </a>
+            </li>
             @endif
           </ul>
         </aside>

@@ -20,7 +20,6 @@ class SiswaController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'tahun_pelajaran' => 'required',
             'nis' => 'required',
             'nama' => 'required',
             'kelas' => 'required',
@@ -28,20 +27,19 @@ class SiswaController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->route('admin.siswa')->with('error', 'Data siswa gagal diperbarui');
+            return redirect()->back()->with('error', 'Data siswa gagal diperbarui');
         }
 
         $siswa = Siswa::find($id);
 
         $siswa->update([
-            'tahun_pelajaran' => $request->tahun_pelajaran,
             'nis' => $request->nis,
             'nama' => $request->nama,
             'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
         ]);
 
-        return redirect()->route('admin.siswa')->with('success', 'Data siswa berhasil diperbarui');
+        return redirect()->back()->with('success', 'Data siswa berhasil diperbarui');
     }
 
     public function destroy($id)
@@ -50,7 +48,7 @@ class SiswaController extends Controller
 
         $siswa->delete();
 
-        return redirect()->route('admin.siswa')->with('success', 'Data siswa berhasil dihapus');
+        return redirect()->back()->with('success', 'Data siswa berhasil dihapus');
     }
 
     public function import()
@@ -58,10 +56,10 @@ class SiswaController extends Controller
         try {
             Excel::import(new \App\Imports\SiswaImport, request()->file('data_siswa'));
         } catch (\Exception $ex) {
-            return redirect()->route('admin.siswa')->with('error', 'Data siswa gagal diimport');
+            return redirect()->back()->with('error', 'Data siswa gagal diimport');
         }
 
-        return redirect()->route('admin.siswa')->with('success', 'Data siswa berhasil diimport');
+        return redirect()->back()->with('success', 'Data siswa berhasil diimport');
     }
 
     public function export_format()

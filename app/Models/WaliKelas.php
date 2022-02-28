@@ -12,11 +12,6 @@ class WaliKelas extends Model
     protected $table = 'wali_kelas';
     protected $guarded = [];
 
-    public function kelas()
-    {
-        return $this->belongsTo(Kelas::class);
-    }
-
     public function guru()
     {
         return $this->belongsTo(Guru::class);

@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Mapel;
 use App\Models\Nilai;
 use App\Models\Siswa;
 use Maatwebsite\Excel\Concerns\ToModel;
@@ -22,16 +23,31 @@ class NilaiImport implements ToModel, WithStartRow
 
     public function model(array $row)
     {
-        $siswa = Siswa::where('nis', $row[1])->get();
+        $siswa = Siswa::where('nis', $row[2])->get();
 
-        return new Nilai([
-            "semester" => $row[0],
-            "siswa_id" => $siswa[0]->id,
-            "nilai" => $row[2],
-            "keterangan" => $row[3],
-            "mapel_id" => $this->mapel_id,
-            "guru_id" => auth()->user()->guru->id
-        ]);
+        if (auth()->user()->role == 'admin') {
+            $guru_id = Mapel::find($this->mapel_id)->guru_id;
+
+            return new Nilai([
+                "tahun_pelajaran" => $row[0],
+                "semester" => $row[1],
+                "siswa_id" => $siswa[0]->id,
+                "nilai" => $row[3],
+                "keterangan" => $row[4],
+                "mapel_id" => $this->mapel_id,
+                "guru_id" => $guru_id
+            ]);
+        } else {
+            return new Nilai([
+                "tahun_pelajaran" => $row[0],
+                "semester" => $row[1],
+                "siswa_id" => $siswa[0]->id,
+                "nilai" => $row[3],
+                "keterangan" => $row[4],
+                "mapel_id" => $this->mapel_id,
+                "guru_id" => auth()->user()->guru->id
+            ]);
+        }
     }
 
     public function startRow(): int
