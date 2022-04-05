@@ -11,6 +11,9 @@
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
                     Import Excel
                 </button>
+                <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#modalReset">
+                    Reset Data
+                </button>
             </div>
         </div>
         <div class="col-12 col-sm-6 p-0 my-1">
@@ -99,6 +102,26 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset -->
+<div class="modal fade" id="modalReset" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Reset Semua Data Wali Kelas ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <form action="{{ route('admin.wali_kelas.reset') }}" method="get">
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                    <button type="submit" class="btn btn-danger">Reset</button>
                 </form>
             </div>
         </div>

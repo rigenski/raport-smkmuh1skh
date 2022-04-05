@@ -16,10 +16,11 @@ class MapelImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $guru = Guru::where('kode_guru', $row[1])->get();
+        $guru = Guru::where('kode_guru', $row[2])->get();
 
         return new Mapel([
             "nama" => $row[0],
+            "kelas" => $row[1],
             "guru_id" => $guru[0]->id,
         ]);
     }

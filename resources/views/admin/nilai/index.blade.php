@@ -10,10 +10,7 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
-                    Import Excel
-                </button>
-                <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modalFilter">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalFilter">
                     Filter
                 </button>
             </div>
@@ -39,6 +36,10 @@
         <div class="alert alert-danger">
             * FILTER <b>DATA NILAI</b> TERLEBIH DAHULU
         </div>
+        @elseif(!count($nilai))
+        <div class="alert alert-warning">
+            * DATA NILAI TIDAK ADA
+        </div>
         @endif
         <div class="table-responsive">
             <table class="table table-striped table-bordered data">
@@ -63,6 +64,7 @@
                         <td>{{ $data->siswa->nama }}</td>
                         <td>{{ $data->nilai }}</td>
                         <td>{{ $data->keterangan }}</td>
+                        @if(!$data->status || auth()->user()->role == 'admin')
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
                                 onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
@@ -71,6 +73,12 @@
                                 onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
                                 class="btn btn-danger ml-2">Hapus</a>
                         </td>
+                        @else
+                        <td>
+                            <button class="btn btn-warning" disabled>Edit</button>
+                            <button class="btn btn-danger ml-2" disabled>Hapus</button>
+                        </td>
+                        @endif
                     </tr>
                     <?php $count++; ?>
                     @endforeach
@@ -83,49 +91,6 @@
 @endsection
 
 @section('modal')
-
-<!-- Modal Import -->
-<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Nilai</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ route('admin.nilai.import') }}" method="post" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="mapel">Mata Pelajaran - Guru <span class="text-danger">*</span></label>
-                        <select class="form-control" required id="mapel" name="mapel">
-                            @foreach($mapel as $data)
-                            <option value="{{ $data->id }}">{{ $data->nama }} - {{ $data->guru->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="nama">File <span class="text-danger">*</span></label>
-                        <input type="file" class="form-control" required id="excel" name="data_nilai"
-                            accept=".xlsx, .xls">
-                        <div class="text-small text-danger mt-2">
-                            * Mohon masukkan data dengan benar sebelum dikirim
-                        </div>
-                        <a href="{{ route('admin.nilai.export_format') }}" class="btn btn-warning mt-4">Unduh
-                            Format
-                            Import</a>
-                    </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal Filter -->
 <div class="modal fade" id="modalFilter" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -158,19 +123,19 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="mapel">Mata Pelajaran - Guru</label>
+                        <label for="mapel">Mata Pelajaran</label>
                         <select class="form-control" autocomplete="off" name="mapel">
-                            @if($mapel_filter)
-                            <option value="{{ $mapel_filter->id }}">{{ $mapel_filter->nama }} - {{ $data->guru->nama }}
+                            @if($filter->mapel)
+                            <option value="{{ $filter->mapel }}">{{ $filter->mapel }}
                             </option>
                             @foreach($mapel as $data)
-                            @if($mapel_filter->id != $data->id )
-                            <option value="{{ $data->id }}">{{ $data->nama }} - {{ $data->guru->nama }}</option>
+                            @if($filter->mapel != $data->nama )
+                            <option value="{{ $data->nama }}">{{ $data->nama }}</option>
                             @endif
                             @endforeach
                             @else
                             @foreach($mapel as $data)
-                            <option value="{{ $data->id }}">{{ $data->nama }} - {{ $data->guru->nama }}</option>
+                            <option value="{{ $data->nama }}">{{ $data->nama }}</option>
                             @endforeach
                             @endif
                         </select>
@@ -196,25 +161,24 @@
                         <label for="kelas">Kelas</label>
                         <select class="form-control" autocomplete="off" name="kelas">
                             @if($filter->kelas)
-                            <option value="{{ $filter->kelas }}">{{ $filter->kelas }}</option>
+                            <option value="{{ $filter->kelas }}">{{
+                                $filter->kelas
+                                }}</option>
+                            @foreach($kelas as $data)
+                            @if($filter->kelas != $data->kelas )
+                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
                             @endif
-                            @foreach($kelas_x as $data)
-                            <option value="{{ $data->kelas . ' ' . $data->jurusan }}">{{ $data->kelas . ' ' .
-                                $data->jurusan }}</option>
                             @endforeach
-                            @foreach($kelas_xi as $data)
-                            <option value="{{ $data->kelas . ' ' . $data->jurusan }}">{{ $data->kelas . ' ' .
-                                $data->jurusan }}</option>
+                            @else
+                            @foreach($kelas as $data)
+                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
                             @endforeach
-                            @foreach($kelas_xii as $data)
-                            <option value="{{ $data->kelas . ' ' . $data->jurusan }}">{{ $data->kelas . ' ' .
-                                $data->jurusan }}</option>
-                            @endforeach
+                            @endif
                         </select>
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -258,7 +222,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -278,7 +242,7 @@
             </div>
             <div class="modal-footer">
                 <form id="formDelete" action="" method="get">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>
             </div>
@@ -289,16 +253,20 @@
 
 @else
 
+{{-- ================== SECTION OTHER ROLE ============= --}}
+{{-- ================== SECTION OTHER ROLE ============= --}}
+{{-- ================== SECTION OTHER ROLE ============= --}}
+
 @section('content')
 <div class="card mb-4">
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalFilter">
+                    Filter
+                </button>
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
                     Import Excel
-                </button>
-                <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modalFilter">
-                    Filter
                 </button>
             </div>
         </div>
@@ -322,6 +290,10 @@
         @if(!$filter->tahun_pelajaran)
         <div class="alert alert-danger">
             * FILTER DATA NILAI TERLEBIH DAHULU
+        </div>
+        @elseif(!count($nilai))
+        <div class="alert alert-warning">
+            * DATA NILAI TIDAK ADA
         </div>
         @endif
         <div class="table-responsive">
@@ -347,6 +319,7 @@
                         <td>{{ $data->siswa->nama }}</td>
                         <td>{{ $data->nilai }}</td>
                         <td>{{ $data->keterangan }}</td>
+                        @if(!$data->status)
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
                                 onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
@@ -355,6 +328,12 @@
                                 onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
                                 class="btn btn-danger ml-2">Hapus</a>
                         </td>
+                        @else
+                        <td>
+                            <button class="btn btn-warning" disabled>Ubah</button>
+                            <button class="btn btn-danger ml-2" disabled>Hapus</button>
+                        </td>
+                        @endif
                     </tr>
                     <?php $count++; ?>
                     @endforeach
@@ -383,10 +362,10 @@
                 <form action="{{ route('admin.nilai.import') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group">
-                        <label for="mapel">Mata Pelajaran <span class="text-danger">*</span></label>
+                        <label for="mapel">Kelas - Mata Pelajaran <span class="text-danger">*</span></label>
                         <select class="form-control" required id="mapel" name="mapel">
-                            @foreach(auth()->user()->guru->mapel as $data)
-                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                            @foreach($mapel as $data)
+                            <option value="{{ $data->id }}">{{ $data->kelas }} - {{ $data->nama }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -403,7 +382,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -444,16 +423,18 @@
                     <div class="form-group">
                         <label for="mapel">Mata Pelajaran</label>
                         <select class="form-control" autocomplete="off" name="mapel">
-                            @if($mapel_filter)
-                            <option value="{{ $mapel_filter->id }}">{{ $mapel_filter->nama }}</option>
-                            @foreach(auth()->user()->guru->mapel as $data)
-                            @if($mapel_filter->id != $data->id )
-                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                            @if($filter->mapel)
+                            <option value="{{ $filter->mapel }}">{{
+                                $filter->mapel
+                                }}</option>
+                            @foreach($mapel as $data)
+                            @if($filter->mapel != $data->nama )
+                            <option value="{{ $data->nama }}">{{$data->nama }}</option>
                             @endif
                             @endforeach
                             @else
-                            @foreach(auth()->user()->guru->mapel as $data)
-                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                            @foreach($mapel as $data)
+                            <option value="{{ $data->nama }}">{{$data->nama }}</option>
                             @endforeach
                             @endif
                         </select>
@@ -479,25 +460,24 @@
                         <label for="kelas">Kelas</label>
                         <select class="form-control" autocomplete="off" name="kelas">
                             @if($filter->kelas)
-                            <option value="{{ $filter->kelas }}">{{ $filter->kelas }}</option>
+                            <option value="{{ $filter->kelas }}">{{
+                                $filter->kelas
+                                }}</option>
+                            @foreach($mapel as $data)
+                            @if($filter->kelas != $data->kelas )
+                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
                             @endif
-                            @foreach($kelas_x as $data)
-                            <option value="{{ $data->kelas . ' ' . $data->jurusan }}">{{ $data->kelas . ' ' .
-                                $data->jurusan }}</option>
                             @endforeach
-                            @foreach($kelas_xi as $data)
-                            <option value="{{ $data->kelas . ' ' . $data->jurusan }}">{{ $data->kelas . ' ' .
-                                $data->jurusan }}</option>
+                            @else
+                            @foreach($mapel as $data)
+                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
                             @endforeach
-                            @foreach($kelas_xii as $data)
-                            <option value="{{ $data->kelas . ' ' . $data->jurusan }}">{{ $data->kelas . ' ' .
-                                $data->jurusan }}</option>
-                            @endforeach
+                            @endif
                         </select>
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -541,7 +521,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -561,7 +541,7 @@
             </div>
             <div class="modal-footer">
                 <form id="formDelete" action="" method="get">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>
             </div>

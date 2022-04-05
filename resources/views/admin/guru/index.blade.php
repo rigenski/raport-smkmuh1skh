@@ -8,7 +8,7 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalImport">
                     Import Excel
                 </button>
             </div>
@@ -96,7 +96,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -150,7 +150,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -170,7 +170,7 @@
             </div>
             <div class="modal-footer">
                 <form id="formDelete" action="" method="get">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>
             </div>

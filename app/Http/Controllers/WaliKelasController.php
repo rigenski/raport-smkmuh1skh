@@ -64,6 +64,13 @@ class WaliKelasController extends Controller
         return redirect()->back()->with('success', 'Data wali kelas berhasil diimport');
     }
 
+    public function reset()
+    {
+        WaliKelas::truncate();
+
+        return redirect()->back()->with('success', 'Data wali kelas berhasil direset');
+    }
+
     public function export_format()
     {
         return Excel::download(new WaliKelasFormatExport(), 'data-wali_kelas-mutuharjo' . '.xlsx');

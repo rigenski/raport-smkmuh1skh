@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Dashboard PPDB SMK Muhammadiyah 1 Sukoharjo</title>
+  <title>Dashboard Raport SMK Muhammadiyah 1 Sukoharjo</title>
   <link rel="stylesheet" href="{{asset('/css/bootstrap.min.css')}}">
   <link rel="stylesheet" href="{{asset('/css/all.css')}}">
   <link rel="stylesheet" href="{{asset('/css/style.css')}}">
@@ -30,7 +30,8 @@
           <li class="dropdown"><a href="#" data-toggle="dropdown"
               class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <i class="fas fa-user mr-2"></i>
-              <div class="d-sm-none d-lg-inline-block">Hi, Admin</div>
+              <div class="d-sm-none d-lg-inline-block">Hi, {{ auth()->user()->role == 'admin' ? 'Admin' :
+                auth()->user()->guru->nama }}</div>
             </a>
             <div class="dropdown-menu dropdown-menu-right">
               <a href="{{ route('logout') }}" class="dropdown-item has-icon text-danger">
@@ -98,6 +99,18 @@
                 <span>Ranking</span>
               </a>
             </li>
+            <li class="@yield('nav__item-raport')">
+              <a class="nav-link" href="{{ route('admin.raport') }}">
+                <i class="fas fa-book"></i>
+                <span>Raport</span>
+              </a>
+            </li>
+            <li class="@yield('nav__item-riwayat')">
+              <a class="nav-link" href="{{ route('admin.riwayat') }}">
+                <i class="fas fa-history"></i>
+                <span>Riwayat</span>
+              </a>
+            </li>
 
             @elseif(auth()->user()->role === 'guru')
             <li class="menu-header">MAIN</li>
@@ -125,6 +138,12 @@
               <a class="nav-link" href="{{ route('admin.nilai') }}">
                 <i class="fas fa-sort-numeric-up"></i>
                 <span>Nilai</span>
+              </a>
+            </li>
+            <li class="@yield('nav__item-raport')">
+              <a class="nav-link" href="{{ route('admin.raport') }}">
+                <i class="fas fa-book"></i>
+                <span>Raport</span>
               </a>
             </li>
             @endif

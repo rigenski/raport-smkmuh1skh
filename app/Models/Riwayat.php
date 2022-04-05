@@ -5,15 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Mapel extends Model
+class Riwayat extends Model
 {
     use HasFactory;
 
-    protected $table = 'mapel';
+    protected $table = 'riwayat';
     protected $guarded = [];
-
-    public function guru()
-    {
-        return $this->belongsTo(Guru::class);
-    }
 }

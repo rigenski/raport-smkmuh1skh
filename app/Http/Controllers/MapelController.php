@@ -24,6 +24,7 @@ class MapelController extends Controller
         $validator = Validator::make($request->all(), [
             'nama' => 'required',
             'guru' => 'required',
+            'kelas' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -34,6 +35,7 @@ class MapelController extends Controller
 
         $mapel->update([
             'nama' => $request->nama,
+            'kelas' => $request->kelas,
             'guru_id' => $request->guru,
         ]);
 
@@ -46,7 +48,7 @@ class MapelController extends Controller
 
         $mapel->delete();
 
-        return redirect()->back()->with('success', 'Data kelas berhasil dihapus');
+        return redirect()->back()->with('success', 'Data mapel berhasil dihapus');
     }
 
     public function import()
@@ -54,10 +56,17 @@ class MapelController extends Controller
         try {
             Excel::import(new \App\Imports\MapelImport, request()->file('data_mapel'));
         } catch (\Exception $ex) {
-            return redirect()->back()->with('error', 'Data kelas gagal diimport');
+            return redirect()->back()->with('error', 'Data mapel gagal diimport');
         }
 
-        return redirect()->back()->with('success', 'Data kelas berhasil diimport');
+        return redirect()->back()->with('success', 'Data mapel berhasil diimport');
+    }
+
+    public function reset()
+    {
+        Mapel::truncate();
+
+        return redirect()->back()->with('success', 'Data mapel berhasil direset');
     }
 
     public function export_format()

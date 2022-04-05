@@ -8,8 +8,11 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalImport">
                     Import Excel
+                </button>
+                <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#modalReset">
+                    Reset Data
                 </button>
             </div>
         </div>
@@ -36,6 +39,7 @@
                     <tr>
                         <th scope="col">No</th>
                         <th scope="col">Mapel</th>
+                        <th scope="col">Kelas</th>
                         <th scope="col">Guru</th>
                         <th scope="col">Aksi</th>
                     </tr>
@@ -48,10 +52,11 @@
                             <?= $count ?>
                         </td>
                         <td>{{ $data->nama }}</td>
+                        <td>{{ $data->kelas }}</td>
                         <td>{{ $data->guru->nama }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'mapel/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'mapel/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}');"
                                 class="btn btn-warning">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'mapel/{{$data->id}}/destroy')"
@@ -97,8 +102,28 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Reset -->
+<div class="modal fade" id="modalReset" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Reset Semua Data Mapel ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <form action="{{ route('admin.mapel.reset') }}" method="get">
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                    <button type="submit" class="btn btn-danger">Reset</button>
                 </form>
             </div>
         </div>
@@ -130,6 +155,16 @@
                         @enderror
                     </div>
                     <div class="form-group">
+                        <label for="kelas">Kelas <span class="text-danger">*</span></label>
+                        <input type="text" required class="form-control @error('kelas') is-invalid @enderror" id="kelas"
+                            name="kelas" value="">
+                        @error('kelas')
+                        <div class="invalid-feedback">
+                            {{ $message}}
+                        </div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
                         <label for="guru">Guru <span class="text-danger">*</span></label>
                         <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" id="guru"
                             name="guru" required>
@@ -140,7 +175,7 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
                 </form>
             </div>
@@ -153,14 +188,14 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Hapus Data Mapel ?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-footer">
                 <form id="formDelete" action="" method="get">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>
             </div>

@@ -8,9 +8,18 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalFilter">
+                <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modalFilter">
                     Filter
                 </button>
+                @if($filter->all())
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
+                    Print PDF
+                </button>
+                @else
+                <button type="button" class="btn btn-primary ml-2" disabled>
+                    Print PDF
+                </button>
+                @endif
             </div>
         </div>
         <div class="col-12 col-sm-6 p-0 my-1">
@@ -42,23 +51,29 @@
                         <th scope="col">No</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
-                        <th scope="col">Total Nilai</th>
+                        <th scope="col">Jumlah Nilai</th>
+                        <th scope="col">Rata Nilai</th>
                     </tr>
                 </thead>
                 <tbody id="list-container">
-                    {{--
                     <?php $count = 1; ?>
                     @foreach($siswa as $data)
+                    <?php $jmlh_nilai = 0; ?>
+                    @foreach($data->nilai as $nilai)
+                    <?php $jmlh_nilai += $nilai->nilai ?>
+                    @endforeach
+                    <?php $rata_nilai = $jmlh_nilai / count($data->nilai); ?>
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
                         <td>{{ $data->nis }}</td>
                         <td>{{ $data->nama }}</td>
-                        <td>{{ $data_total_nilai[$count - 1] }}</td>
+                        <td>{{ $jmlh_nilai }}</td>
+                        <td>{{ $rata_nilai }}</td>
                     </tr>
                     <?php $count++; ?>
-                    @endforeach --}}
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -90,7 +105,7 @@
                             <option value="kelas">Per Kelas</option>
                         </select>
                     </div>
-                    <div id="form-container">
+                    <div id="form-container-ranking">
                     </div>
                     <div class="form-group">
                         <label for="semester">Semester</label>
@@ -102,8 +117,52 @@
                     </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Export -->
+<div class="modal fade" id="modalPrint" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @if($filter->tipe == 'angkatan')
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Angkatan <span class="text-primary">
+                        {{
+                        $filter->angkatan ? strtoupper($filter->angkatan) : '' }} - {{ $filter->semester ? 'Semester ' .
+                        $filter->semester
+                        : ''
+                        }}</span></h5>
+                </span></h5>
+                @elseif($filter->tipe == 'angkatan-jurusan')
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Angkatan / Jurusan <span
+                        class="text-primary">
+                        {{
+                        $filter->angkatan ? strtoupper($filter->angkatan) : '' }} / {{
+                        $filter->jurusan ? $filter->jurusan : '' }} - {{ $filter->semester ? 'Semester ' .
+                        $filter->semester
+                        : ''
+                        }}</span></h5>
+                </span></h5>
+                @elseif($filter->tipe == 'kelas')
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
+                        $filter->kelas ? $filter->kelas : '' }} - {{ $filter->semester ? 'Semester ' . $filter->semester
+                        : ''
+                        }}</span></h5>
+                </span></h5>
+                @endif
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <form id="formDelete" action="{{ route('admin.ranking.print') }}" method="get">
+                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                    <button type="submit" class="btn btn-primary">Cetak</button>
                 </form>
             </div>
         </div>
@@ -114,12 +173,11 @@
 
 @section('script')
 <script>
-    // data from laravel
     const kelas = <?= $kelas ?>;
     const jurusan = <?= $jurusan ?>;
 
     const elTipeRanking = document.getElementById('tipe-ranking');
-    const elFormContainer = document.getElementById('form-container');
+    const elFormContainer = document.getElementById('form-container-ranking');
 
     const changeForm = () => {
         if(elTipeRanking.value == 'angkatan') {
@@ -158,9 +216,8 @@
             let kelas_option = '';
 
             kelas.map((x, i) => {
-                kelas_option += `<option value="${x.kelas + ' ' + x.jurusan}">${x.kelas + ' ' + x.jurusan}</option>`;
+                kelas_option += `<option value="${x.kelas}">${x.kelas}</option>`;
             })
-
             
             elFormContainer.innerHTML = 
             `<div class="form-group">
@@ -176,29 +233,8 @@
         changeForm();
     })
 
-    
-
-    // get data
-
-    const siswa = <?= $siswa ?>;
-
-    const elListContainer = document.getElementById('list-container');
-
-    const changeList = () => {
-        let siswa_item = '';
-
-        siswa.map((x, i) => {
-            siswa_item += `<tr><td>${i + 1}</td><td>${x.nis}</td><td>${x.nama}</td><td>${x.total_nilai}</td></tr>`;
-        })
-
-        elListContainer.innerHTML = `${siswa_item}`;
-    }
-
-    // start
-
     window.onload = () => {
         changeForm();
-        changeList();
     };
 </script>
 

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exports\NilaiFormatExport;
-use App\Models\Kelas;
 use App\Models\Mapel;
 use App\Models\Nilai;
 use App\Models\Siswa;
@@ -17,80 +16,61 @@ class NilaiController extends Controller
     {
 
         if (auth()->user()->role == 'admin') {
-            $data_nilai = Nilai::all();
-            $data_siswa = Siswa::all();
-
             $filter = $request;
 
-            $tahun_pelajaran = $data_nilai->unique('tahun_pelajaran')->values()->all();
+            $nilai = [];
 
-            if ($request->has('tahun_pelajaran') && $request->has('mapel') && $request->has('semester') && $request->has('kelas')) {
-                $kelas = explode(' ', $request->kelas);
+            if ($filter->has('tahun_pelajaran') && $filter->has('mapel') && $filter->has('semester') && $filter->has('kelas')) {
+                $siswa = Siswa::where('kelas', $filter->kelas)->get();
 
-                $siswa_selected = Siswa::where('kelas', $kelas[0])->where('jurusan', $kelas[1])->get();
+                if (count($siswa)) {
+                    foreach ($siswa as $data) {
+                        $nilai_selected =  Nilai::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('semester', $filter->semester)->where('mapel', $filter->mapel)->where('siswa_id', $data->id)->get();
 
-                $nilai = [];
-                $mapel_filter = Mapel::find($request->mapel);
-
-                $guru_id = Mapel::find($request->mapel)->guru_id;
-
-                foreach ($siswa_selected as $data) {
-                    $nilai_filter =  Nilai::where('guru_id', $guru_id)->where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->where('mapel_id', $request->mapel)->where('siswa_id', $data->id)->get();
-
-                    if (count($nilai_filter)) {
-                        array_push($nilai, $nilai_filter[0]);
+                        if (count($nilai_selected)) {
+                            array_push($nilai, $nilai_selected[0]);
+                        }
                     }
                 }
-            } else {
-                $nilai = [];
-                $mapel_filter = null;
             }
 
+            $tahun_pelajaran = Nilai::all()->unique('tahun_pelajaran')->values()->all();
 
-            $kelas_x = $data_siswa->where('kelas', 'X')->unique('jurusan')->values()->all();
-            $kelas_xi = $data_siswa->where('kelas', 'XI')->unique('jurusan')->values()->all();
-            $kelas_xii = $data_siswa->where('kelas', 'XII')->unique('jurusan')->values()->all();
+            $mapel = Mapel::all()->unique('nama')->values()->all();
 
             $semester = [1, 2, 3, 4, 5, 6];
-            $mapel = Mapel::all();
 
-            return view('admin.nilai.index', compact('nilai', 'tahun_pelajaran', 'kelas_x', 'kelas_xi', 'kelas_xii', 'filter', 'semester', 'mapel_filter', 'mapel'));
+            $kelas = Siswa::all()->unique('kelas')->values()->all();
+
+            return view('admin.nilai.index', compact('filter', 'nilai', 'tahun_pelajaran', 'mapel', 'semester', 'kelas'));
         } else {
-            $data_nilai = Nilai::all();
-            $data_siswa = Siswa::all();
-
-            if ($request->has('tahun_pelajaran') && $request->has('mapel') && $request->has('semester') && $request->has('kelas')) {
-                $kelas = explode(' ', $request->kelas);
-
-                $siswa_selected = Siswa::where('kelas', $kelas[0])->where('jurusan', $kelas[1])->get();
-
-                $nilai = [];
-                $mapel_filter = Mapel::find($request->mapel);
-
-                foreach ($siswa_selected as $data) {
-                    $nilai_filter =  Nilai::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->where('mapel_id', $request->mapel)->where('siswa_id', $data->id)->get();
-
-                    if (count($nilai_filter)) {
-                        array_push($nilai, $nilai_filter[0]);
-                    }
-                }
-            } else {
-                $nilai = [];
-                $mapel_filter = null;
-            }
-
             $filter = $request;
 
-            $tahun_pelajaran = $data_nilai->unique('tahun_pelajaran')->values()->all();
+            $nilai = [];
 
+            if ($filter->has('tahun_pelajaran') && $filter->has('mapel') && $filter->has('semester') && $filter->has('kelas')) {
+                $siswa = Siswa::where('kelas', $filter->kelas)->get();
 
-            $kelas_x = $data_siswa->where('kelas', 'X')->unique('jurusan')->values()->all();
-            $kelas_xi = $data_siswa->where('kelas', 'XI')->unique('jurusan')->values()->all();
-            $kelas_xii = $data_siswa->where('kelas', 'XII')->unique('jurusan')->values()->all();
+                if (count($siswa)) {
+                    foreach ($siswa as $data) {
+                        $nilai_selected =  Nilai::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('semester', $filter->semester)->where('mapel', $filter->mapel)->where('siswa_id', $data->id)->get();
+
+                        if (count($nilai_selected)) {
+                            array_push($nilai, $nilai_selected[0]);
+                        }
+                    }
+                }
+            }
+
+            $tahun_pelajaran = Nilai::all()->unique('tahun_pelajaran')->values()->all();
+
+            $mapel = auth()->user()->guru->mapel;
 
             $semester = [1, 2, 3, 4, 5, 6];
 
-            return view('admin.nilai.index', compact('nilai', 'tahun_pelajaran', 'kelas_x', 'kelas_xi', 'kelas_xii', 'filter', 'semester', 'mapel_filter'));
+            $kelas = Siswa::all()->unique('kelas')->values()->all();
+
+            return view('admin.nilai.index', compact('filter', 'nilai', 'tahun_pelajaran', 'mapel', 'semester', 'kelas'));
         }
     }
 

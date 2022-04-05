@@ -25,29 +25,16 @@ class NilaiImport implements ToModel, WithStartRow
     {
         $siswa = Siswa::where('nis', $row[2])->get();
 
-        if (auth()->user()->role == 'admin') {
-            $guru_id = Mapel::find($this->mapel_id)->guru_id;
+        $mapel = Mapel::find($this->mapel_id);
 
-            return new Nilai([
-                "tahun_pelajaran" => $row[0],
-                "semester" => $row[1],
-                "siswa_id" => $siswa[0]->id,
-                "nilai" => $row[3],
-                "keterangan" => $row[4],
-                "mapel_id" => $this->mapel_id,
-                "guru_id" => $guru_id
-            ]);
-        } else {
-            return new Nilai([
-                "tahun_pelajaran" => $row[0],
-                "semester" => $row[1],
-                "siswa_id" => $siswa[0]->id,
-                "nilai" => $row[3],
-                "keterangan" => $row[4],
-                "mapel_id" => $this->mapel_id,
-                "guru_id" => auth()->user()->guru->id
-            ]);
-        }
+        return new Nilai([
+            "tahun_pelajaran" => $row[0],
+            "semester" => $row[1],
+            "siswa_id" => $siswa[0]->id,
+            "nilai" => $row[4],
+            "keterangan" => $row[5],
+            "mapel" => $mapel->nama,
+        ]);
     }
 
     public function startRow(): int

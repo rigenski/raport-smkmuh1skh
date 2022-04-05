@@ -12,10 +12,10 @@
       </div>
       <div class="card-wrap">
         <div class="card-header">
-          <h4>Lorem Ipsum</h4>
+          <h4>Total Siswa</h4>
         </div>
         <div class="card-body">
-          123
+          {{ count($siswa) }}
         </div>
       </div>
     </div>
@@ -27,10 +27,10 @@
       </div>
       <div class="card-wrap">
         <div class="card-header">
-          <h4>Lorem Ipsum</h4>
+          <h4>Total Guru</h4>
         </div>
         <div class="card-body">
-          123
+          {{ count($guru) }}
         </div>
       </div>
     </div>
@@ -40,7 +40,7 @@
   <div class="col-12">
     <div class="card">
       <div class="card-header">
-        <h4>Lorem Ipsum</h4>
+        <h4>Data Lainya</h4>
       </div>
       <div class="card-body">
 
