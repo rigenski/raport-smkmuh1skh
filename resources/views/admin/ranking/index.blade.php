@@ -11,7 +11,7 @@
                 <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modalFilter">
                     Filter
                 </button>
-                @if($filter->all())
+                @if($filter->all() && count($siswa))
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
                     Print PDF
                 </button>
@@ -39,9 +39,13 @@
         </div>
     </div>
     <div class="card-body">
-        @if(!$filter->tipe)
+        @if(!$filter->tahun_pelajaran)
         <div class="alert alert-danger">
             * FILTER <b>DATA RANKING</b> TERLEBIH DAHULU
+        </div>
+        @elseif(!count($siswa))
+        <div class="alert alert-warning">
+            * DATA NILAI TIDAK ADA
         </div>
         @endif
         <div class="table-responsive">
@@ -49,6 +53,8 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Tahun Pelajaran</th>
+                        <th scope="col">Kelas</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
                         <th scope="col">Jumlah Nilai</th>
@@ -59,16 +65,18 @@
                     <?php $count = 1; ?>
                     @foreach($siswa as $data)
                     <?php $jmlh_nilai = 0; ?>
-                    @foreach($data->nilai as $nilai)
+                    @foreach($data->siswa->nilai as $nilai)
                     <?php $jmlh_nilai += $nilai->nilai ?>
                     @endforeach
-                    <?php $rata_nilai = $jmlh_nilai / count($data->nilai); ?>
+                    <?php $rata_nilai = $jmlh_nilai / count($data->siswa->nilai); ?>
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->nis }}</td>
-                        <td>{{ $data->nama }}</td>
+                        <td>{{ $data->tahun_pelajaran }}</td>
+                        <td>{{ $data->kelas }}</td>
+                        <td>{{ $data->siswa->nis }}</td>
+                        <td>{{ $data->siswa->nama }}</td>
                         <td>{{ $jmlh_nilai }}</td>
                         <td>{{ $rata_nilai }}</td>
                     </tr>
@@ -105,14 +113,40 @@
                             <option value="kelas">Per Kelas</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="tahun_pelajaran">Tahun Pelajaran</label>
+                        <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
+                            @if($filter->tahun_pelajaran)
+                            <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
+                            @foreach($tahun_pelajaran as $data)
+                            @if($data != $filter->tahun_pelajaran)
+                            <option value="{{ $data }}">{{ $data }}</option>
+                            @endif
+                            @endforeach
+                            @else
+                            @foreach($tahun_pelajaran as $data)
+                            <option value="{{ $data }}">{{ $data }}</option>
+                            @endforeach
+                            @endif
+                        </select>
+                    </div>
                     <div id="form-container-ranking">
                     </div>
                     <div class="form-group">
                         <label for="semester">Semester</label>
                         <select class="form-control" autocomplete="off" name="semester">
+                            @if($filter->semester)
+                            <option value="{{ $filter->semester }}">{{ $filter->semester }}</option>
+                            @foreach($semester as $data)
+                            @if($data != $filter->semester)
+                            <option value="{{ $data }}">{{ $data }}</option>
+                            @endif
+                            @endforeach
+                            @else
                             @foreach($semester as $data)
                             <option value="{{ $data }}">{{ $data }}</option>
                             @endforeach
+                            @endif
                         </select>
                     </div>
             </div>
@@ -139,20 +173,18 @@
                         }}</span></h5>
                 </span></h5>
                 @elseif($filter->tipe == 'angkatan-jurusan')
-                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Angkatan / Jurusan <span
-                        class="text-primary">
-                        {{
-                        $filter->angkatan ? strtoupper($filter->angkatan) : '' }} / {{
-                        $filter->jurusan ? $filter->jurusan : '' }} - {{ $filter->semester ? 'Semester ' .
-                        $filter->semester
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Angkatan <span class="text-primary">
+                        {{ $filter->angkatan ? $filter->angkatan : '' }}</span> - Jurusan <span class="text-primary">{{
+                        $filter->jurusan ? $filter->jurusan : '' }}</span> - Semester <span class="text-primary">{{
+                        $filter->semester ? $filter->semester
                         : ''
                         }}</span></h5>
                 </span></h5>
                 @elseif($filter->tipe == 'kelas')
                 <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
-                        $filter->kelas ? $filter->kelas : '' }} - {{ $filter->semester ? 'Semester ' . $filter->semester
-                        : ''
-                        }}</span></h5>
+                        $filter->kelas ? $filter->kelas : '' }} </span> - Semester <span class="text-primary">{{
+                        $filter->semester ? $filter->semester : '' }}</span>
+                </h5>
                 </span></h5>
                 @endif
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -173,52 +205,96 @@
 
 @section('script')
 <script>
-    const kelas = <?= $kelas ?>;
-    const jurusan = <?= $jurusan ?>;
+    const data_nilai = @json($nilai);
 
     const elTipeRanking = document.getElementById('tipe-ranking');
+    const elTahunPelajaran = document.getElementById('tahun_pelajaran');
     const elFormContainer = document.getElementById('form-container-ranking');
 
-    const changeForm = () => {
-        if(elTipeRanking.value == 'angkatan') {
-            elFormContainer.innerHTML = 
-            `<div class="form-group">
-                <label for="angkatan">Angkatan</label>
-                <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
-                    <option value="x">X</option>
-                    <option value="xi">XI</option>
-                    <option value="xii">XII</option>
-                </select>
-            </div>`;
-        } else if(elTipeRanking.value == 'angkatan-jurusan') {
+    const changeJurusan = () => {
+            const elAngkatan = document.getElementById('angkatan');
+
+            const data_jurusan = data_nilai;
+            const tahun_pelajaran = elTahunPelajaran.value;
+            const angkatan = elAngkatan.value;
+
+            const selected = (data) => {
+                return data.tahun_pelajaran == tahun_pelajaran;
+            }
+
+            const data_angkatan_filter = data_jurusan.filter(selected);
+
+            const angkatan_selected = []; 
+
+            data_angkatan_filter.map((data) => {
+                if(data.angkatan == angkatan) {
+                    angkatan_selected.push(data.jurusan);
+                }
+            })
+
+            const delete_duplicate = (value, index, self) => {
+                return self.indexOf(value) === index;
+            }
+
+            const data_jurusan_filter = angkatan_selected.filter(delete_duplicate);
+
             let jurusan_option = '';
 
-            jurusan.map((x, i) => {
-                jurusan_option += `<option value="${x.jurusan}">${x.jurusan}</option>`;
+            data_jurusan_filter.map((data, i) => {
+                jurusan_option += `<option value="${data}">${data}</option>`;
             })
 
             elFormContainer.innerHTML = 
-            `<div class="form-group">
-                <label for="angkatan">Angkatan</label>
-                <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
-                    <option value="x">X</option>
-                    <option value="xi">XI</option>
-                    <option value="xii">XII</option>
-                </select>
-            </div>
+            `
+            <div class="form-group">
+                            <label for="angkatan">Angkatan</label>
+                            <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
+                                <option value="X">X</option>
+                                <option value="XI">XI</option>
+                                <option value="XII">XII</option>
+                            </select>
+                        </div>
             <div class="form-group">
                 <label for="jurusan">Jurusan</label>
                 <select class="form-control" autocomplete="off" id="jurusan" name="jurusan">
                     ${jurusan_option}
                 </select>
             </div>`;
-        } else if(elTipeRanking.value == 'kelas') {
+
+            elAngkatan.addEventListener('change', () => {
+              changeJurusan();
+            })
+
+    }
+
+    const changeKelas = () => {
+        const data_kelas = data_nilai;
+        const tahun_pelajaran = elTahunPelajaran.value;
+
+        const selected = (data) => {
+            return data.tahun_pelajaran == tahun_pelajaran;
+        }
+
+            const data_kelas_filter = data_kelas.filter(selected);
+
+            const kelas_selected = []; 
+
+            data_kelas_filter.map((data) => {
+                    kelas_selected.push(data.kelas);
+            })
+
+            const delete_duplicate = (value, index, self) => {
+                return self.indexOf(value) === index;
+            }
+
+            const data_kelas_filter2 = kelas_selected.filter(delete_duplicate);
+
             let kelas_option = '';
 
-            kelas.map((x, i) => {
-                kelas_option += `<option value="${x.kelas}">${x.kelas}</option>`;
+            data_kelas_filter2.map((data, i) => {
+                kelas_option += `<option value="${data}">${data}</option>`;
             })
-            
+
             elFormContainer.innerHTML = 
             `<div class="form-group">
                 <label for="kelas">Kelas</label>
@@ -226,11 +302,41 @@
                     ${kelas_option}
                 </select>
             </div>`;
+    }
+
+    const changeAngkatan = () => {
+        elFormContainer.innerHTML = `<div class="form-group">
+                            <label for="angkatan">Angkatan</label>
+                            <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
+                                <option value="X">X</option>
+                                <option value="XI">XI</option>
+                                <option value="XII">XII</option>
+                            </select>
+                        </div>`;
+    }
+
+    const changeForm = () => {
+        if(elTipeRanking.value == 'angkatan') {
+            changeAngkatan();
+        } else if(elTipeRanking.value == 'angkatan-jurusan') {
+            changeJurusan();
+        } else if(elTipeRanking.value == 'kelas') {
+            changeKelas()
         }
     }
 
     elTipeRanking.addEventListener('change', () => {
         changeForm();
+    })
+
+    elTahunPelajaran.addEventListener('change', () => {
+        if(elTipeRanking.value == 'angkatan') {
+
+        } else if (elTipeRanking.value == 'angkatan-jurusan') {
+            changeJurusan();
+        } else if(elTipeRanking.value == 'kelas') {
+            changeKelas();
+        }
     })
 
     window.onload = () => {

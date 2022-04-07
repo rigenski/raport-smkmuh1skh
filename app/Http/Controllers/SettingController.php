@@ -22,8 +22,9 @@ class SettingController extends Controller
             $setting = [];
         }
 
+        $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
 
-        return view('admin.setting.index', compact('setting', 'is_setting'));
+        return view('admin.setting.index', compact('setting', 'is_setting', 'tahun_pelajaran'));
     }
 
     public function update(Request $request)
@@ -38,6 +39,7 @@ class SettingController extends Controller
                 'kepala_sekolah' => $request->nama_kepala_sekolah,
                 'alamat' => $request->alamat,
                 'npsn' => $request->npsn,
+                'tahun_pelajaran' => $request->tahun_pelajaran,
             ]);
 
             if ($request->hasFile('logo')) {
@@ -53,6 +55,7 @@ class SettingController extends Controller
                 'kepala_sekolah' => $request->nama_kepala_sekolah,
                 'alamat' => $request->alamat,
                 'npsn' => $request->npsn,
+                'tahun_pelajaran' => $request->tahun_pelajaran,
             ]);
 
             if ($request->hasFile('logo')) {
@@ -63,9 +66,6 @@ class SettingController extends Controller
                 $setting->save();
             }
         }
-
-
-
 
         return redirect()->back()->with('success', 'Data setting sekolah berhasil diperbarui');
     }

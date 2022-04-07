@@ -15,8 +15,9 @@ class CreateRiwayatTable extends Migration
     {
         Schema::create('riwayat', function (Blueprint $table) {
             $table->id();
-            $table->string('kelas');
+            $table->string('tahun_pelajaran');
             $table->string('semester');
+            $table->string('kelas');
             $table->timestamps();
         });
     }

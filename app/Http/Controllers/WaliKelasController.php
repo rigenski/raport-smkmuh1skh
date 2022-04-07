@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\WaliKelasFormatExport;
 use App\Models\Guru;
+use App\Models\Setting;
 use App\Models\WaliKelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -11,12 +12,23 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class WaliKelasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $wali_kelas = WaliKelas::all();
+        $filter = $request;
+
+        $setting = Setting::all()[0];
+
+        if ($request->has('tahun_pelajaran')) {
+            $wali_kelas = WaliKelas::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+        } else {
+            $wali_kelas = WaliKelas::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+        }
+
         $guru = Guru::all();
 
-        return view('admin.wali-kelas.index', compact('wali_kelas', 'guru'));
+        $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
+
+        return view('admin.wali-kelas.index', compact('filter', 'setting', 'wali_kelas', 'guru', 'tahun_pelajaran'));
     }
 
     public function update(Request $request, $id)
@@ -62,13 +74,6 @@ class WaliKelasController extends Controller
         }
 
         return redirect()->back()->with('success', 'Data wali kelas berhasil diimport');
-    }
-
-    public function reset()
-    {
-        WaliKelas::truncate();
-
-        return redirect()->back()->with('success', 'Data wali kelas berhasil direset');
     }
 
     public function export_format()

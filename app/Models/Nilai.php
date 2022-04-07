@@ -12,18 +12,13 @@ class Nilai extends Model
     protected $table = 'nilai';
     protected $guarded = [];
 
-    public function mapel()
+    public function mata_pelajaran()
     {
-        return $this->belongsTo(Mapel::class);
+        return $this->belongsTo(MataPelajaran::class);
     }
 
     public function siswa()
     {
         return $this->belongsTo(Siswa::class);
-    }
-
-    public function guru()
-    {
-        return $this->belongsTo(Guru::class);
     }
 }

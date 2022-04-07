@@ -1,7 +1,8 @@
 <table>
   <thead>
     <tr>
-      <th><b>MAPEL</b></th>
+      <th><b>TAHUN PELAJARAN</b></th>
+      <th><b>MATA PELAJARAN</b></th>
       <th><b>KELAS</b></th>
       <th><b>KODE GURU</b></th>
     </tr>

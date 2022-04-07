@@ -68,22 +68,22 @@
                 <span>Guru</span>
               </a>
             </li>
-            <li class="@yield('nav__item-wali__kelas')">
-              <a class="nav-link" href="{{ route('admin.wali_kelas') }}">
-                <i class="fas fa-users"></i>
-                <span>Wali Kelas</span>
-              </a>
-            </li>
             <li class="@yield('nav__item-siswa')">
               <a class="nav-link" href="{{ route('admin.siswa') }}">
                 <i class="fas fa-users"></i>
                 <span>Siswa</span>
               </a>
             </li>
-            <li class="@yield('nav__item-mapel')">
-              <a class="nav-link" href="{{ route('admin.mapel') }}">
+            <li class="@yield('nav__item-wali__kelas')">
+              <a class="nav-link" href="{{ route('admin.wali_kelas') }}">
+                <i class="fas fa-users"></i>
+                <span>Wali Kelas</span>
+              </a>
+            </li>
+            <li class="@yield('nav__item-mata_pelajaran')">
+              <a class="nav-link" href="{{ route('admin.mata_pelajaran') }}">
                 <i class="fas fa-book"></i>
-                <span>Mapel</span>
+                <span>Mata Pelajaran</span>
               </a>
             </li>
             <li class="menu-header">OTHER</li>
@@ -155,7 +155,10 @@
       <div class="main-content">
         <section class="section">
           <div class="section-header">
-            <h1>@yield('title')</h1>
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <h1 class="m-0">@yield('title')</h1>
+              <h5 class="m-0 text-primary">2021 / 2022</h5>
+            </div>
           </div>
           <div class="section-body">
             @yield('content')

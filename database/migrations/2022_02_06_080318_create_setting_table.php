@@ -15,6 +15,7 @@ class CreateSettingTable extends Migration
     {
         Schema::create('setting', function (Blueprint $table) {
             $table->id();
+            $table->string('tahun_pelajaran')->nullable();
             $table->string('sekolah')->nullable();
             $table->string('kepala_sekolah')->nullable();
             $table->string('alamat')->nullable();

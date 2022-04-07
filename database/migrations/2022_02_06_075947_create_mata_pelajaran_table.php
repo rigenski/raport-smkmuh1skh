@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMapelTable extends Migration
+class CreateMataPelajaranTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class CreateMapelTable extends Migration
      */
     public function up()
     {
-        Schema::create('mapel', function (Blueprint $table) {
+        Schema::create('mata_pelajaran', function (Blueprint $table) {
             $table->id();
+            $table->string('tahun_pelajaran');
             $table->string('nama');
             $table->string('kelas');
             $table->foreignId('guru_id')->constrained('guru');
@@ -29,6 +30,6 @@ class CreateMapelTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mapel');
+        Schema::dropIfExists('mata_pelajaran');
     }
 }

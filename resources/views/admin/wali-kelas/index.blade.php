@@ -8,11 +8,11 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalFilter">
+                    Filter
+                </button>
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
                     Import Excel
-                </button>
-                <button type="button" class="btn btn-danger ml-2" data-toggle="modal" data-target="#modalReset">
-                    Reset Data
                 </button>
             </div>
         </div>
@@ -38,6 +38,7 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Tahun Pelajaran</th>
                         <th scope="col">Kelas</th>
                         <th scope="col">Guru</th>
                         <th scope="col">Aksi</th>
@@ -50,6 +51,7 @@
                         <td>
                             <?= $count ?>
                         </td>
+                        <td>{{ $data->tahun_pelajaran }}</td>
                         <td>{{ $data->kelas }}</td>
                         <td>{{ $data->guru->nama }}</td>
                         <td>
@@ -72,6 +74,44 @@
 @endsection
 
 @section('modal')
+
+<!-- Modal Filter -->
+<div class="modal fade" id="modalFilter" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('admin.wali_kelas') }}" method="get" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Filter Data Wali Kelas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="tahun_pelajaran">Tahun Pelajaran</label>
+                    <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
+                        @if($filter->has('tahun_pelajaran'))
+                        <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
+                        @foreach($tahun_pelajaran as $data)
+                        @if($filter->tahun_pelajaran !== $data)
+                        <option value="{{ $data }}">{{ $data }}</option>
+                        @endif
+                        @endforeach
+                        @else
+                        @foreach($tahun_pelajaran as $data)
+                        <option value="{{ $data }}">{{ $data }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <!-- Modal Import -->
 <div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -102,26 +142,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Reset -->
-<div class="modal fade" id="modalReset" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Reset Semua Data Wali Kelas ?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-footer">
-                <form action="{{ route('admin.wali_kelas.reset') }}" method="get">
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
-                    <button type="submit" class="btn btn-danger">Reset</button>
                 </form>
             </div>
         </div>

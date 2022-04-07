@@ -3,7 +3,6 @@
     <tr>
       <th><b>NIS</b></th>
       <th><b>NAMA</b></th>
-      <th><b>KELAS</b></th>
       <th><b>JURUSAN</b></th>
     </tr>
   </thead>

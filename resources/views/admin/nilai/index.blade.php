@@ -36,7 +36,7 @@
         <div class="alert alert-danger">
             * FILTER <b>DATA NILAI</b> TERLEBIH DAHULU
         </div>
-        @elseif(!count($nilai))
+        @elseif(!count($siswa))
         <div class="alert alert-warning">
             * DATA NILAI TIDAK ADA
         </div>
@@ -46,6 +46,9 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Tahun Pelajaran</th>
+                        <th scope="col">Mata Pelajaran</th>
+                        <th scope="col">Kelas</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
                         <th scope="col">Nilai</th>
@@ -55,11 +58,14 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($nilai as $data)
+                    @foreach($siswa as $data)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
+                        <td>{{ $data->tahun_pelajaran }}</td>
+                        <td>{{ $data->mata_pelajaran }}</td>
+                        <td>{{ $data->kelas }}</td>
                         <td>{{ $data->siswa->nis }}</td>
                         <td>{{ $data->siswa->nama }}</td>
                         <td>{{ $data->nilai }}</td>
@@ -68,15 +74,15 @@
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
                                 onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
-                                class="btn btn-warning">Ubah</a>
+                                class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
-                                class="btn btn-danger ml-2">Hapus</a>
+                                class="btn btn-danger m-1">Hapus</a>
                         </td>
                         @else
                         <td>
-                            <button class="btn btn-warning" disabled>Edit</button>
-                            <button class="btn btn-danger ml-2" disabled>Hapus</button>
+                            <button class="btn btn-warning m-1" disabled>Edit</button>
+                            <button class="btn btn-danger m-1" disabled>Hapus</button>
                         </td>
                         @endif
                     </tr>
@@ -107,36 +113,37 @@
                 <form action="{{ route('admin.nilai') }}" method="get">
                     <div class="form-group">
                         <label for="tahun_pelajaran">Tahun Pelajaran</label>
-                        <select class="form-control" autocomplete="off" name="tahun_pelajaran">
+                        <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                             @if($filter->tahun_pelajaran)
                             <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
                             @foreach($tahun_pelajaran as $data)
-                            @if($data->tahun_pelajaran != $filter->tahun_pelajaran)
-                            <option value="{{ $data->tahun_pelajaran }}">{{ $data->tahun_pelajaran }}</option>
+                            @if($data != $filter->tahun_pelajaran)
+                            <option value="{{ $data }}">{{ $data }}</option>
                             @endif
                             @endforeach
                             @else
                             @foreach($tahun_pelajaran as $data)
-                            <option value="{{ $data->tahun_pelajaran }}">{{ $data->tahun_pelajaran }}</option>
+                            <option value="{{ $data }}">{{ $data }}</option>
                             @endforeach
                             @endif
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="mapel">Mata Pelajaran</label>
-                        <select class="form-control" autocomplete="off" name="mapel">
-                            @if($filter->mapel)
-                            <option value="{{ $filter->mapel }}">{{ $filter->mapel }}
+                        <label for="mata_pelajaran">Mata Pelajaran</label>
+                        <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
+                            @if($filter->mata_pelajaran)
+                            <option value="{{ $filter->mata_pelajaran }}">{{ $filter->mata_pelajaran }}
                             </option>
-                            @foreach($mapel as $data)
-                            @if($filter->mapel != $data->nama )
-                            <option value="{{ $data->nama }}">{{ $data->nama }}</option>
                             @endif
-                            @endforeach
-                            @else
-                            @foreach($mapel as $data)
-                            <option value="{{ $data->nama }}">{{ $data->nama }}</option>
-                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kelas">Kelas</label>
+                        <select class="form-control" autocomplete="off" id="kelas" name="kelas">
+                            @if($filter->kelas)
+                            <option value="{{ $filter->kelas }}">{{
+                                $filter->kelas
+                                }}</option>
                             @endif
                         </select>
                     </div>
@@ -153,25 +160,6 @@
                             @else
                             @foreach($semester as $data)
                             <option value="{{ $data }}">{{ $data }}</option>
-                            @endforeach
-                            @endif
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="kelas">Kelas</label>
-                        <select class="form-control" autocomplete="off" name="kelas">
-                            @if($filter->kelas)
-                            <option value="{{ $filter->kelas }}">{{
-                                $filter->kelas
-                                }}</option>
-                            @foreach($kelas as $data)
-                            @if($filter->kelas != $data->kelas )
-                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
-                            @endif
-                            @endforeach
-                            @else
-                            @foreach($kelas as $data)
-                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
                             @endforeach
                             @endif
                         </select>
@@ -251,8 +239,90 @@
 </div>
 @endsection
 
+@section('script')
+<script>
+    const data_mata_pelajaran = @json($mata_pelajaran);
+    const data_nilai = @json($nilai);
+
+    const elTahunPelajaran = document.getElementById('tahun_pelajaran');
+    const elMataPelajaran = document.getElementById('mata_pelajaran');
+    const elKelas = document.getElementById('kelas');
+
+    const changeKelas = () => {
+        const tahun_pelajaran = elTahunPelajaran.value;
+
+        const selected = (data) => {
+            return data.tahun_pelajaran == tahun_pelajaran;
+        }
+
+        const data_kelas_filter = data_nilai.filter(selected);
+
+        const kelas_selected = []; 
+
+        data_kelas_filter.map((data) => {
+            kelas_selected.push(data.kelas);
+        })
+
+        const delete_duplicate = (value, index, self) => {
+            return self.indexOf(value) === index;
+        }
+
+        const data_kelas_filter2 = kelas_selected.filter(delete_duplicate);
+
+        elKelas.innerHTML = '';
+
+        data_kelas_filter2.map((data) => {
+            elKelas.innerHTML += `<option value="${data}">${data}</option>`;
+        })
+    }
+
+    const changeMataPelajaran = () => {
+        const tahun_pelajaran = elTahunPelajaran.value;
+
+        const selected = (data) => {
+            return data.tahun_pelajaran == tahun_pelajaran;
+        }
+
+        const data_mata_pelajaran_filter = data_mata_pelajaran.filter(selected);
+
+        const mata_pelajaran_selected = []; 
+
+        data_mata_pelajaran_filter.map((data) => {
+            mata_pelajaran_selected.push(data.nama);
+        })
+
+        const delete_duplicate = (value, index, self) => {
+            return self.indexOf(value) === index;
+        }
+
+        const data_mata_pelajaran_filter2 = mata_pelajaran_selected.filter(delete_duplicate);
+
+        elMataPelajaran.innerHTML = '';
+
+        data_mata_pelajaran_filter2.map((data) => {
+            elMataPelajaran.innerHTML += `<option value="${data}">${data}</option>`;
+        })
+    }
+
+    elTahunPelajaran.addEventListener('change', () => {
+        changeMataPelajaran();
+        changeKelas();
+    })
+    
+    window.onload = () => {
+        changeMataPelajaran();
+        changeKelas();
+    }
+
+</script>
+@endsection
+
 @else
 
+{{-- ================== SECTION OTHER ROLE ============= --}}
+{{-- ================== SECTION OTHER ROLE ============= --}}
+{{-- ================== SECTION OTHER ROLE ============= --}}
+{{-- ================== SECTION OTHER ROLE ============= --}}
 {{-- ================== SECTION OTHER ROLE ============= --}}
 {{-- ================== SECTION OTHER ROLE ============= --}}
 {{-- ================== SECTION OTHER ROLE ============= --}}
@@ -291,7 +361,7 @@
         <div class="alert alert-danger">
             * FILTER DATA NILAI TERLEBIH DAHULU
         </div>
-        @elseif(!count($nilai))
+        @elseif(!count($siswa))
         <div class="alert alert-warning">
             * DATA NILAI TIDAK ADA
         </div>
@@ -301,6 +371,9 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
+                        <th scope="col">Tahun Pelajaran</th>
+                        <th scope="col">Mata Pelajaran</th>
+                        <th scope="col">Kelas</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
                         <th scope="col">Nilai</th>
@@ -310,11 +383,14 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($nilai as $data)
+                    @foreach($siswa as $data)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
+                        <td>{{ $data->tahun_pelajaran }}</td>
+                        <td>{{ $data->mata_pelajaran }}</td>
+                        <td>{{ $data->kelas }}</td>
                         <td>{{ $data->siswa->nis }}</td>
                         <td>{{ $data->siswa->nama }}</td>
                         <td>{{ $data->nilai }}</td>
@@ -323,15 +399,15 @@
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
                                 onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
-                                class="btn btn-warning">Ubah</a>
+                                class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
-                                class="btn btn-danger ml-2">Hapus</a>
+                                class="btn btn-danger m-1">Hapus</a>
                         </td>
                         @else
                         <td>
-                            <button class="btn btn-warning" disabled>Ubah</button>
-                            <button class="btn btn-danger ml-2" disabled>Hapus</button>
+                            <button class="btn btn-warning m-1" disabled>Ubah</button>
+                            <button class="btn btn-danger m-1" disabled>Hapus</button>
                         </td>
                         @endif
                     </tr>
@@ -361,14 +437,6 @@
             <div class="modal-body">
                 <form action="{{ route('admin.nilai.import') }}" method="post" enctype="multipart/form-data">
                     @csrf
-                    <div class="form-group">
-                        <label for="mapel">Kelas - Mata Pelajaran <span class="text-danger">*</span></label>
-                        <select class="form-control" required id="mapel" name="mapel">
-                            @foreach($mapel as $data)
-                            <option value="{{ $data->id }}">{{ $data->kelas }} - {{ $data->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label for="nama">File</label>
                         <input type="file" class="form-control" required id="excel" name="data_nilai"
@@ -405,43 +473,44 @@
                 <form action="{{ route('admin.nilai') }}" method="get">
                     <div class="form-group">
                         <label for="tahun_pelajaran">Tahun Pelajaran</label>
-                        <select class="form-control" autocomplete="off" name="tahun_pelajaran">
+                        <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                             @if($filter->tahun_pelajaran)
                             <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
                             @foreach($tahun_pelajaran as $data)
-                            @if($data->tahun_pelajaran != $filter->tahun_pelajaran)
-                            <option value="{{ $data->tahun_pelajaran }}">{{ $data->tahun_pelajaran }}</option>
+                            @if($data != $filter->tahun_pelajaran)
+                            <option value="{{ $data }}">{{ $data }}</option>
                             @endif
                             @endforeach
                             @else
                             @foreach($tahun_pelajaran as $data)
-                            <option value="{{ $data->tahun_pelajaran }}">{{ $data->tahun_pelajaran }}</option>
+                            <option value="{{ $data }}">{{ $data }}</option>
                             @endforeach
                             @endif
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="mapel">Mata Pelajaran</label>
-                        <select class="form-control" autocomplete="off" name="mapel">
-                            @if($filter->mapel)
-                            <option value="{{ $filter->mapel }}">{{
-                                $filter->mapel
+                        <label for="mata_pelajaran">Mata Pelajaran</label>
+                        <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
+                            @if($filter->mata_pelajaran)
+                            <option value="{{ $filter->mata_pelajaran }}">{{
+                                $filter->mata_pelajaran
                                 }}</option>
-                            @foreach($mapel as $data)
-                            @if($filter->mapel != $data->nama )
-                            <option value="{{ $data->nama }}">{{$data->nama }}</option>
                             @endif
-                            @endforeach
-                            @else
-                            @foreach($mapel as $data)
-                            <option value="{{ $data->nama }}">{{$data->nama }}</option>
-                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kelas">Kelas</label>
+                        <select class="form-control" autocomplete="off" id="kelas" name="kelas">
+                            @if($filter->kelas)
+                            <option value="{{ $filter->kelas }}">{{
+                                $filter->kelas
+                                }}</option>
                             @endif
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="semester">Semester</label>
-                        <select class="form-control" autocomplete="off" name="semester">
+                        <select class="form-control" autocomplete="off" id="semester" name="semester">
                             @if($filter->semester)
                             <option value="{{ $filter->semester }}">{{ $filter->semester }}</option>
                             @foreach($semester as $data)
@@ -452,25 +521,6 @@
                             @else
                             @foreach($semester as $data)
                             <option value="{{ $data }}">{{ $data }}</option>
-                            @endforeach
-                            @endif
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="kelas">Kelas</label>
-                        <select class="form-control" autocomplete="off" name="kelas">
-                            @if($filter->kelas)
-                            <option value="{{ $filter->kelas }}">{{
-                                $filter->kelas
-                                }}</option>
-                            @foreach($mapel as $data)
-                            @if($filter->kelas != $data->kelas )
-                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
-                            @endif
-                            @endforeach
-                            @else
-                            @foreach($mapel as $data)
-                            <option value="{{ $data->kelas }}">{{$data->kelas }}</option>
                             @endforeach
                             @endif
                         </select>
@@ -548,6 +598,84 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+    const data_mata_pelajaran = @json($mata_pelajaran); 
+    const data_nilai = @json($mata_pelajaran); 
+
+    const elTahunPelajaran = document.getElementById('tahun_pelajaran');
+    const elMataPelajaran = document.getElementById('mata_pelajaran');      
+    const elKelas = document.getElementById('kelas');
+
+    const changeKelas = () => {
+        const tahun_pelajaran = elTahunPelajaran.value;
+
+        const selected = (data) => {
+            return data.tahun_pelajaran == tahun_pelajaran;
+        }
+
+        const data_kelas_filter = data_nilai.filter(selected);
+
+        const kelas_selected = []; 
+
+        data_kelas_filter.map((data) => {
+            kelas_selected.push(data.kelas);
+        })
+
+        const delete_duplicate = (value, index, self) => {
+            return self.indexOf(value) === index;
+        }
+
+        const data_kelas_filter2 = kelas_selected.filter(delete_duplicate);
+
+        elKelas.innerHTML = '';
+
+        data_kelas_filter2.map((data) => {
+            elKelas.innerHTML += `<option value="${data}">${data}</option>`;
+        })
+    }
+
+    const changeMataPelajaran = () => {
+        const tahun_pelajaran = elTahunPelajaran.value;
+
+        const selected = (data) => {
+            return data.tahun_pelajaran == tahun_pelajaran;
+        }
+
+        const data_mata_pelajaran_filter = data_mata_pelajaran.filter(selected);
+
+        const mata_pelajaran_selected = []; 
+
+        data_mata_pelajaran_filter.map((data) => {
+            mata_pelajaran_selected.push(data.nama);
+        })
+
+        const delete_duplicate = (value, index, self) => {
+            return self.indexOf(value) === index;
+        }
+
+        const data_mata_pelajaran_filter2 = mata_pelajaran_selected.filter(delete_duplicate);
+
+        elMataPelajaran.innerHTML = '';
+
+        data_mata_pelajaran_filter2.map((data) => {
+            elMataPelajaran.innerHTML += `<option value="${data}">${data}</option>`;
+        })
+    }
+
+    elTahunPelajaran.addEventListener('change', () => {
+        changeMataPelajaran();
+        changeKelas();
+    })
+    
+    window.onload = () => {
+        changeMataPelajaran();
+        changeKelas();
+    }
+
+</script>
 @endsection
 
 @endif

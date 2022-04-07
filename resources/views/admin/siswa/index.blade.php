@@ -37,7 +37,6 @@
                         <th scope="col">No</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
-                        <th scope="col">Kelas</th>
                         <th scope="col">Jurusan</th>
                         <th scope="col">Aksi</th>
                     </tr>
@@ -51,11 +50,10 @@
                         </td>
                         <td>{{ $data->nis }}</td>
                         <td>{{ $data->nama }}</td>
-                        <td>{{ $data->kelas }}</td>
                         <td>{{ $data->jurusan }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'siswa/{{$data->id}}/update'); $('#modalEdit #formEdit #tahun_pelajaran').attr('value', '{{$data->tahun_pelajaran}}'); $('#modalEdit #formEdit #nis').attr('value', '{{$data->nis}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}'); $('#modalEdit #formEdit #semester').attr('value', '{{$data->semester}}'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #jurusan').attr('value', '{{$data->jurusan}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'siswa/{{$data->id}}/update'); $('#modalEdit #formEdit #tahun_pelajaran').attr('value', '{{$data->tahun_pelajaran}}'); $('#modalEdit #formEdit #nis').attr('value', '{{$data->nis}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}'); $('#modalEdit #formEdit #semester').attr('value', '{{$data->semester}}'); $('#modalEdit #formEdit #jurusan').attr('value', '{{$data->jurusan}}');"
                                 class="btn btn-warning">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'siswa/{{$data->id}}/destroy')"
@@ -138,16 +136,6 @@
                         <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
                             name="nama" value="">
                         @error('nama')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
-                    </div>
-                    <div class="form-group">
-                        <label for="kelas">kelas <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('kelas') is-invalid @enderror" id="kelas"
-                            name="kelas" value="">
-                        @error('kelas')
                         <div class="invalid-feedback">
                             {{ $message}}
                         </div>

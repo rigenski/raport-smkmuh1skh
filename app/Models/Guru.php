@@ -22,9 +22,9 @@ class Guru extends Model
         return $this->hasOne(WaliKelas::class);
     }
 
-    public function mapel()
+    public function mata_pelajaran()
     {
-        return $this->hasMany(Mapel::class);
+        return $this->hasMany(MataPelajaran::class);
     }
 
     public function nilai()

@@ -3,11 +3,11 @@
 namespace App\Imports;
 
 use App\Models\Guru;
-use App\Models\Mapel;
+use App\Models\MataPelajaran;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class MapelImport implements ToModel, WithStartRow
+class MataPelajaranImport implements ToModel, WithStartRow
 {
     /**
      * @param array $row
@@ -16,11 +16,12 @@ class MapelImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $guru = Guru::where('kode_guru', $row[2])->get();
+        $guru = Guru::where('kode_guru', $row[3])->get();
 
-        return new Mapel([
-            "nama" => $row[0],
-            "kelas" => $row[1],
+        return new MataPelajaran([
+            "tahun_pelajaran" => $row[0],
+            "nama" => $row[1],
+            "kelas" => $row[2],
             "guru_id" => $guru[0]->id,
         ]);
     }

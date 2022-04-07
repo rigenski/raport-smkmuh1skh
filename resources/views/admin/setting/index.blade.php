@@ -32,30 +32,52 @@
             @csrf
             @if($is_setting)
             <div class="form-group row">
-                <label for="nama_sekolah" class="col-sm-3 col-form-label">Nama Sekolah</label>
+                <label for="nama_sekolah" class="col-sm-3 col-form-label">Nama Sekolah <span
+                        class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="nama_sekolah" name="nama_sekolah"
-                        value="{{ $setting->sekolah }}">
+                    <input type="text" class="form-control" id="nama_sekolah" name="nama_sekolah"
+                        value="{{ $setting->sekolah }}" required>
                 </div>
             </div>
             <div class=" form-group row">
-                <label for="nama_kepala_sekolah" class="col-sm-3 col-form-label">Nama Kepala Sekolah</label>
+                <label for="nama_kepala_sekolah" class="col-sm-3 col-form-label">Nama Kepala Sekolah <span
+                        class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="nama_kepala_sekolah" name="nama_kepala_sekolah"
-                        value="{{ $setting->kepala_sekolah }}">
+                    <input type="text" class="form-control" id="nama_kepala_sekolah" name="nama_kepala_sekolah"
+                        value="{{ $setting->kepala_sekolah }}" required>
                 </div>
             </div>
             <div class=" form-group row">
-                <label for="alamat" class="col-sm-3 col-form-label">Alamat</label>
+                <label for="alamat" class="col-sm-3 col-form-label">Alamat <span class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="alamat" name="alamat" value="{{ $setting->alamat }}
-                    ">
+                    <input type="text" class="form-control" id="alamat" name="alamat" value="{{ $setting->alamat }}
+                    " required>
                 </div>
             </div>
             <div class="form-group row">
-                <label for="npsn" class="col-sm-3 col-form-label">NPSN</label>
+                <label for="npsn" class="col-sm-3 col-form-label">NPSN <span class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="npsn" name="npsn" value="{{ $setting->npsn }}">
+                    <input type="text" class="form-control" id="npsn" name="npsn" value="{{ $setting->npsn }}" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="tahun_pelajaran" class="col-sm-3 col-form-label">Tahun Pelajaran <span
+                        class="text-danger">*</span></label>
+                <div class="col-sm-9">
+                    <select class="form-control" id="tahun_pelajaran" name="tahun_pelajaran" required>
+                        @if($setting->tahun_pelajaran)
+                        <option value="{{ $setting->tahun_pelajaran }}">{{ $setting->tahun_pelajaran }}</option>
+                        @foreach($tahun_pelajaran as $data)
+                        @if($setting->tahun_pelajaran !== $data)
+                        <option value="{{ $data }}">{{ $data }}</option>
+                        @endif
+                        @endforeach
+                        @else
+                        @foreach($tahun_pelajaran as $data)
+                        <option value="{{ $data }}">{{ $data }}</option>
+                        @endforeach
+                        @endif
+                    </select>
                 </div>
             </div>
             <div class="form-group row">
@@ -75,32 +97,45 @@
             </div>
             @else
             <div class="form-group row">
-                <label for="nama_sekolah" class="col-sm-3 col-form-label">Nama Sekolah</label>
+                <label for="nama_sekolah" class="col-sm-3 col-form-label">Nama Sekolah <span
+                        class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="nama_sekolah" name="nama_sekolah">
+                    <input type="text" class="form-control" id="nama_sekolah" name="nama_sekolah" required>
                 </div>
             </div>
             <div class="form-group row">
-                <label for="nama_kepala_sekolah" class="col-sm-3 col-form-label">Nama Kepala Sekolah</label>
+                <label for="nama_kepala_sekolah" class="col-sm-3 col-form-label">Nama Kepala Sekolah <span
+                        class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="nama_kepala_sekolah"
-                        name="nama_kepala_sekolah">
+                    <input type="text" class="form-control" id="nama_kepala_sekolah" name="nama_kepala_sekolah"
+                        required>
                 </div>
             </div>
             <div class="form-group row">
-                <label for="alamat" class="col-sm-3 col-form-label">Alamat</label>
+                <label for="alamat" class="col-sm-3 col-form-label">Alamat <span class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="alamat" name="alamat">
+                    <input type="text" class="form-control" id="alamat" name="alamat" required>
                 </div>
             </div>
             <div class="form-group row">
-                <label for="npsn" class="col-sm-3 col-form-label">NPSN</label>
+                <label for="npsn" class="col-sm-3 col-form-label">NPSN <span class="text-danger">*</span></label>
                 <div class="col-sm-9">
-                    <input type="text" required class="form-control" id="npsn" name="npsn">
+                    <input type="text" class="form-control" id="npsn" name="npsn" required>
                 </div>
             </div>
             <div class="form-group row">
-                <label for="logo" class="col-sm-3 col-form-label">Logo</label>
+                <label for="tahun_pelajaran" class="col-sm-3 col-form-label">Tahun Pelajaran <span
+                        class="text-danger">*</span></label>
+                <div class="col-sm-9">
+                    <select class="form-control" id="tahun_pelajaran" name="tahun_pelajaran" required>
+                        @foreach($tahun_pelajaran as $data)
+                        <option value="{{ $data }}">{{ $data }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="logo" class="col-sm-3 col-form-label">Logo <span class="text-danger">*</span></label>
                 <div class="col-sm-9">
                     <div class="custom-file">
                         <input type="file" class="custom-file-input" accept="image/png, image/jpeg" id="logo"

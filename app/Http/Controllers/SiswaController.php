@@ -22,7 +22,6 @@ class SiswaController extends Controller
         $validator = Validator::make($request->all(), [
             'nis' => 'required',
             'nama' => 'required',
-            'kelas' => 'required',
             'jurusan' => 'required',
         ]);
 
@@ -35,7 +34,6 @@ class SiswaController extends Controller
         $siswa->update([
             'nis' => $request->nis,
             'nama' => $request->nama,
-            'kelas' => $request->kelas,
             'jurusan' => $request->jurusan,
         ]);
 

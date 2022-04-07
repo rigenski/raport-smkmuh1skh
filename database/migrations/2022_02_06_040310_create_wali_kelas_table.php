@@ -15,6 +15,7 @@ class CreateWaliKelasTable extends Migration
     {
         Schema::create('wali_kelas', function (Blueprint $table) {
             $table->id();
+            $table->string('tahun_pelajaran');
             $table->string('kelas');
             $table->foreignId('guru_id')->constrained('guru');
             $table->timestamps();
