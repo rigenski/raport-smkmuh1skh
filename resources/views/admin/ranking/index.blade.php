@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('nav__item-ranking', 'active')
+@section('nav_item-ranking', 'active')
 
 @section('title', 'Ranking')
 
@@ -11,7 +11,7 @@
                 <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modalFilter">
                     Filter
                 </button>
-                @if($filter->all() && count($siswa))
+                @if($filter->all() && count($siswa_aktif))
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
                     Print PDF
                 </button>
@@ -43,7 +43,7 @@
         <div class="alert alert-danger">
             * FILTER <b>DATA RANKING</b> TERLEBIH DAHULU
         </div>
-        @elseif(!count($siswa))
+        @elseif(!count($siswa_aktif))
         <div class="alert alert-warning">
             * DATA NILAI TIDAK ADA
         </div>
@@ -63,12 +63,12 @@
                 </thead>
                 <tbody id="list-container">
                     <?php $count = 1; ?>
-                    @foreach($siswa as $data)
+                    @foreach($siswa_aktif as $data)
                     <?php $jmlh_nilai = 0; ?>
-                    @foreach($data->siswa->nilai as $nilai)
+                    @foreach($data->nilai->where('semester', $filter->semester) as $nilai)
                     <?php $jmlh_nilai += $nilai->nilai ?>
                     @endforeach
-                    <?php $rata_nilai = $jmlh_nilai / count($data->siswa->nilai); ?>
+                    <?php $rata_nilai = $jmlh_nilai / (count($data->nilai) ? count($data->nilai) : 1); ?>
                     <tr>
                         <td>
                             <?= $count ?>
@@ -205,7 +205,7 @@
 
 @section('script')
 <script>
-    const data_nilai = @json($nilai);
+    const data_siswa = @json($siswa);
 
     const elTipeRanking = document.getElementById('tipe-ranking');
     const elTahunPelajaran = document.getElementById('tahun_pelajaran');
@@ -214,7 +214,7 @@
     const changeJurusan = () => {
             const elAngkatan = document.getElementById('angkatan');
 
-            const data_jurusan = data_nilai;
+            const data_jurusan = data_siswa;
             const tahun_pelajaran = elTahunPelajaran.value;
             const angkatan = elAngkatan.value;
 
@@ -268,7 +268,7 @@
     }
 
     const changeKelas = () => {
-        const data_kelas = data_nilai;
+        const data_kelas = data_siswa;
         const tahun_pelajaran = elTahunPelajaran.value;
 
         const selected = (data) => {

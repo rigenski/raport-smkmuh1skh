@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Dashboard Raport SMK Muhammadiyah 1 Sukoharjo</title>
+  <title>Dashboard Raport</title>
   <link rel="stylesheet" href="{{asset('/css/bootstrap.min.css')}}">
   <link rel="stylesheet" href="{{asset('/css/all.css')}}">
   <link rel="stylesheet" href="{{asset('/css/style.css')}}">
@@ -16,8 +16,7 @@
 </head>
 
 <body>
-
-  <div id="app" class="">
+  <div id="app">
     <div class="main-wrapper">
       <div class="navbar-bg"></div>
       <nav class="navbar navbar-expand-lg main-navbar">
@@ -44,68 +43,81 @@
       <div class="main-sidebar">
         <aside id="sidebar-wrapper">
           <div class="sidebar-brand">
-            <a href="/admin">RAPORT Mutuharjo</a>
+            <a href="/admin">DASHBOARD RAPORT</a>
           </div>
           <ul class="sidebar-menu">
             @if(auth()->user()->role === 'admin')
-            <li class="menu-header">MAIN</li>
-            <li class="@yield('nav__item-admin')">
+            <li class="menu-header">UTAMA</li>
+            <li class="@yield('nav_item-admin')">
               <a class="nav-link" href="{{ route('admin') }}">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
               </a>
             </li>
-            <li class="@yield('nav__item-setting')">
+            <li class="@yield('nav_item-setting')">
               <a class="nav-link" href="{{ route('admin.setting') }}">
                 <i class="fas fa-cog"></i>
                 <span>Setting</span>
               </a>
             </li>
-            <li class="menu-header">UNIT</li>
-            <li class="@yield('nav__item-guru')">
-              <a class="nav-link" href="{{ route('admin.guru') }}">
-                <i class="fas fa-users"></i>
-                <span>Guru</span>
-              </a>
-            </li>
-            <li class="@yield('nav__item-siswa')">
-              <a class="nav-link" href="{{ route('admin.siswa') }}">
-                <i class="fas fa-users"></i>
-                <span>Siswa</span>
-              </a>
-            </li>
-            <li class="@yield('nav__item-wali__kelas')">
-              <a class="nav-link" href="{{ route('admin.wali_kelas') }}">
-                <i class="fas fa-users"></i>
-                <span>Wali Kelas</span>
-              </a>
-            </li>
-            <li class="@yield('nav__item-mata_pelajaran')">
+            <li class="@yield('nav_item-mata_pelajaran')">
               <a class="nav-link" href="{{ route('admin.mata_pelajaran') }}">
                 <i class="fas fa-book"></i>
                 <span>Mata Pelajaran</span>
               </a>
             </li>
-            <li class="menu-header">OTHER</li>
-            <li class="@yield('nav__item-nilai')">
+            <li class="menu-header">GURU</li>
+            <li class="@yield('nav_item-guru')">
+              <a class="nav-link" href="{{ route('admin.guru') }}">
+                <i class="fas fa-users"></i>
+                <span>Guru</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-wali_kelas')">
+              <a class="nav-link" href="{{ route('admin.wali_kelas') }}">
+                <i class="fas fa-users"></i>
+                <span>Wali Kelas</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-guru_mata_pelajaran')">
+              <a class="nav-link" href="{{ route('admin.guru_mata_pelajaran') }}">
+                <i class="fas fa-users"></i>
+                <span>Guru Mata Pelajaran</span>
+              </a>
+            </li>
+            <li class="menu-header">SISWA</li>
+            <li class="@yield('nav_item-siswa')">
+              <a class="nav-link" href="{{ route('admin.siswa') }}">
+                <i class="fas fa-users"></i>
+                <span>Siswa</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-siswa_aktif')">
+              <a class="nav-link" href="{{ route('admin.siswa_aktif') }}">
+                <i class="fas fa-users"></i>
+                <span>Siswa Aktif</span>
+              </a>
+            </li>
+            <li class="menu-header">NILAI</li>
+            <li class="@yield('nav_item-nilai')">
               <a class="nav-link" href="{{ route('admin.nilai') }}">
                 <i class="fas fa-sort-numeric-up"></i>
                 <span>Nilai</span>
               </a>
             </li>
-            <li class="@yield('nav__item-ranking')">
+            <li class="@yield('nav_item-ranking')">
               <a class="nav-link" href="{{ route('admin.ranking') }}">
                 <i class="fas fa-trophy"></i>
                 <span>Ranking</span>
               </a>
             </li>
-            <li class="@yield('nav__item-raport')">
+            <li class="@yield('nav_item-raport')">
               <a class="nav-link" href="{{ route('admin.raport') }}">
                 <i class="fas fa-book"></i>
                 <span>Raport</span>
               </a>
             </li>
-            <li class="@yield('nav__item-riwayat')">
+            <li class="@yield('nav_item-riwayat')">
               <a class="nav-link" href="{{ route('admin.riwayat') }}">
                 <i class="fas fa-history"></i>
                 <span>Riwayat</span>
@@ -113,34 +125,34 @@
             </li>
 
             @elseif(auth()->user()->role === 'guru')
-            <li class="menu-header">MAIN</li>
-            <li class="@yield('nav__item-admin')">
+            <li class="menu-header">UTAMA</li>
+            <li class="@yield('nav_item-admin')">
               <a class="nav-link" href="{{ route('admin') }}">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
               </a>
             </li>
-            <li class="@yield('nav__item-nilai')">
+            <li class="@yield('nav_item-nilai')">
               <a class="nav-link" href="{{ route('admin.nilai') }}">
                 <i class="fas fa-sort-numeric-up"></i>
                 <span>Nilai</span>
               </a>
             </li>
             @elseif(auth()->user()->role === 'wali kelas')
-            <li class="menu-header">MAIN</li>
-            <li class="@yield('nav__item-admin')">
+            <li class="menu-header">UTAMA</li>
+            <li class="@yield('nav_item-admin')">
               <a class="nav-link" href="{{ route('admin') }}">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
               </a>
             </li>
-            <li class="@yield('nav__item-nilai')">
+            <li class="@yield('nav_item-nilai')">
               <a class="nav-link" href="{{ route('admin.nilai') }}">
                 <i class="fas fa-sort-numeric-up"></i>
                 <span>Nilai</span>
               </a>
             </li>
-            <li class="@yield('nav__item-raport')">
+            <li class="@yield('nav_item-raport')">
               <a class="nav-link" href="{{ route('admin.raport') }}">
                 <i class="fas fa-book"></i>
                 <span>Raport</span>
@@ -157,7 +169,7 @@
           <div class="section-header">
             <div class="d-flex justify-content-between align-items-center w-100">
               <h1 class="m-0">@yield('title')</h1>
-              <h5 class="m-0 text-primary">2021 / 2022</h5>
+              <h5 class="m-0 text-primary">{{ count($setting) ? $setting[0]->tahun_pelajaran : '-' }}</h5>
             </div>
           </div>
           <div class="section-body">
@@ -167,7 +179,7 @@
       </div>
       <footer class="main-footer">
         <div class="footer-left">
-          PPDB - SMK Muhammadiyah 1 Sukoharjo
+          RAPORT - SMK Muhammadiyah 1 Sukoharjo
         </div>
       </footer>
     </div>

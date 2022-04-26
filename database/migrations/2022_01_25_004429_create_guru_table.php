@@ -17,7 +17,7 @@ class CreateGuruTable extends Migration
             $table->id();
             $table->string('kode_guru');
             $table->string('nama');
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateWaliKelasTable extends Migration
+class CreateSiswaAktifTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,14 @@ class CreateWaliKelasTable extends Migration
      */
     public function up()
     {
-        Schema::create('wali_kelas', function (Blueprint $table) {
+        Schema::create('siswa_aktif', function (Blueprint $table) {
             $table->id();
             $table->string('tahun_pelajaran');
+            $table->string('nis');
             $table->string('kelas');
-            $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
+            $table->string('angkatan');
+            $table->string('jurusan');
+            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -29,6 +32,6 @@ class CreateWaliKelasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('wali_kelas');
+        Schema::dropIfExists('siswa_aktif');
     }
 }

@@ -17,8 +17,8 @@ class Nilai extends Model
         return $this->belongsTo(MataPelajaran::class);
     }
 
-    public function siswa()
+    public function siswa_aktif()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(SiswaAktif::class);
     }
 }

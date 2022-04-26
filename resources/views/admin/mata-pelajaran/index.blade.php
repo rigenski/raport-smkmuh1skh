@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('nav__item-mata_pelajaran', 'active')
+@section('nav_item-mata_pelajaran', 'active')
 
 @section('title', 'Mata Pelajaran')
 
@@ -38,10 +38,9 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Tahun Pelajaran</th>
-                        <th scope="col">Mata Pelajaran</th>
-                        <th scope="col">Kelas</th>
-                        <th scope="col">Guru</th>
+                        <th scope="col">Jenis</th>
+                        <th scope="col">Kode Mapel</th>
+                        <th scope="col">Nama</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -52,17 +51,16 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->tahun_pelajaran }}</td>
+                        <td>{{ $data->jenis }}</td>
+                        <td>{{ $data->kode_mapel }}</td>
                         <td>{{ $data->nama }}</td>
-                        <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->guru->nama }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'mata_pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}');"
-                                class="btn btn-warning">Ubah</a>
+                                onclick="$('#modalEdit #formEdit').attr('action', 'mata-pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #jenis').attr('value', '{{$data->jenis}}'); $('#modalEdit #formEdit #kode_mapel').attr('value', '{{$data->kode_mapel}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}');"
+                                class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'mata_pelajaran/{{$data->id}}/destroy')"
-                                class="btn btn-danger ml-2">Hapus</a>
+                                onclick="$('#modalDelete #formDelete').attr('action', 'mata-pelajaran/{{$data->id}}/destroy')"
+                                class="btn btn-danger m-1">Hapus</a>
                         </td>
                     </tr>
                     <?php $count++; ?>
@@ -90,18 +88,18 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="tahun_pelajaran">Tahun Pelajaran</label>
-                    <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
-                        @if($filter->has('tahun_pelajaran'))
-                        <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
-                        @foreach($tahun_pelajaran as $data)
-                        @if($filter->tahun_pelajaran !== $data)
-                        <option value="{{ $data }}">{{ $data }}</option>
+                    <label for="jenis">Jenis</label>
+                    <select class="form-control" autocomplete="off" id="jenis" name="jenis">
+                        @if($filter->has('jenis'))
+                        <option value="{{ $filter->jenis }}">{{ $filter->jenis }}</option>
+                        @foreach($jenis_mapel as $data)
+                        @if($filter->jenis !== $data->jenis)
+                        <option value="{{ $data->jenis }}">{{ $data->jenis }}</option>
                         @endif
                         @endforeach
                         @else
-                        @foreach($tahun_pelajaran as $data)
-                        <option value="{{ $data }}">{{ $data }}</option>
+                        @foreach($jenis_mapel as $data)
+                        <option value="{{ $data->jenis }}">{{ $data->jenis }}</option>
                         @endforeach
                         @endif
                     </select>
@@ -119,7 +117,9 @@
 <div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form class="modal-content" action="{{ route('admin.mata_pelajaran.import') }}" method="post"
+            enctype="multipart/form-data">
+            @csrf
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Mata Pelajaran</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -127,26 +127,23 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.mata_pelajaran.import') }}" method="post" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="nama">File</label>
-                        <input type="file" class="form-control" required id="excel" name="data_mata_pelajaran"
-                            accept=".xlsx, .xls">
-                        <div class="text-small text-danger mt-2">
-                            * Mohon masukkan data dengan benar sebelum dikirim
-                        </div>
-                        <a href="{{ route('admin.mata_pelajaran.export_format') }}" class="btn btn-warning mt-4">Unduh
-                            Format
-                            Import</a>
+                <div class="form-group">
+                    <label for="nama">File</label>
+                    <input type="file" class="form-control" required id="excel" name="data_mata_pelajaran"
+                        accept=".xlsx, .xls">
+                    <div class="text-small text-danger mt-2">
+                        * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
+                    <a href="{{ route('admin.mata_pelajaran.export_format') }}" class="btn btn-warning mt-4">Unduh
+                        Format
+                        Import</a>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -154,7 +151,8 @@
 <div class="modal fade" id="modalEdit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form id="formEdit" class="modal-content" action="" method="post">
+            @csrf
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Edit Mata Pelajaran</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -162,51 +160,49 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formEdit" action="" method="post">
-                    @csrf
-                    <div class="form-group">
-                        <label for="nama">Nama <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
-                            name="nama" value="">
-                        @error('nama')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
+                <div class="form-group">
+                    <label for="jenis">Jenis <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('jenis') is-invalid @enderror" id="jenis"
+                        name="jenis" value="">
+                    @error('jenis')
+                    <div class="invalid-feedback">
+                        {{ $message}}
                     </div>
-                    <div class="form-group">
-                        <label for="kelas">Kelas <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('kelas') is-invalid @enderror" id="kelas"
-                            name="kelas" value="">
-                        @error('kelas')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="kode_mapel">Kode Mapel <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('kode_mapel') is-invalid @enderror"
+                        id="kode_mapel" name="kode_mapel" value="">
+                    @error('kode_mapel')
+                    <div class="invalid-feedback">
+                        {{ $message}}
                     </div>
-                    <div class="form-group">
-                        <label for="guru">Guru <span class="text-danger">*</span></label>
-                        <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" id="guru"
-                            name="guru" required>
-                            @foreach($guru as $data)
-                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
-                            @endforeach
-                        </select>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="nama">Nama <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
+                        name="nama" value="">
+                    @error('nama')
+                    <div class="invalid-feedback">
+                        {{ $message}}
                     </div>
+                    @enderror
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Delete -->
 <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form id="formDelete" class="modal-content" action="" method="get">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Hapus Data Mata Pelajaran ?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -214,12 +210,10 @@
                 </button>
             </div>
             <div class="modal-footer">
-                <form id="formDelete" action="" method="get">
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
-                    <button type="submit" class="btn btn-danger">Hapus</button>
-                </form>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-danger">Hapus</button>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 @endsection

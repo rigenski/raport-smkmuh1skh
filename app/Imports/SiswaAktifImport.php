@@ -6,7 +6,7 @@ use App\Models\Siswa;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
-class SiswaImport implements ToModel, WithStartRow
+class SiswaAktifImport implements ToModel, WithStartRow
 {
     /**
      * @param array $row
@@ -15,9 +15,16 @@ class SiswaImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
+        $siswa = Siswa::where('nis', $row[1])->get();
+
+        $angkatan = explode(' ',  $row[3])[0];
+
         return new Siswa([
-            "nis" => $row[0],
-            "nama" => $row[1],
+            "tahun_pelajaran" => $row[0],
+            "kelas" => $row[3],
+            "angkatan" => $angkatan,
+            "jurusan" => $row[4],
+            "siswa_id" => $siswa->id,
         ]);
     }
 

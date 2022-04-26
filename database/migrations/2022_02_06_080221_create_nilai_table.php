@@ -22,10 +22,9 @@ class CreateNilaiTable extends Migration
             $table->string('kelas');
             $table->string('angkatan');
             $table->string('jurusan');
-            $table->string('mata_pelajaran');
-            $table->foreignId('siswa_id')->constrained('siswa');
-            $table->foreignId('mata_pelajaran_id')->constrained('mata_pelajaran');
             $table->boolean('status')->default(0);
+            $table->foreignId('siswa_aktif_id')->constrained('siswa_aktif')->onDelete('cascade');
+            $table->foreignId('mata_pelajaran_id')->constrained('mata_pelajaran')->onDelete('cascade');
             $table->timestamps();
         });
     }

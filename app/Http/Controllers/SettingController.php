@@ -22,9 +22,7 @@ class SettingController extends Controller
             $setting = [];
         }
 
-        $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
-
-        return view('admin.setting.index', compact('setting', 'is_setting', 'tahun_pelajaran'));
+        return view('admin.setting.index', compact('setting', 'is_setting'));
     }
 
     public function update(Request $request)

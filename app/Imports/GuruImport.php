@@ -19,13 +19,13 @@ class GuruImport implements ToModel, WithStartRow
 
         $user = User::create([
             "role" => "guru",
-            "username" => $row[1],
-            "password" => bcrypt($row[2])
+            "username" => $row[0],
+            "password" => bcrypt($row[1])
         ]);
 
         return new Guru([
-            "kode_guru" => $row[1],
-            "nama" => $row[0],
+            "kode_guru" => $row[0],
+            "nama" => $row[2],
             "user_id" => $user->id,
         ]);
     }

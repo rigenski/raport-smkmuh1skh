@@ -22,7 +22,6 @@ class SiswaController extends Controller
         $validator = Validator::make($request->all(), [
             'nis' => 'required',
             'nama' => 'required',
-            'jurusan' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -34,7 +33,6 @@ class SiswaController extends Controller
         $siswa->update([
             'nis' => $request->nis,
             'nama' => $request->nama,
-            'jurusan' => $request->jurusan,
         ]);
 
         return redirect()->back()->with('success', 'Data siswa berhasil diperbarui');

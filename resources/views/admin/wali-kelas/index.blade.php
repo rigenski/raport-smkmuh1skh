@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('nav__item-wali__kelas', 'active')
+@section('nav_item-wali_kelas', 'active')
 
 @section('title', 'Wali Kelas')
 
@@ -56,11 +56,11 @@
                         <td>{{ $data->guru->nama }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'wali-kelas/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}');"
-                                class="btn btn-warning">Ubah</a>
+                                onclick="$('#modalEdit #formEdit').attr('action', 'wali-kelas/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #guru').attr('value', '{{$data->guru->id}}'); $('#modalEdit #formEdit #guru').text('{{$data->guru->nama}}');"
+                                class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'wali-kelas/{{$data->id}}/destroy')"
-                                class="btn btn-danger ml-2">Hapus</a>
+                                class="btn btn-danger m-1">Hapus</a>
                         </td>
                     </tr>
                     <?php $count++; ?>
@@ -117,7 +117,9 @@
 <div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form class="modal-content" action="{{ route('admin.wali_kelas.import') }}" method="post"
+            enctype="multipart/form-data">
+            @csrf
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Wali Kelas</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -125,26 +127,23 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.wali_kelas.import') }}" method="post" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="nama">File</label>
-                        <input type="file" class="form-control" required id="excel" name="data_wali_kelas"
-                            accept=".xlsx, .xls">
-                        <div class="text-small text-danger mt-2">
-                            * Mohon masukkan data dengan benar sebelum dikirim
-                        </div>
-                        <a href="{{ route('admin.wali_kelas.export_format') }}" class="btn btn-warning mt-4">Unduh
-                            Format
-                            Import</a>
+                <div class="form-group">
+                    <label for="nama">File</label>
+                    <input type="file" class="form-control" required id="excel" name="data_wali_kelas"
+                        accept=".xlsx, .xls">
+                    <div class="text-small text-danger mt-2">
+                        * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
+                    <a href="{{ route('admin.wali_kelas.export_format') }}" class="btn btn-warning mt-4">Unduh
+                        Format
+                        Import</a>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
@@ -152,7 +151,8 @@
 <div class="modal fade" id="modalEdit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form id="formEdit" class="modal-content" action="" method="post">
+            @csrf
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Edit Wali Kelas</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -160,41 +160,39 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="formEdit" action="" method="post">
-                    @csrf
-                    <div class="form-group">
-                        <label for="kelas">Kelas <span class="text-danger">*</span></label>
-                        <input type="text" required class="form-control @error('kelas') is-invalid @enderror" id="kelas"
-                            name="kelas" value="">
-                        @error('kelas')
-                        <div class="invalid-feedback">
-                            {{ $message}}
-                        </div>
-                        @enderror
+                <div class="form-group">
+                    <label for="kelas">Kelas <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('kelas') is-invalid @enderror" id="kelas"
+                        name="kelas" value="">
+                    @error('kelas')
+                    <div class="invalid-feedback">
+                        {{ $message}}
                     </div>
-                    <div class="form-group">
-                        <label for="guru">Guru <span class="text-danger">*</span></label>
-                        <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" id="guru"
-                            name="guru" required>
-                            @foreach($guru as $data)
-                            <option value="{{ $data->id }}">{{ $data->nama }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="guru">Guru <span class="text-danger">*</span></label>
+                    <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" name="guru"
+                        required>
+                        <option value="" id="guru"></option>
+                        @foreach($guru as $data)
+                        <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Delete -->
 <div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form id="formDelete" class="modal-content" action="" method="get">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -202,12 +200,11 @@
                 </button>
             </div>
             <div class="modal-footer">
-                <form id="formDelete" action="" method="get">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
-                    <button type="submit" class="btn btn-danger">Hapus</button>
-                </form>
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-danger">Hapus</button>
             </div>
-        </div>
+        </form>
     </div>
+</div>
 </div>
 @endsection

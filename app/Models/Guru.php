@@ -22,13 +22,8 @@ class Guru extends Model
         return $this->hasOne(WaliKelas::class);
     }
 
-    public function mata_pelajaran()
+    public function guru_mata_pelajaran()
     {
-        return $this->hasMany(MataPelajaran::class);
-    }
-
-    public function nilai()
-    {
-        return $this->hasMany(Nilai::class);
+        return $this->hasMany(GuruMataPelajaran::class);
     }
 }

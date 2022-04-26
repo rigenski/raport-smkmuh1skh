@@ -16,29 +16,23 @@ class MataPelajaranController extends Controller
     {
         $filter = $request;
 
-        $setting = Setting::all()[0];
-
-        if ($request->has('tahun_pelajaran')) {
-            $mata_pelajaran = MataPelajaran::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+        if ($filter->has('jenis')) {
+            $mata_pelajaran = MataPelajaran::where('jenis', $filter->jenis)->get();
         } else {
-            $mata_pelajaran = MataPelajaran::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            $mata_pelajaran = MataPelajaran::all();
         }
 
-        $guru = Guru::all();
+        $jenis_mapel = MataPelajaran::all()->unique('jenis')->values()->all();
 
-        $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
-
-        $guru = Guru::all();
-
-        return view('admin.mata_pelajaran.index', compact('filter', 'setting', 'mata_pelajaran', 'guru', 'tahun_pelajaran'));
+        return view('admin.mata-pelajaran.index', compact('filter', 'mata_pelajaran', 'jenis_mapel'));
     }
 
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
+            'jenis' => 'required',
+            'kode_mapel' => 'required',
             'nama' => 'required',
-            'guru' => 'required',
-            'kelas' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -48,9 +42,9 @@ class MataPelajaranController extends Controller
         $mata_pelajaran = MataPelajaran::find($id);
 
         $mata_pelajaran->update([
+            'jenis' => $request->jenis,
+            'kode_mapel' => $request->kode_mapel,
             'nama' => $request->nama,
-            'kelas' => $request->kelas,
-            'guru_id' => $request->guru,
         ]);
 
         return redirect()->back()->with('success', 'Data mata pelajaran berhasil diperbarui');
@@ -74,13 +68,6 @@ class MataPelajaranController extends Controller
         }
 
         return redirect()->back()->with('success', 'Data mata pelajaran berhasil diimport');
-    }
-
-    public function reset()
-    {
-        MataPelajaran::truncate();
-
-        return redirect()->back()->with('success', 'Data mata pelajaran berhasil direset');
     }
 
     public function export_format()

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\NilaiFormatExport;
+use App\Models\GuruMataPelajaran;
 use App\Models\MataPelajaran;
 use App\Models\Nilai;
 use App\Models\Setting;
-use App\Models\Siswa;
+use App\Models\SiswaAktif;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -23,38 +25,43 @@ class NilaiController extends Controller
 
             $siswa = [];
 
-            if ($filter->has('tahun_pelajaran') && $filter->has('mata_pelajaran') && $filter->has('semester') && $filter->has('kelas')) {
+            if ($filter->has('tahun_pelajaran') && $filter->has('mata_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
+
+
                 $siswa = Nilai::all()->where('tahun_pelajaran', $filter->tahun_pelajaran)->where('semester', $filter->semester)->where('kelas', $filter->kelas)->where('mata_pelajaran', $filter->mata_pelajaran)->unique('siswa_id')->values()->all();
             }
 
-
-            $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
-
-            $mata_pelajaran = MataPelajaran::all();
-
-            $nilai = Nilai::all();
+            $mata_pelajaran = DB::table('guru_mata_pelajaran')
+                ->join('mata_pelajaran', 'guru_mata_pelajaran.mata_pelajaran_id', '=', 'mata_pelajaran.id')
+                ->get();
 
             $semester = [1, 2];
 
-            return view('admin.nilai.index', compact('filter', 'nilai', 'siswa', 'tahun_pelajaran', 'mata_pelajaran', 'semester'));
+            return view('admin.nilai.index', compact('filter', 'siswa', 'mata_pelajaran', 'semester'));
         } else {
             $filter = $request;
 
             $setting = Setting::all()[0];
 
-            $siswa = [];
+            $siswa_aktif = [];
 
-            if ($filter->has('tahun_pelajaran') && $filter->has('mata_pelajaran') && $filter->has('semester') && $filter->has('kelas')) {
-                $siswa = Nilai::all()->where('tahun_pelajaran', $filter->tahun_pelajaran)->where('semester', $filter->semester)->where('kelas', $filter->kelas)->where('mata_pelajaran', $filter->mata_pelajaran)->unique('siswa_id')->values()->all();
+            if ($filter->has('tahun_pelajaran') && $filter->has('mata_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
+                $mata_pelajaran_selected = MataPelajaran::where('nama', $filter->mata_pelajaran)->get()[0];
+
+                $siswa_aktif = DB::table('siswa_aktif')
+                    ->join('nilai', 'siswa_aktif.id', '=', 'nilai.siswa_aktif_id')
+                    ->where('nilai.mata_pelajaran_id', '=', $mata_pelajaran_selected->id)
+                    ->get();
             }
 
-            $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
-
-            $mata_pelajaran = auth()->user()->guru->mata_pelajaran;
+            $mata_pelajaran = DB::table('guru_mata_pelajaran')
+                ->join('mata_pelajaran', 'guru_mata_pelajaran.mata_pelajaran_id', '=', 'mata_pelajaran.id')
+                ->where('guru_mata_pelajaran.guru_id', '=', auth()->user()->guru->id)
+                ->get();
 
             $semester = [1, 2];
 
-            return view('admin.nilai.index', compact('filter', 'setting', 'siswa', 'tahun_pelajaran', 'mata_pelajaran', 'semester'));
+            return view('admin.nilai.index', compact('filter', 'setting', 'siswa_aktif', 'mata_pelajaran', 'semester'));
         }
     }
 
@@ -99,8 +106,8 @@ class NilaiController extends Controller
         return redirect()->back()->with('success', 'Data nilai berhasil diimport');
     }
 
-    public function export_format()
+    public function export_format(Request $request)
     {
-        return Excel::download(new NilaiFormatExport(), 'data-nilai-mutuharjo' . '.xlsx');
+        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'data-nilai-mutuharjo' . '.xlsx');
     }
 }

@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('nav__item-admin', 'active')
+@section('nav_item-admin', 'active')
 
 @section('title', 'Dashboard')
 

@@ -26,9 +26,7 @@ class WaliKelasController extends Controller
 
         $guru = Guru::all();
 
-        $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
-
-        return view('admin.wali-kelas.index', compact('filter', 'setting', 'wali_kelas', 'guru', 'tahun_pelajaran'));
+        return view('admin.wali-kelas.index', compact('filter', 'wali_kelas', 'guru'));
     }
 
     public function update(Request $request, $id)

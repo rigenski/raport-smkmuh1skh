@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('nav__item-nilai', 'active')
+@section('nav_item-nilai', 'active')
 
 @section('title', 'Nilai')
 
@@ -64,13 +64,12 @@
                             <?= $count ?>
                         </td>
                         <td>{{ $data->tahun_pelajaran }}</td>
-                        <td>{{ $data->mata_pelajaran }}</td>
+                        <td>{{ $data->mata_pelajaran->nama }}</td>
                         <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->siswa->nis }}</td>
-                        <td>{{ $data->siswa->nama }}</td>
+                        <td>{{ $data->siswa_aktif->siswa->nis }}</td>
+                        <td>{{ $data->siswa_aktif->siswa->nama }}</td>
                         <td>{{ $data->nilai }}</td>
                         <td>{{ $data->keterangan }}</td>
-                        @if(!$data->status || auth()->user()->role == 'admin')
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
                                 onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
@@ -79,12 +78,6 @@
                                 onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
-                        @else
-                        <td>
-                            <button class="btn btn-warning m-1" disabled>Edit</button>
-                            <button class="btn btn-danger m-1" disabled>Hapus</button>
-                        </td>
-                        @endif
                     </tr>
                     <?php $count++; ?>
                     @endforeach
@@ -242,7 +235,6 @@
 @section('script')
 <script>
     const data_mata_pelajaran = @json($mata_pelajaran);
-    const data_nilai = @json($nilai);
 
     const elTahunPelajaran = document.getElementById('tahun_pelajaran');
     const elMataPelajaran = document.getElementById('mata_pelajaran');
@@ -255,7 +247,7 @@
             return data.tahun_pelajaran == tahun_pelajaran;
         }
 
-        const data_kelas_filter = data_nilai.filter(selected);
+        const data_kelas_filter = data_mata_pelajaran.filter(selected);
 
         const kelas_selected = []; 
 
@@ -335,6 +327,9 @@
                 <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalFilter">
                     Filter
                 </button>
+                <button type="button" class="btn btn-warning ml-2" data-toggle="modal" data-target="#modalFormatImport">
+                    Format
+                    Import</button>
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
                     Import Excel
                 </button>
@@ -361,7 +356,7 @@
         <div class="alert alert-danger">
             * FILTER DATA NILAI TERLEBIH DAHULU
         </div>
-        @elseif(!count($siswa))
+        @elseif(!count($siswa_aktif))
         <div class="alert alert-warning">
             * DATA NILAI TIDAK ADA
         </div>
@@ -383,16 +378,16 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($siswa as $data)
+                    @foreach($siswa_aktif as $data)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
                         <td>{{ $data->tahun_pelajaran }}</td>
-                        <td>{{ $data->mata_pelajaran }}</td>
+                        <td>{{ $data->mata_pelajaran->nama }}</td>
                         <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->siswa->nis }}</td>
-                        <td>{{ $data->siswa->nama }}</td>
+                        <td>{{ $data->siswa_aktif->siswa->nis }}</td>
+                        <td>{{ $data->siswa_aktif->siswa->nama }}</td>
                         <td>{{ $data->nilai }}</td>
                         <td>{{ $data->keterangan }}</td>
                         @if(!$data->status)
@@ -422,41 +417,6 @@
 @endsection
 
 @section('modal')
-
-<!-- Modal Import -->
-<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Nilai</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="{{ route('admin.nilai.import') }}" method="post" enctype="multipart/form-data">
-                    @csrf
-                    <div class="form-group">
-                        <label for="nama">File</label>
-                        <input type="file" class="form-control" required id="excel" name="data_nilai"
-                            accept=".xlsx, .xls">
-                        <div class="text-small text-danger mt-2">
-                            * Mohon masukkan data dengan benar sebelum dikirim
-                        </div>
-                        <a href="{{ route('admin.nilai.export_format') }}" class="btn btn-warning mt-4">Unduh
-                            Format
-                            Import</a>
-                    </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal Filter -->
 <div class="modal fade" id="modalFilter" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -492,9 +452,8 @@
                         <label for="mata_pelajaran">Mata Pelajaran</label>
                         <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
                             @if($filter->mata_pelajaran)
-                            <option value="{{ $filter->mata_pelajaran }}">{{
-                                $filter->mata_pelajaran
-                                }}</option>
+                            <option value="{{ $filter->mata_pelajaran }}">{{ $filter->mata_pelajaran }}
+                            </option>
                             @endif
                         </select>
                     </div>
@@ -532,6 +491,67 @@
                 </form>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Modal Import -->
+<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" action="{{ route('admin.nilai.import') }}" method="post"
+            enctype="multipart/form-data">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Nilai</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="nama">File</label>
+                    <input type="file" class="form-control" required id="excel" name="data_nilai" accept=".xlsx, .xls">
+                    <div class="text-small text-danger mt-2">
+                        * Mohon masukkan data dengan benar sebelum dikirim
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Format Import -->
+<div class="modal fade" id="modalFormatImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" action="{{ route('admin.nilai.export_format') }}" method="get">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Format Import Excel Data Nilai</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="guru_mata_pelajaran">Kelas - Mapel</label>
+                    <select class="form-control" autocomplete="off" id="guru_mata_pelajaran" name="guru_mata_pelajaran">
+                        @foreach(auth()->user()->guru->guru_mata_pelajaran as $data)
+                        <option value="{{ $data->id }}">{{ $data->kelas }} - {{ $data->mata_pelajaran->nama
+                            }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
+                <button type="submit" class="btn btn-warning">Unduh Format Export</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -602,8 +622,7 @@
 
 @section('script')
 <script>
-    const data_mata_pelajaran = @json($mata_pelajaran); 
-    const data_nilai = @json($mata_pelajaran); 
+    const data_mata_pelajaran = @json($mata_pelajaran);
 
     const elTahunPelajaran = document.getElementById('tahun_pelajaran');
     const elMataPelajaran = document.getElementById('mata_pelajaran');      
@@ -616,7 +635,7 @@
             return data.tahun_pelajaran == tahun_pelajaran;
         }
 
-        const data_kelas_filter = data_nilai.filter(selected);
+        const data_kelas_filter = data_mata_pelajaran.filter(selected);
 
         const kelas_selected = []; 
 

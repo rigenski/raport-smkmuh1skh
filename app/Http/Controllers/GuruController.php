@@ -43,7 +43,6 @@ class GuruController extends Controller
             ]);
         }
 
-
         User::find($guru->user_id)->update([
             "username" => $request->kode_guru,
         ]);
@@ -55,9 +54,7 @@ class GuruController extends Controller
     {
         $guru = Guru::find($id);
 
-        $guru->delete();
-
-        User::find($guru->user_id)->delete();
+        $guru->user->delete();
 
         return redirect()->back()->with('success', 'Data guru berhasil dihapus');
     }
