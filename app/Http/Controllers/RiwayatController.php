@@ -7,6 +7,7 @@ use App\Models\Riwayat;
 use App\Models\Siswa;
 use App\Models\WaliKelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RiwayatController extends Controller
 {
@@ -16,18 +17,19 @@ class RiwayatController extends Controller
 
         $riwayat = Riwayat::all();
 
-        $kelas = [];
-        $nilai = [];
-
         if ($filter->has('tahun_pelajaran')) {
-            $kelas = WaliKelas::all()->where('tahun_pelajaran', $filter->tahun_pelajaran)->unique('kelas')->values()->all();
-            $nilai = Nilai::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+            $wali_kelas = WaliKelas::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+
+            $nilai = DB::table('nilai')
+                ->join('siswa_aktif', 'nilai.siswa_aktif_id', 'siswa_aktif.id')
+                ->get();
+        } else {
+            $wali_kelas = [];
+            $nilai = [];
         }
 
         $semester = [1, 2];
 
-        $tahun_pelajaran = ['2019 / 2020', '2020 / 2021', '2021 / 2022', '2022 / 2023', '2023 / 2024'];
-
-        return view('admin.riwayat.index', compact('filter', 'riwayat', 'kelas', 'nilai', 'semester', 'tahun_pelajaran'));
+        return view('admin.riwayat.index', compact('filter', 'riwayat', 'wali_kelas', 'nilai', 'semester'));
     }
 }

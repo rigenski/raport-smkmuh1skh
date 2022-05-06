@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSiswaAktifTable extends Migration
+class CreateDocumentsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,11 @@ class CreateSiswaAktifTable extends Migration
      */
     public function up()
     {
-        Schema::create('siswa_aktif', function (Blueprint $table) {
+        Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->string('tahun_pelajaran');
-            $table->string('kelas');
-            $table->string('angkatan');
-            $table->string('jurusan');
-            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
+            $table->string('nama');
+            $table->string('url');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreateSiswaAktifTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('siswa_aktif');
+        Schema::dropIfExists('documents');
     }
 }

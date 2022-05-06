@@ -19,57 +19,56 @@ class SiswaAktifTableSeeder extends Seeder
     {
         $data_siswa_aktif = [
             [
-                'nis' => '12233',
+                'tahun_pelajaran' => '2021/2022',
+                'nomer_induk_siswa' => '12233',
                 'nama' => 'Adam Fahrizal Harsono',
-                'tahun_pelajaran' => '2021/2022',
                 'kelas' => 'X RPL 1',
                 'jurusan' => 'Pengembangan Perangkat Lunak dan Gim',
             ],
             [
-                'nis' => '11862',
+                'tahun_pelajaran' => '2021/2022',
+                'nomer_induk_siswa' => '11862',
                 'nama' => 'Alif Ridwan Rasyidin',
-                'tahun_pelajaran' => '2021/2022',
                 'kelas' => 'X RPL 1',
                 'jurusan' => 'Pengembangan Perangkat Lunak dan Gim',
             ],
             [
-                'nis' => '11863',
+                'tahun_pelajaran' => '2021/2022',
+                'nomer_induk_siswa' => '11863',
                 'nama' => 'Ardiansyah Putra Permana',
-                'tahun_pelajaran' => '2021/2022',
                 'kelas' => 'X RPL 1',
                 'jurusan' => 'Pengembangan Perangkat Lunak dan Gim',
             ],
             [
-                'nis' => '11864',
+                'tahun_pelajaran' => '2021/2022',
+                'nomer_induk_siswa' => '11864',
                 'nama' => 'Atlantis Cartenzian Arkadya',
-                'tahun_pelajaran' => '2021/2022',
                 'kelas' => 'X TKJ 1',
                 'jurusan' => 'Teknik Jaringan Komputer dan Telekomunikasi',
             ],
             [
-                'nis' => '11865',
+                'tahun_pelajaran' => '2021/2022',
+                'nomer_induk_siswa' => '11865',
                 'nama' => 'Attariq Anugrah Ramadhani',
-                'tahun_pelajaran' => '2021/2022',
                 'kelas' => 'X TKJ 1',
                 'jurusan' => 'Teknik Jaringan Komputer dan Telekomunikasi',
             ],
             [
-                'nis' => '11866',
-                'nama' => 'Avin Fajar Fitriansyah',
                 'tahun_pelajaran' => '2021/2022',
+                'nomer_induk_siswa' => '11866',
+                'nama' => 'Avin Fajar Fitriansyah',
                 'kelas' => 'X TKJ 1',
                 'jurusan' => 'Teknik Jaringan Komputer dan Telekomunikasi',
             ],
         ];
 
         foreach ($data_siswa_aktif as $siswa_aktif) {
-            $siswa = Siswa::where('nis', $siswa_aktif['nis'])->get();
+            $siswa = Siswa::where('nomer_induk_siswa', $siswa_aktif['nomer_induk_siswa'])->get();
 
             $angkatan = explode(' ',  $siswa_aktif['kelas'])[0];
 
             $new_siswa_aktif = new SiswaAktif();
             $new_siswa_aktif->tahun_pelajaran = $siswa_aktif['tahun_pelajaran'];
-            $new_siswa_aktif->nis = $siswa_aktif['nis'];
             $new_siswa_aktif->kelas = $siswa_aktif['kelas'];
             $new_siswa_aktif->angkatan = $angkatan;
             $new_siswa_aktif->jurusan = $siswa_aktif['jurusan'];

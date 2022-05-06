@@ -39,13 +39,38 @@
         </div>
     </div>
     <div class="card-body">
-        @if(!$filter->tahun_pelajaran)
+        @if( !$filter->tahun_pelajaran || !$filter->angkatan || !$filter->kelas || !$filter->semester )
         <div class="alert alert-danger">
             * FILTER <b>DATA RANKING</b> TERLEBIH DAHULU
         </div>
-        @elseif(!count($siswa_aktif))
-        <div class="alert alert-warning">
-            * DATA NILAI TIDAK ADA
+        @else
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->tahun_pelajaran }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Kelas</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->kelas }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Semester</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->semester }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         @endif
         <div class="table-responsive">
@@ -61,7 +86,7 @@
                         <th scope="col">Rata Nilai</th>
                     </tr>
                 </thead>
-                <tbody id="list-container">
+                <tbody>
                     <?php $count = 1; ?>
                     @foreach($siswa_aktif as $data)
                     <?php $jmlh_nilai = 0; ?>
@@ -75,8 +100,8 @@
                         </td>
                         <td>{{ $data->tahun_pelajaran }}</td>
                         <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->siswa->nis }}</td>
-                        <td>{{ $data->siswa->nama }}</td>
+                        <td>{{ $data->siswa->nomer_induk_siswa }}</td>
+                        <td>{{ $data->siswa->nama_siswa }}</td>
                         <td>{{ $jmlh_nilai }}</td>
                         <td>{{ $rata_nilai }}</td>
                     </tr>
@@ -106,14 +131,6 @@
             <div class="modal-body">
                 <form action="{{ route('admin.ranking') }}" method="get">
                     <div class="form-group">
-                        <label for="tipe">Tipe</label>
-                        <select class="form-control" autocomplete="off" id="tipe-ranking" name="tipe">
-                            <option value="angkatan">Per Angkatan</option>
-                            <option value="angkatan-jurusan">Per Angkatan Per Jurusan</option>
-                            <option value="kelas">Per Kelas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label for="tahun_pelajaran">Tahun Pelajaran</label>
                         <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                             @if($filter->tahun_pelajaran)
@@ -130,7 +147,18 @@
                             @endif
                         </select>
                     </div>
-                    <div id="form-container-ranking">
+                    <div class="form-group">
+                        <label for="angkatan">Angkatan</label>
+                        <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
+                            @foreach($angkatan as $data)
+                            <option value="{{ $data }}">{{ $data }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="kelas">Kelas</label>
+                        <select class="form-control" autocomplete="off" id="kelas" name="kelas">
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="semester">Semester</label>
@@ -164,29 +192,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                @if($filter->tipe == 'angkatan')
-                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Angkatan <span class="text-primary">
-                        {{
-                        $filter->angkatan ? strtoupper($filter->angkatan) : '' }} - {{ $filter->semester ? 'Semester ' .
-                        $filter->semester
-                        : ''
-                        }}</span></h5>
-                </span></h5>
-                @elseif($filter->tipe == 'angkatan-jurusan')
-                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Angkatan <span class="text-primary">
-                        {{ $filter->angkatan ? $filter->angkatan : '' }}</span> - Jurusan <span class="text-primary">{{
-                        $filter->jurusan ? $filter->jurusan : '' }}</span> - Semester <span class="text-primary">{{
-                        $filter->semester ? $filter->semester
-                        : ''
-                        }}</span></h5>
-                </span></h5>
-                @elseif($filter->tipe == 'kelas')
                 <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
                         $filter->kelas ? $filter->kelas : '' }} </span> - Semester <span class="text-primary">{{
                         $filter->semester ? $filter->semester : '' }}</span>
                 </h5>
-                </span></h5>
-                @endif
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -207,140 +216,57 @@
 <script>
     const data_siswa = @json($siswa);
 
-    const elTipeRanking = document.getElementById('tipe-ranking');
     const elTahunPelajaran = document.getElementById('tahun_pelajaran');
-    const elFormContainer = document.getElementById('form-container-ranking');
-
-    const changeJurusan = () => {
-            const elAngkatan = document.getElementById('angkatan');
-
-            const data_jurusan = data_siswa;
-            const tahun_pelajaran = elTahunPelajaran.value;
-            const angkatan = elAngkatan.value;
-
-            const selected = (data) => {
-                return data.tahun_pelajaran == tahun_pelajaran;
-            }
-
-            const data_angkatan_filter = data_jurusan.filter(selected);
-
-            const angkatan_selected = []; 
-
-            data_angkatan_filter.map((data) => {
-                if(data.angkatan == angkatan) {
-                    angkatan_selected.push(data.jurusan);
-                }
-            })
-
-            const delete_duplicate = (value, index, self) => {
-                return self.indexOf(value) === index;
-            }
-
-            const data_jurusan_filter = angkatan_selected.filter(delete_duplicate);
-
-            let jurusan_option = '';
-
-            data_jurusan_filter.map((data, i) => {
-                jurusan_option += `<option value="${data}">${data}</option>`;
-            })
-
-            elFormContainer.innerHTML = 
-            `
-            <div class="form-group">
-                            <label for="angkatan">Angkatan</label>
-                            <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
-                                <option value="X">X</option>
-                                <option value="XI">XI</option>
-                                <option value="XII">XII</option>
-                            </select>
-                        </div>
-            <div class="form-group">
-                <label for="jurusan">Jurusan</label>
-                <select class="form-control" autocomplete="off" id="jurusan" name="jurusan">
-                    ${jurusan_option}
-                </select>
-            </div>`;
-
-            elAngkatan.addEventListener('change', () => {
-              changeJurusan();
-            })
-
-    }
+    const elAngkatan = document.getElementById('angkatan');
+    const elKelas = document.getElementById('kelas');
 
     const changeKelas = () => {
-        const data_kelas = data_siswa;
+        const angkatan = elAngkatan.value;
         const tahun_pelajaran = elTahunPelajaran.value;
-
-        const selected = (data) => {
+        
+        const filter_tahun_pelajaran = (data) => {
             return data.tahun_pelajaran == tahun_pelajaran;
         }
+        
+        const data_kelas_filter = data_siswa.filter(filter_tahun_pelajaran);
 
-            const data_kelas_filter = data_kelas.filter(selected);
-
-            const kelas_selected = []; 
-
-            data_kelas_filter.map((data) => {
-                    kelas_selected.push(data.kelas);
-            })
-
-            const delete_duplicate = (value, index, self) => {
-                return self.indexOf(value) === index;
-            }
-
-            const data_kelas_filter2 = kelas_selected.filter(delete_duplicate);
-
-            let kelas_option = '';
-
-            data_kelas_filter2.map((data, i) => {
-                kelas_option += `<option value="${data}">${data}</option>`;
-            })
-
-            elFormContainer.innerHTML = 
-            `<div class="form-group">
-                <label for="kelas">Kelas</label>
-                <select class="form-control" autocomplete="off" id="kelas" name="kelas">
-                    ${kelas_option}
-                </select>
-            </div>`;
-    }
-
-    const changeAngkatan = () => {
-        elFormContainer.innerHTML = `<div class="form-group">
-                            <label for="angkatan">Angkatan</label>
-                            <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
-                                <option value="X">X</option>
-                                <option value="XI">XI</option>
-                                <option value="XII">XII</option>
-                            </select>
-                        </div>`;
-    }
-
-    const changeForm = () => {
-        if(elTipeRanking.value == 'angkatan') {
-            changeAngkatan();
-        } else if(elTipeRanking.value == 'angkatan-jurusan') {
-            changeJurusan();
-        } else if(elTipeRanking.value == 'kelas') {
-            changeKelas()
+        const filter_angkatan = (data) => {
+            return data.angkatan == angkatan;
         }
-    }
+        
+        const data_kelas_filter2 = data_kelas_filter.filter(filter_angkatan);
+        
+        const kelas_selected = []; 
+        
+        data_kelas_filter2.map((data) => {
+            kelas_selected.push(data.kelas);
+        })
 
-    elTipeRanking.addEventListener('change', () => {
-        changeForm();
-    })
+        const delete_duplicate = (value, index, self) => {
+            return self.indexOf(value) === index;
+        }
+
+        const data_kelas_filter3 = kelas_selected.filter(delete_duplicate);
+
+        let kelas_option = '';
+
+        data_kelas_filter3.map((data, i) => {
+            kelas_option += `<option value="${data}">${data}</option>`;
+        })
+
+        elKelas.innerHTML = kelas_option;
+    }
 
     elTahunPelajaran.addEventListener('change', () => {
-        if(elTipeRanking.value == 'angkatan') {
-
-        } else if (elTipeRanking.value == 'angkatan-jurusan') {
-            changeJurusan();
-        } else if(elTipeRanking.value == 'kelas') {
-            changeKelas();
-        }
+        changeKelas();
+    })
+    
+    elAngkatan.addEventListener('change', () => {
+        changeKelas();
     })
 
     window.onload = () => {
-        changeForm();
+        changeKelas();
     };
 </script>
 

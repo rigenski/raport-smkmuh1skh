@@ -54,11 +54,11 @@
                         </td>
                         <td>{{ $data->tahun_pelajaran }}</td>
                         <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->mata_pelajaran->nama }}</td>
-                        <td>{{ $data->guru->nama }}</td>
+                        <td>{{ $data->mata_pelajaran->nama_mata_pelajaran }}</td>
+                        <td>{{ $data->guru->nama_guru }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'guru-mata-pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #mata_pelajaran').attr('value', '{{$data->mata_pelajaran->id}}'); $('#modalEdit #formEdit #mata_pelajaran').text('{{$data->mata_pelajaran->nama}}'); $('#modalEdit #formEdit #guru').attr('value', '{{$data->guru->id}}'); $('#modalEdit #formEdit #guru').text('{{$data->guru->nama}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'guru-mata-pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #mata_pelajaran').attr('value', '{{$data->mata_pelajaran->id}}'); $('#modalEdit #formEdit #mata_pelajaran').text('{{$data->mata_pelajaran->nama_mata_pelajaran}}'); $('#modalEdit #formEdit #guru').attr('value', '{{$data->guru->id}}'); $('#modalEdit #formEdit #guru').text('{{$data->guru->nama_guru}}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'guru-mata-pelajaran/{{$data->id}}/destroy')"
@@ -178,7 +178,7 @@
                         name="mata_pelajaran" required>
                         <option value="" id="mata_pelajaran"></option>
                         @foreach($mata_pelajaran as $data)
-                        <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                        <option value="{{ $data->id }}">{{ $data->nama_mata_pelajaran }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -188,7 +188,7 @@
                         required>
                         <option value="" id="guru"></option>
                         @foreach($guru as $data)
-                        <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                        <option value="{{ $data->id }}">{{ $data->nama_guru }}</option>
                         @endforeach
                     </select>
                 </div>

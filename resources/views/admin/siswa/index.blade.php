@@ -35,8 +35,8 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">NIS</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">Nomer Induk Siswa</th>
+                        <th scope="col">Nama Siswa</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -47,11 +47,11 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->nis }}</td>
-                        <td>{{ $data->nama }}</td>
+                        <td>{{ $data->nomer_induk_siswa }}</td>
+                        <td>{{ $data->nama_siswa }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'siswa/{{$data->id}}/update'); $('#modalEdit #formEdit #nis').attr('value', '{{$data->nis}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'siswa/{{$data->id}}/update'); $('#modalEdit #formEdit #nomer_induk_siswa').attr('value', '{{$data->nomer_induk_siswa}}'); $('#modalEdit #formEdit #nama_siswa').attr('value', '{{$data->nama_siswa}}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'siswa/{{$data->id}}/destroy')"
@@ -85,7 +85,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">File</label>
+                    <label for="nama_siswa">File</label>
                     <input type="file" class="form-control" required id="excel" name="data_siswa" accept=".xlsx, .xls">
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
@@ -117,20 +117,20 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nis">NIS <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nis') is-invalid @enderror" id="nis"
-                        name="nis" value="">
-                    @error('nis')
+                    <label for="nomer_induk_siswa">Nomer Induk Siswa <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nomer_induk_siswa') is-invalid @enderror"
+                        id="nomer_induk_siswa" name="nomer_induk_siswa" value="">
+                    @error('nomer_induk_siswa')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="nama">Nama <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
-                        name="nama" value="">
-                    @error('nama')
+                    <label for="nama_siswa">Nama Siswa <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama_siswa') is-invalid @enderror"
+                        id="nama_siswa" name="nama_siswa" value="">
+                    @error('nama_siswa')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>

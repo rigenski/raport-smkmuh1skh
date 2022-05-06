@@ -36,7 +36,7 @@
                     <tr>
                         <th scope="col">No</th>
                         <th scope="col">Kode Guru</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">Nama Guru</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -48,10 +48,10 @@
                             <?= $count ?>
                         </td>
                         <td>{{ $data->kode_guru }}</td>
-                        <td>{{ $data->nama }}</td>
+                        <td>{{ $data->nama_guru }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'guru/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'guru/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #nama_guru').attr('value', '{{$data->nama_guru}}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'guru/{{$data->id}}/destroy')"
@@ -85,7 +85,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">File</label>
+                    <label for="nama_guru">File</label>
                     <input type="file" class="form-control" required id="excel" name="data_guru" accept=".xlsx, .xls">
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
@@ -116,10 +116,10 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">Nama <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
-                        name="nama" value="">
-                    @error('nama')
+                    <label for="nama_guru">Nama Guru <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama_guru') is-invalid @enderror"
+                        id="nama_guru" name="nama_guru" value="">
+                    @error('nama_guru')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>

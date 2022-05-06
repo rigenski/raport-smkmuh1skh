@@ -1,8 +1,7 @@
 <table>
   <thead>
     <tr>
-      <th><b>TAHUN PELAJARAN</b></th>
-      <th><b>KODE MAPEL</b></th>
+      <th><b>KODE MATA PELAJARAN</b></th>
       <th><b>MATA PELAJARAN</b></th>
       <th><b>KELAS</b></th>
       <th><b>NIS</b></th>
@@ -15,12 +14,11 @@
   <tbody>
     @foreach ($siswa_aktif as $data)
     <tr>
-      <td>{{ $setting->tahun_pelajaran }}</td>
-      <td>{{ $mata_pelajaran->kode_mapel }}</td>
-      <td>{{ $mata_pelajaran->nama }}</td>
+      <td>{{ $mata_pelajaran->kode_mata_pelajaran }}</td>
+      <td>{{ $mata_pelajaran->nama_mata_pelajaran }}</td>
       <td>{{ $data->kelas }}</td>
-      <td>{{ $data->siswa->nis }}</td>
-      <td>{{ $data->siswa->nama }}</td>
+      <td>{{ $data->siswa->nomer_induk_siswa }}</td>
+      <td>{{ $data->siswa->nama_siswa }}</td>
       <td></td>
       <td></td>
       <td></td>

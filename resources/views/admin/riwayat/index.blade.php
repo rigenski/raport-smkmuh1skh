@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('nav__item-riwayat', 'active')
+@section('nav_item-riwayat', 'active')
 
 @section('title', 'Riwayat')
 
@@ -30,13 +30,28 @@
         </div>
     </div>
     <div class="card-body">
-        @if(!$filter->tahun_pelajaran)
+        @if( !$filter->tahun_pelajaran )
         <div class="alert alert-danger">
-            * FILTER <b>DATA KELAS</b> TERLEBIH DAHULU
+            * FILTER <b>DATA RIWAYAT</b> TERLEBIH DAHULU
         </div>
-        @elseif(!count($kelas))
-        <div class="alert alert-warning">
-            * DATA KELAS TIDAK ADA
+        @else
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->tahun_pelajaran }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         @endif
         <div class="table-responsive">
@@ -50,21 +65,18 @@
                         @endforeach
                     </tr>
                 </thead>
-                <tbody id="list-container">
-
+                <tbody>
                     <?php $count = 1; ?>
-                    @foreach($kelas as $data)
+                    @foreach($wali_kelas as $data)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
                         <td>{{ $data->kelas }}</td>
-                        @foreach($semester as $smt)
+                        @foreach($semester as $data_semester)
                         <?php $status = 0 ?>
-                        @foreach($nilai->where('semester', $smt)->where('kelas',
-                        $data->kelas)->unique('kelas')->values() as
-                        $value)
-                        @if($value->status == 1)
+                        @foreach($nilai->unique('kelas')->values() as $value)
+                        @if($value->kelas == $data->kelas && $value->semester == $data_semester && $value->status == 1)
                         <?php $status = 1 ?>
                         @endif
                         @endforeach

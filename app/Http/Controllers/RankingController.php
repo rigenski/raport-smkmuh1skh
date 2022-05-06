@@ -18,84 +18,55 @@ class RankingController extends Controller
     {
         $filter = $request;
 
-        if ($filter->tipe == 'angkatan') {
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('angkatan', $filter->angkatan)->get();
 
-            session(['raport-tipe' => $filter->tipe]);
-            session(['raport-tahun_pelajaran' => $filter->tahun_pelajaran]);
-            session(['raport-angkatan' => $filter->angkatan]);
-            session(['raport-semester' => $filter->semester]);
-        } else if ($filter->tipe == 'angkatan-jurusan') {
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('angkatan', $filter->angkatan)->where('jurusan', $filter->jurusan)->get();
+        if ($filter->has('tahun_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
+            session(['ranking-tahun_pelajaran' => $filter->tahun_pelajaran]);
+            session(['ranking-kelas' => $filter->kelas]);
+            session(['ranking-semester' => $filter->semester]);
 
-            session(['raport-tipe' => $filter->tipe]);
-            session(['raport-tahun_pelajaran' => $filter->tahun_pelajaran]);
-            session(['raport-angkatan' => $filter->angkatan]);
-            session(['raport-jurusan' => $filter->jurusan]);
-            session(['raport-semester' => $filter->semester]);
-        } else if ($filter->tipe == 'kelas') {
             $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
-
-            session(['raport-tipe' => $filter->tipe]);
-            session(['raport-tahun_pelajaran' => $filter->tahun_pelajaran]);
-            session(['raport-kelas' => $filter->kelas]);
-            session(['raport-semester' => $filter->semester]);
         } else {
             $siswa_aktif = [];
         }
 
         $siswa = SiswaAktif::all();
 
+        $angkatan = ['X', 'XI', 'XII'];
+
         $semester = [1, 2];
 
-        return view('admin.ranking.index', compact('filter', 'semester',  'siswa_aktif', 'siswa'));
+        return view('admin.ranking.index', compact('filter', 'angkatan', 'semester',  'siswa_aktif', 'siswa'));
     }
 
     public function print()
     {
+        date_default_timezone_set("Asia/Jakarta");
+
         $date_now = Carbon::parse(now());
 
-        $session_tipe = session()->get('raport-tipe');
+        $session_tahun_pelajaran = session()->get('ranking-tahun_pelajaran');
+        $session_kelas = session()->get('ranking-kelas');
+        $session_semester = session()->get('ranking-semester');
 
-        if ($session_tipe == 'angkatan') {
-            $session_tahun_pelajaran = session()->get('raport-tahun_pelajaran');
-            $session_angkatan = session()->get('raport-angkatan');
-            $session_semester = session()->get('raport-semester');
+        $guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
 
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('angkatan', $session_angkatan)->get();
-        } else if ($session_tipe == 'angkatan-jurusan') {
-            $session_tahun_pelajaran = session()->get('raport-tahun_pelajaran');
-            $session_angkatan = session()->get('raport-angkatan');
-            $session_jurusan = session()->get('raport-jurusan');
-            $session_semester = session()->get('raport-semester');
+        $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
 
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('angkatan', $session_angkatan)->where('jurusan', $session_jurusan)->get();
-        } else if ($session_tipe == 'kelas') {
-            $session_tahun_pelajaran = session()->get('raport-tahun_pelajaran');
-            $session_kelas = session()->get('raport-kelas');
-            $session_semester = session()->get('raport-semester');
+        $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
 
-            $guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
-
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
-        }
-
-        $setting = Setting::all();
-
-        $tahun_pelajaran = $session_tahun_pelajaran;
+        $setting = Setting::all()[0];
 
         // TABLE
-
-        $setting = $setting[0];
 
         $table_siswa = '';
         $table_mapel = '';
         $table_kkm = '';
+        $list_kejuruan = '';
 
         $no = 1;
 
         foreach ($guru_mata_pelajaran as $data) {
-            $table_mapel .= "<th style='padding: 4px 4px;border: 1px solid black;'>" . $data->mata_pelajaran->nama . "</th>";
+            $table_mapel .= "<th style='padding: 4px 4px;border: 1px solid black;'>" . $data->mata_pelajaran->kode_mata_pelajaran . "</th>";
             $table_kkm .= "<td style='padding: 4px 4px;border: 1px solid black;text-align: center;'>" . 75 . "</td>";
         }
 
@@ -109,7 +80,7 @@ class RankingController extends Controller
                 $jmlh_nilai += $nilai->nilai;
             }
 
-            array_push($data_ranking, [$jmlh_nilai, $data->siswa->nis]);
+            array_push($data_ranking, [$jmlh_nilai, $data->siswa->nomer_induk_siswa]);
 
             $no++;
             $i++;
@@ -119,14 +90,13 @@ class RankingController extends Controller
 
         $i = 0;
         foreach ($siswa_aktif as $data) {
-
             $table_nilai = '';
             $jmlh_nilai = 0;
 
             foreach ($guru_mata_pelajaran as $data_mata_pelajaran) {
                 $nilai = 0;
 
-                foreach ($data->nilai->where('mata_pelajaran_id', $data_mata_pelajaran->mata_pelajaran->id) as $data_nilai) {
+                foreach ($data->nilai->where('semester', $session_semester)->where('mata_pelajaran_id', $data_mata_pelajaran->mata_pelajaran->id) as $data_nilai) {
                     $nilai = $data_nilai->nilai;
                 }
 
@@ -145,19 +115,25 @@ class RankingController extends Controller
             $hasil_ranking = 0;
 
             foreach ($data_ranking as $index => $ranking) {
-                if ($ranking[1] == $data->siswa->nis) {
+                if ($ranking[1] == $data->siswa->nomer_induk_siswa) {
                     $hasil_ranking = $index + 1;
                 }
             }
 
             $table_siswa .= "<tr style='border: none;font-family: Arial;'>
             <td style='text-align: center;padding: 2px 4px;'>" . $no . "</td>
-            <td style='text-align: center;padding: 2px 4px;'>" . $data->siswa->nis . "</td>
-            <td style='text-align: left;padding: 2px 4px;'>" . $data->siswa->nama . "</td>" . $table_nilai . "<td style='text-align: center;padding: 2px 4px;'>" . $jmlh_nilai  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . $rata_nilai  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . $hasil_ranking  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . '-|-|-'  . "</td>"
+            <td style='text-align: center;padding: 2px 4px;'>" . $data->siswa->nomer_induk_siswa . "</td>
+            <td style='text-align: left;padding: 2px 4px;'>" . $data->siswa->nama_siswa . "</td>" . $table_nilai . "<td style='text-align: center;padding: 2px 4px;'>" . $jmlh_nilai  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . $rata_nilai  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . $hasil_ranking  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . '-|-|-'  . "</td>"
                 . "</tr>";
 
             $no++;
             $i++;
+        }
+
+        foreach ($guru_mata_pelajaran as $data) {
+            if ($data->mata_pelajaran->jenis_mata_pelajaran == 'KELOMPOK KEJURUAN') {
+                $list_kejuruan .= "<li style='margin: none;'>" . $data->mata_pelajaran->kode_mata_pelajaran . ' : ' . $data->mata_pelajaran->nama_mata_pelajaran . "</li>";
+            };
         }
 
         // HTML
@@ -193,9 +169,12 @@ class RankingController extends Controller
                         " . $table_siswa . "
                         </tbody>
                     </table>
-                    <ul style='margin-top: 4px;list-style: none;padding: none;font-size: 8px;display:'>
-                        <li style='margin: none;padding-top: 2px;'><table style='font-size: 8px;border: none;'><tr><td>Ket: </td><td style='background: #969696;width: 24px;'></td><td>Belum Tuntas</td></tr></table></li>
-                        <li style='margin: none;padding-top: 2px;'>Cetak: " . $date_now->translatedFormat('d F Y') . ', ' . $date_now->toTimeString() . " </li>
+                    <ul style='margin-top: 4px;margin-bottom: 0;list-style: none;padding: none;font-size: 8px;'>
+                       " . $list_kejuruan . "
+                    </ul>
+                    <ul style='margin-top: 2px;list-style: none;padding: none;font-size: 8px;'>
+                        <li style='margin: none;padding-top: 2px;'><table style='font-size: 8px;border: none;'><tr><td style='padding-left: 8px;padding-right: 8px;'>Ket: </td><td style='background: #969696;width: 24px;'></td><td style='padding-left: 4px;'>Belum Tuntas</td></tr></table></li>
+                        <li style='margin: none;padding-top: 2px;'>Cetak: " . $date_now->translatedFormat('d F Y') . ', ' . $date_now->toTimeString() . ' WIB' . " </li>
                     </ul>
                         <p style='text-align: right;margin-right: 86px;margin-top: 48px;font-size: 12px;'>Sukoharjo, " . $date_now->translatedFormat('d F Y') .  "</p>
                     </body>
@@ -213,18 +192,10 @@ class RankingController extends Controller
         $mpdf->WriteCell(6.4, 0.4, strtoupper($setting->sekolah), 0, 'C');
         $mpdf->SetFont('', 'B', 11);
         $mpdf->SetXY(140, 8);
-        $mpdf->WriteCell(6.4, 0.4, strtoupper('DAFTAR NILAI RAPORT SEMESTER GASAL ' . $tahun_pelajaran), 0, 'C');
+        $mpdf->WriteCell(6.4, 0.4, strtoupper('DAFTAR NILAI RAPORT SEMESTER ' . ($session_semester  == 1 ? 'GASAL ' : 'GENAP ') . $session_tahun_pelajaran), 0, 'C');
         $mpdf->SetFont('', 'B', 11);
         $mpdf->SetXY(140, 14);
-        if ($session_tipe == 'angkatan') {
-            $mpdf->WriteCell(6.4, 0.4, 'Angkatan: ' . strtoupper($session_angkatan), 0, 'C');
-        } else if ($session_tipe == 'angkatan-jurusan') {
-            $mpdf->WriteCell(6.4, 0.4, 'Angkatan: ' . strtoupper($session_angkatan) . ', Jurusan: ' . $session_jurusan, 0, 'C');
-        } else if ($session_tipe == 'kelas') {
-            $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
-
-            $mpdf->WriteCell(6.4, 0.4, 'Kelas: ' . $session_kelas . ', Wali Kelas: ' . $wali_kelas[0]->guru->nama, 0, 'C');
-        }
+        $mpdf->WriteCell(6.4, 0.4, 'Kelas: ' . $session_kelas . ', Wali Kelas: ' . $wali_kelas->guru->nama_guru, 0, 'C');
         $mpdf->SetFont('Arial', '', 8);
         $mpdf->SetXY(24, 14);
         $mpdf->WriteCell(6.4, 0.4, $setting->alamat, 0, 'C');

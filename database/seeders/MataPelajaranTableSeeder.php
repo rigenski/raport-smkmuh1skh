@@ -16,37 +16,37 @@ class MataPelajaranTableSeeder extends Seeder
     {
         $data_mata_pelajaran = [
             [
-                'jenis' => 'KELOMPOK MATA PELAJARAN UMUM',
-                'nama' => 'Pendidikan Bahasa Arab',
-                'kode_mapel' => 'PAB',
+                'jenis_mata_pelajaran' => 'KELOMPOK MATA PELAJARAN UMUM',
+                'kode_mata_pelajaran' => 'PAB',
+                'nama_mata_pelajaran' => 'Pendidikan Bahasa Arab',
             ],
             [
-                'jenis' => 'KELOMPOK MATA PELAJARAN UMUM',
-                'nama' => 'Pendidikan Aqidah Akhlak',
-                'kode_mapel' => 'PAA',
+                'jenis_mata_pelajaran' => 'KELOMPOK MATA PELAJARAN UMUM',
+                'kode_mata_pelajaran' => 'PAA',
+                'nama_mata_pelajaran' => 'Pendidikan Aqidah Akhlak',
             ],
             [
-                'jenis' => 'KELOMPOK MATA PELAJARAN UMUM',
-                'nama' => 'Bahasa Indonesia',
-                'kode_mapel' => 'IND',
+                'jenis_mata_pelajaran' => 'KELOMPOK MATA PELAJARAN UMUM',
+                'kode_mata_pelajaran' => 'IND',
+                'nama_mata_pelajaran' => 'Bahasa Indonesia',
             ],
             [
-                'jenis' => 'KELOMPOK KEJURUAN',
-                'nama' => 'Matematika',
-                'kode_mapel' => 'MTK',
+                'jenis_mata_pelajaran' => 'KELOMPOK KEJURUAN',
+                'kode_mata_pelajaran' => 'MTK',
+                'nama_mata_pelajaran' => 'Matematika',
             ],
             [
-                'jenis' => 'KELOMPOK KEJURUAN',
-                'nama' => 'Informatika',
-                'kode_mapel' => 'INFOR',
+                'jenis_mata_pelajaran' => 'KELOMPOK KEJURUAN',
+                'kode_mata_pelajaran' => 'INFOR',
+                'nama_mata_pelajaran' => 'Informatika',
             ],
         ];
 
         foreach ($data_mata_pelajaran as $mata_pelajaran) {
             $new_mata_pelajaran = new MataPelajaran();
-            $new_mata_pelajaran->jenis = $mata_pelajaran['jenis'];
-            $new_mata_pelajaran->kode_mapel = $mata_pelajaran['kode_mapel'];
-            $new_mata_pelajaran->nama = $mata_pelajaran['nama'];
+            $new_mata_pelajaran->jenis_mata_pelajaran = $mata_pelajaran['jenis_mata_pelajaran'];
+            $new_mata_pelajaran->kode_mata_pelajaran = $mata_pelajaran['kode_mata_pelajaran'];
+            $new_mata_pelajaran->nama_mata_pelajaran = $mata_pelajaran['nama_mata_pelajaran'];
             $new_mata_pelajaran->save();
         }
     }

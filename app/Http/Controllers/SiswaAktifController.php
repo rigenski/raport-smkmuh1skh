@@ -18,7 +18,7 @@ class SiswaAktifController extends Controller
         $setting = Setting::all()[0];
 
         if ($filter->has('tahun_pelajaran') && $filter->has('kelas')) {
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
+            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
         } else {
             $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
         }

@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Siswa;
+use App\Models\SiswaAktif;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 
@@ -15,11 +16,11 @@ class SiswaAktifImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $siswa = Siswa::where('nis', $row[1])->get();
+        $siswa = Siswa::where('nomer_induk_siswa', $row[1])->get()[0];
 
         $angkatan = explode(' ',  $row[3])[0];
 
-        return new Siswa([
+        return new SiswaAktif([
             "tahun_pelajaran" => $row[0],
             "kelas" => $row[3],
             "angkatan" => $angkatan,

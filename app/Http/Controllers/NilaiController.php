@@ -23,12 +23,21 @@ class NilaiController extends Controller
 
             $setting = Setting::all()[0];
 
-            $siswa = [];
-
             if ($filter->has('tahun_pelajaran') && $filter->has('mata_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
+                $mata_pelajaran_selected = MataPelajaran::where('nama_mata_pelajaran', $filter->mata_pelajaran)->get()[0];
 
-
-                $siswa = Nilai::all()->where('tahun_pelajaran', $filter->tahun_pelajaran)->where('semester', $filter->semester)->where('kelas', $filter->kelas)->where('mata_pelajaran', $filter->mata_pelajaran)->unique('siswa_id')->values()->all();
+                $siswa_aktif = DB::table('siswa_aktif')
+                    ->leftJoin('siswa', 'siswa.id', 'siswa_aktif.siswa_id')
+                    ->leftJoin('nilai', function ($join) use ($filter) {
+                        $join->on('siswa_aktif.id', 'nilai.siswa_aktif_id')
+                            ->where('nilai.semester', $filter->semester);
+                    })
+                    ->leftJoin('mata_pelajaran', 'mata_pelajaran.id', 'nilai.mata_pelajaran_id')
+                    ->where('siswa_aktif.kelas', $filter->kelas)
+                    ->select('siswa.nomer_induk_siswa', 'siswa.nama_siswa', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'nilai.id', 'nilai.semester', 'nilai.nilai', 'nilai.keterangan', 'nilai.status', 'mata_pelajaran.jenis_mata_pelajaran', 'mata_pelajaran.kode_mata_pelajaran', 'mata_pelajaran.nama_mata_pelajaran')
+                    ->get();
+            } else {
+                $siswa_aktif = [];
             }
 
             $mata_pelajaran = DB::table('guru_mata_pelajaran')
@@ -37,21 +46,24 @@ class NilaiController extends Controller
 
             $semester = [1, 2];
 
-            return view('admin.nilai.index', compact('filter', 'siswa', 'mata_pelajaran', 'semester'));
+            return view('admin.nilai.index', compact('filter', 'siswa_aktif', 'mata_pelajaran', 'semester'));
         } else {
             $filter = $request;
 
             $setting = Setting::all()[0];
 
-            $siswa_aktif = [];
-
             if ($filter->has('tahun_pelajaran') && $filter->has('mata_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
-                $mata_pelajaran_selected = MataPelajaran::where('nama', $filter->mata_pelajaran)->get()[0];
+                $mata_pelajaran_selected = MataPelajaran::where('nama_mata_pelajaran', $filter->mata_pelajaran)->get()[0];
 
                 $siswa_aktif = DB::table('siswa_aktif')
-                    ->join('nilai', 'siswa_aktif.id', '=', 'nilai.siswa_aktif_id')
-                    ->where('nilai.mata_pelajaran_id', '=', $mata_pelajaran_selected->id)
+                    ->leftJoin('siswa', 'siswa.id', 'siswa_aktif.siswa_id')
+                    ->leftJoin('nilai', 'siswa_aktif.id', 'nilai.siswa_aktif_id')
+                    ->leftJoin('mata_pelajaran', 'mata_pelajaran.id', 'nilai.mata_pelajaran_id')
+                    ->where('siswa_aktif.kelas', $filter->kelas)
+                    ->select('siswa.nomer_induk_siswa', 'siswa.nama_siswa', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'nilai.id', 'nilai.semester', 'nilai.nilai', 'nilai.keterangan', 'nilai.status', 'mata_pelajaran.jenis_mata_pelajaran', 'mata_pelajaran.kode_mata_pelajaran', 'mata_pelajaran.nama_mata_pelajaran')
                     ->get();
+            } else {
+                $siswa_aktif = [];
             }
 
             $mata_pelajaran = DB::table('guru_mata_pelajaran')
@@ -61,7 +73,7 @@ class NilaiController extends Controller
 
             $semester = [1, 2];
 
-            return view('admin.nilai.index', compact('filter', 'setting', 'siswa_aktif', 'mata_pelajaran', 'semester'));
+            return view('admin.nilai.index', compact('filter', 'siswa_aktif', 'mata_pelajaran', 'semester'));
         }
     }
 

@@ -11,6 +11,6 @@ class SiswaAktifFormatExport implements FromView
 
     public function view(): View
     {
-        return view('admin/siswa_aktif/format-table');
+        return view('admin/siswa-aktif/format-table');
     }
 }

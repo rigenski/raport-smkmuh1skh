@@ -18,23 +18,23 @@ class GuruTableSeeder extends Seeder
         $data_guru = [
             [
                 'kode_guru' => 'NB',
-                'nama' => 'Sukardi, S.Ag.'
+                'nama_guru' => 'Sukardi, S.Ag.'
             ],
             [
                 'kode_guru' => 'NC',
-                'nama' => 'Luqman Hakim, S.Pd.'
+                'nama_guru' => 'Luqman Hakim, S.Pd.'
             ],
             [
                 'kode_guru' => 'ND',
-                'nama' => 'Zaenal Arifin, S.Pd.I'
+                'nama_guru' => 'Zaenal Arifin, S.Pd.I'
             ],
             [
                 'kode_guru' => 'NE',
-                'nama' => "Ah Zanin Nu'man, M.Pd.I"
+                'nama_guru' => "Ah Zanin Nu'man, M.Pd.I"
             ],
             [
                 'kode_guru' => 'NF',
-                'nama' => 'Arif Rohman, S.Pd.I'
+                'nama_guru' => 'Arif Rohman, S.Pd.I'
             ],
         ];
 
@@ -47,7 +47,7 @@ class GuruTableSeeder extends Seeder
 
             $new_guru = new Guru();
             $new_guru->kode_guru = $guru['kode_guru'];
-            $new_guru->nama = $guru['nama'];
+            $new_guru->nama_guru = $guru['nama_guru'];
             $new_guru->user_id = $user->id;
             $new_guru->save();
         }

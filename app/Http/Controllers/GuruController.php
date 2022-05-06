@@ -22,7 +22,7 @@ class GuruController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'kode_guru' => 'required',
-            'nama' => 'required',
+            'nama_guru' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -33,7 +33,7 @@ class GuruController extends Controller
 
         $guru->update([
             'kode_guru' => $request->kode_guru,
-            'nama' => $request->nama
+            'nama_guru' => $request->nama_guru
         ]);
 
         if ($request->password) {

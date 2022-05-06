@@ -11,6 +11,6 @@ class MataPelajaranFormatExport implements FromView
 
     public function view(): View
     {
-        return view('admin/mata_pelajaran/format-table');
+        return view('admin/mata-pelajaran/format-table');
     }
 }

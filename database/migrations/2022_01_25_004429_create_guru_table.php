@@ -16,7 +16,7 @@ class CreateGuruTable extends Migration
         Schema::create('guru', function (Blueprint $table) {
             $table->id();
             $table->string('kode_guru');
-            $table->string('nama');
+            $table->string('nama_guru');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });

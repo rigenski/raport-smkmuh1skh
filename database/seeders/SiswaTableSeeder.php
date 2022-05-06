@@ -17,47 +17,47 @@ class SiswaTableSeeder extends Seeder
     {
         $data_siswa = [
             [
-                'nis' => '12233',
-                'nama' => 'Adam Fahrizal Harsono',
+                'nomer_induk_siswa' => '12233',
+                'nama_siswa' => 'Adam Fahrizal Harsono',
             ],
             [
-                'nis' => '11862',
-                'nama' => 'Alif Ridwan Rasyidin',
+                'nomer_induk_siswa' => '11862',
+                'nama_siswa' => 'Alif Ridwan Rasyidin',
             ],
             [
-                'nis' => '11863',
-                'nama' => 'Ardiansyah Putra Permana',
+                'nomer_induk_siswa' => '11863',
+                'nama_siswa' => 'Ardiansyah Putra Permana',
             ],
             [
-                'nis' => '11864',
-                'nama' => 'Atlantis Cartenzian Arkadya',
+                'nomer_induk_siswa' => '11864',
+                'nama_siswa' => 'Atlantis Cartenzian Arkadya',
             ],
             [
-                'nis' => '11865',
-                'nama' => 'Attariq Anugrah Ramadhani',
+                'nomer_induk_siswa' => '11865',
+                'nama_siswa' => 'Attariq Anugrah Ramadhani',
             ],
             [
-                'nis' => '11866',
-                'nama' => 'Avin Fajar Fitriansyah',
+                'nomer_induk_siswa' => '11866',
+                'nama_siswa' => 'Avin Fajar Fitriansyah',
             ],
             [
-                'nis' => '11867',
-                'nama' => 'Bayu Sahid Ramadhan',
+                'nomer_induk_siswa' => '11867',
+                'nama_siswa' => 'Bayu Sahid Ramadhan',
             ],
             [
-                'nis' => '11868',
-                'nama' => 'Danudiraja Soenoto',
+                'nomer_induk_siswa' => '11868',
+                'nama_siswa' => 'Danudiraja Soenoto',
             ],
             [
-                'nis' => '11869',
-                'nama' => 'Edwin Maulana Bachtiar',
+                'nomer_induk_siswa' => '11869',
+                'nama_siswa' => 'Edwin Maulana Bachtiar',
             ],
         ];
 
         foreach ($data_siswa as $siswa) {
             $new_siswa = new Siswa();
-            $new_siswa->nis = $siswa['nis'];
-            $new_siswa->nama = $siswa['nama'];
+            $new_siswa->nomer_induk_siswa = $siswa['nomer_induk_siswa'];
+            $new_siswa->nama_siswa = $siswa['nama_siswa'];
             $new_siswa->save();
         }
     }

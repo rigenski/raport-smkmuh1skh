@@ -53,10 +53,10 @@
                         </td>
                         <td>{{ $data->tahun_pelajaran }}</td>
                         <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->guru->nama }}</td>
+                        <td>{{ $data->guru->nama_guru }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'wali-kelas/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #guru').attr('value', '{{$data->guru->id}}'); $('#modalEdit #formEdit #guru').text('{{$data->guru->nama}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'wali-kelas/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #guru').attr('value', '{{$data->guru->id}}'); $('#modalEdit #formEdit #guru').text('{{$data->guru->nama_guru}}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'wali-kelas/{{$data->id}}/destroy')"
@@ -176,7 +176,7 @@
                         required>
                         <option value="" id="guru"></option>
                         @foreach($guru as $data)
-                        <option value="{{ $data->id }}">{{ $data->nama }}</option>
+                        <option value="{{ $data->id }}">{{ $data->nama_guru }}</option>
                         @endforeach
                     </select>
                 </div>

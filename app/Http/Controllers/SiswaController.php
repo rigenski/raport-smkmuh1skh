@@ -20,8 +20,8 @@ class SiswaController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'nis' => 'required',
-            'nama' => 'required',
+            'nomer_induk_siswa' => 'required',
+            'nama_siswa' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -31,8 +31,8 @@ class SiswaController extends Controller
         $siswa = Siswa::find($id);
 
         $siswa->update([
-            'nis' => $request->nis,
-            'nama' => $request->nama,
+            'nomer_induk_siswa' => $request->nomer_induk_siswa,
+            'nama_siswa' => $request->nama_siswa,
         ]);
 
         return redirect()->back()->with('success', 'Data siswa berhasil diperbarui');

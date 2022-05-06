@@ -20,44 +20,44 @@ class GuruMataPelajaranTableSeeder extends Seeder
             [
                 'tahun_pelajaran' => '2021/2022',
                 'kode_guru' => 'NB',
-                'kode_mapel' => 'PAB',
+                'kode_mata_pelajaran' => 'PAB',
                 'kelas' => 'X RPL 1',
             ],
             [
                 'tahun_pelajaran' => '2021/2022',
                 'kode_guru' => 'NB',
-                'kode_mapel' => 'PAB',
+                'kode_mata_pelajaran' => 'PAB',
                 'kelas' => 'X TKJ 1',
             ],
             [
                 'tahun_pelajaran' => '2021/2022',
                 'kode_guru' => 'NC',
-                'kode_mapel' => 'PAA',
+                'kode_mata_pelajaran' => 'PAA',
                 'kelas' => 'X RPL 1',
             ],
             [
                 'tahun_pelajaran' => '2021/2022',
                 'kode_guru' => 'ND',
-                'kode_mapel' => 'IND',
+                'kode_mata_pelajaran' => 'IND',
                 'kelas' => 'X RPL 1',
             ],
             [
                 'tahun_pelajaran' => '2021/2022',
                 'kode_guru' => 'ND',
-                'kode_mapel' => 'IND',
+                'kode_mata_pelajaran' => 'IND',
                 'kelas' => 'X TKJ 1',
             ],
             [
                 'tahun_pelajaran' => '2021/2022',
                 'kode_guru' => 'NE',
-                'kode_mapel' => 'INFOR',
+                'kode_mata_pelajaran' => 'INFOR',
                 'kelas' => 'X RPL 1',
             ],
         ];
 
         foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran) {
             $guru = Guru::where('kode_guru', $guru_mata_pelajaran['kode_guru'])->get();
-            $mata_pelajaran = MataPelajaran::where('kode_mapel', $guru_mata_pelajaran['kode_mapel'])->get();
+            $mata_pelajaran = MataPelajaran::where('kode_mata_pelajaran', $guru_mata_pelajaran['kode_mata_pelajaran'])->get();
 
             $new_guru = new GuruMataPelajaran();
             $new_guru->tahun_pelajaran = $guru_mata_pelajaran['tahun_pelajaran'];

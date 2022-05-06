@@ -18,7 +18,7 @@ class GuruMataPelajaranImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $mata_pelajaran = MataPelajaran::where('kode_mapel', $row[2])->get();
+        $mata_pelajaran = MataPelajaran::where('kode_mata_pelajaran', $row[2])->get();
         $guru = Guru::where('kode_guru', $row[4])->get();
 
         $guru[0]->user->update([

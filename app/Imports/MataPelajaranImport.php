@@ -17,9 +17,9 @@ class MataPelajaranImport implements ToModel, WithStartRow
     public function model(array $row)
     {
         return new MataPelajaran([
-            "jenis" => $row[0],
-            "kode_mapel" => $row[1],
-            "pelajaran" => $row[2],
+            "jenis_mata_pelajaran" => $row[0],
+            "kode_mata_pelajaran" => $row[1],
+            "nama_mata_pelajaran" => $row[2],
         ]);
     }
 

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSiswaAktifTable extends Migration
+class CreateKetidakhadiranTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,14 @@ class CreateSiswaAktifTable extends Migration
      */
     public function up()
     {
-        Schema::create('siswa_aktif', function (Blueprint $table) {
+        Schema::create('ketidakhadiran', function (Blueprint $table) {
             $table->id();
             $table->string('tahun_pelajaran');
-            $table->string('kelas');
-            $table->string('angkatan');
-            $table->string('jurusan');
-            $table->foreignId('siswa_id')->constrained('siswa')->onDelete('cascade');
+            $table->string('semester');
+            $table->string('sakit');
+            $table->string('izin');
+            $table->string('tanpa_keterangan');
+            $table->foreignId('siswa_aktif_id')->constrained('siswa_aktif')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ class CreateSiswaAktifTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('siswa_aktif');
+        Schema::dropIfExists('ketidakhadiran');
     }
 }

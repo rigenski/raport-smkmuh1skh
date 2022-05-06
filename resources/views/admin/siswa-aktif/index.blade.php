@@ -38,8 +38,8 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">NIS</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">Nomer Induk Siswa</th>
+                        <th scope="col">Nama Siswa</th>
                         <th scope="col">Kelas</th>
                         <th scope="col">Jurusan</th>
                         <th scope="col">Aksi</th>
@@ -52,8 +52,8 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->siswa->nis }}</td>
-                        <td>{{ $data->siswa->nama }}</td>
+                        <td>{{ $data->siswa->nomer_induk_siswa }}</td>
+                        <td>{{ $data->siswa->nama_siswa }}</td>
                         <td>{{ $data->kelas }}</td>
                         <td>{{ $data->jurusan }}</td>
                         <td>
@@ -147,8 +147,8 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">File</label>
-                    <input type="file" class="form-control" required id="excel" name="data_siswa" accept=".xlsx, .xls">
+                    <label for="nama_siswa">File</label>
+                    <input type="file" class="form-control" required id="excel" name="data_siswa_aktif" accept=".xlsx, .xls">
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
                     </div>

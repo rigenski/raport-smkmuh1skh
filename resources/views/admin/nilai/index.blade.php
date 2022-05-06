@@ -32,13 +32,43 @@
         </div>
     </div>
     <div class="card-body">
-        @if(!$filter->tahun_pelajaran)
+        @if( !$filter->tahun_pelajaran || !$filter->mata_pelajaran || !$filter->kelas || !$filter->semester )
         <div class="alert alert-danger">
             * FILTER <b>DATA NILAI</b> TERLEBIH DAHULU
         </div>
-        @elseif(!count($siswa))
-        <div class="alert alert-warning">
-            * DATA NILAI TIDAK ADA
+        @else
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->tahun_pelajaran }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Mata Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->mata_pelajaran }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Kelas</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->kelas }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Semester</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->semester }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         @endif
         <div class="table-responsive">
@@ -46,11 +76,8 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Tahun Pelajaran</th>
-                        <th scope="col">Mata Pelajaran</th>
-                        <th scope="col">Kelas</th>
-                        <th scope="col">NIS</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">Nomer Induk Siswa</th>
+                        <th scope="col">Nama Siswa</th>
                         <th scope="col">Nilai</th>
                         <th scope="col">Keterangan</th>
                         <th scope="col">Aksi</th>
@@ -58,26 +85,30 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($siswa as $data)
+                    @foreach($siswa_aktif as $data)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->tahun_pelajaran }}</td>
-                        <td>{{ $data->mata_pelajaran->nama }}</td>
-                        <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->siswa_aktif->siswa->nis }}</td>
-                        <td>{{ $data->siswa_aktif->siswa->nama }}</td>
-                        <td>{{ $data->nilai }}</td>
-                        <td>{{ $data->keterangan }}</td>
+                        <td>{{ $data->nomer_induk_siswa }}</td>
+                        <td>{{ $data->nama_siswa }}</td>
+                        <td>{{ $data->nilai ? $data->nilai : '-' }}</td>
+                        <td>{{ $data->keterangan ? $data->keterangan : '-' }}</td>
+                        @if( $data->nilai )
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{ $data->id }}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{ $data->nilai }}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{ $data->keterangan }}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
+                                onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{ $data->id }}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
+                        @else
+                        <td>
+                            <button class="btn btn-warning m-1" disabled>Ubah</button>
+                            <button class="btn btn-danger m-1" disabled>Hapus</button>
+                        </td>
+                        @endif
                     </tr>
                     <?php $count++; ?>
                     @endforeach
@@ -280,7 +311,7 @@
         const mata_pelajaran_selected = []; 
 
         data_mata_pelajaran_filter.map((data) => {
-            mata_pelajaran_selected.push(data.nama);
+            mata_pelajaran_selected.push(data.nama_mata_pelajaran);
         })
 
         const delete_duplicate = (value, index, self) => {
@@ -352,13 +383,43 @@
         </div>
     </div>
     <div class="card-body">
-        @if(!$filter->tahun_pelajaran)
+        @if(!$filter->tahun_pelajaran || !$filter->mata_pelajaran || !$filter->kelas || !$filter->semester)
         <div class="alert alert-danger">
             * FILTER DATA NILAI TERLEBIH DAHULU
         </div>
-        @elseif(!count($siswa_aktif))
-        <div class="alert alert-warning">
-            * DATA NILAI TIDAK ADA
+        @else
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->tahun_pelajaran }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Mata Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->mata_pelajaran }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Kelas</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->kelas }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Semester</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->semester }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         @endif
         <div class="table-responsive">
@@ -366,11 +427,8 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Tahun Pelajaran</th>
-                        <th scope="col">Mata Pelajaran</th>
-                        <th scope="col">Kelas</th>
-                        <th scope="col">NIS</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">Nomer Induk Siswa</th>
+                        <th scope="col">Nama Siswa</th>
                         <th scope="col">Nilai</th>
                         <th scope="col">Keterangan</th>
                         <th scope="col">Aksi</th>
@@ -383,20 +441,22 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->tahun_pelajaran }}</td>
-                        <td>{{ $data->mata_pelajaran->nama }}</td>
-                        <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->siswa_aktif->siswa->nis }}</td>
-                        <td>{{ $data->siswa_aktif->siswa->nama }}</td>
-                        <td>{{ $data->nilai }}</td>
-                        <td>{{ $data->keterangan }}</td>
-                        @if(!$data->status)
+                        <td>{{ $data->nomer_induk_siswa }}</td>
+                        <td>{{ $data->nama_siswa }}</td>
+                        <td>{{ $data->nilai ? $data->nilai : '-' }}</td>
+                        <td>{{ $data->keterangan ? $data->keterangan : '-' }}</td>
+                        @if( $data->status )
+                        <td>
+                            <button class="btn btn-warning m-1" disabled>Ubah</button>
+                            <button class="btn btn-danger m-1" disabled>Hapus</button>
+                        </td>
+                        @elseif( $data->nilai )
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{$data->id}}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{$data->nilai}}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{$data->keterangan}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'nilai/{{ $data->id }}/update'); $('#modalEdit #formEdit #nilai').attr('value', '{{ $data->nilai }}'); $('#modalEdit #formEdit #keterangan').attr('value', '{{ $data->keterangan }}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{$data->id}}/destroy')"
+                                onclick="$('#modalDelete #formDelete').attr('action', 'nilai/{{ $data->id }}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
                         @else
@@ -452,8 +512,7 @@
                         <label for="mata_pelajaran">Mata Pelajaran</label>
                         <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
                             @if($filter->mata_pelajaran)
-                            <option value="{{ $filter->mata_pelajaran }}">{{ $filter->mata_pelajaran }}
-                            </option>
+                            <option value="{{ $filter->mata_pelajaran }}">{{ $filter->mata_pelajaran }}</option>
                             @endif
                         </select>
                     </div>
@@ -461,9 +520,7 @@
                         <label for="kelas">Kelas</label>
                         <select class="form-control" autocomplete="off" id="kelas" name="kelas">
                             @if($filter->kelas)
-                            <option value="{{ $filter->kelas }}">{{
-                                $filter->kelas
-                                }}</option>
+                            <option value="{{ $filter->kelas }}">{{$filter->kelas}}</option>
                             @endif
                         </select>
                     </div>
@@ -537,10 +594,11 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="guru_mata_pelajaran">Kelas - Mapel</label>
+                    <label for="guru_mata_pelajaran">Kelas - Mata Pelajaran</label>
                     <select class="form-control" autocomplete="off" id="guru_mata_pelajaran" name="guru_mata_pelajaran">
                         @foreach(auth()->user()->guru->guru_mata_pelajaran as $data)
-                        <option value="{{ $data->id }}">{{ $data->kelas }} - {{ $data->mata_pelajaran->nama
+                        <option value="{{ $data->id }}">{{ $data->kelas }} - {{
+                            $data->mata_pelajaran->nama_mata_pelajaran
                             }}
                         </option>
                         @endforeach
@@ -665,11 +723,12 @@
 
         const data_mata_pelajaran_filter = data_mata_pelajaran.filter(selected);
 
+        
         const mata_pelajaran_selected = []; 
-
+        
         data_mata_pelajaran_filter.map((data) => {
-            mata_pelajaran_selected.push(data.nama);
-        })
+            mata_pelajaran_selected.push(data.nama_mata_pelajaran);
+        })  
 
         const delete_duplicate = (value, index, self) => {
             return self.indexOf(value) === index;

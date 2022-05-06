@@ -38,9 +38,9 @@
                 <thead>
                     <tr>
                         <th scope="col">No</th>
-                        <th scope="col">Jenis</th>
-                        <th scope="col">Kode Mapel</th>
-                        <th scope="col">Nama</th>
+                        <th scope="col">Jenis Mata Pelajaran</th>
+                        <th scope="col">Kode Mata Pelajaran</th>
+                        <th scope="col">Nama Mata Pelajaran</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -51,12 +51,12 @@
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->jenis }}</td>
-                        <td>{{ $data->kode_mapel }}</td>
-                        <td>{{ $data->nama }}</td>
+                        <td>{{ $data->jenis_mata_pelajaran }}</td>
+                        <td>{{ $data->kode_mata_pelajaran }}</td>
+                        <td>{{ $data->nama_mata_pelajaran }}</td>
                         <td>
                             <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'mata-pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #jenis').attr('value', '{{$data->jenis}}'); $('#modalEdit #formEdit #kode_mapel').attr('value', '{{$data->kode_mapel}}'); $('#modalEdit #formEdit #nama').attr('value', '{{$data->nama}}');"
+                                onclick="$('#modalEdit #formEdit').attr('action', 'mata-pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #jenis_mata_pelajaran').attr('value', '{{$data->jenis_mata_pelajaran}}'); $('#modalEdit #formEdit #kode_mata_pelajaran').attr('value', '{{$data->kode_mata_pelajaran}}'); $('#modalEdit #formEdit #nama_mata_pelajaran').attr('value', '{{$data->nama_mata_pelajaran}}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modalDelete" data-toggle="modal"
                                 onclick="$('#modalDelete #formDelete').attr('action', 'mata-pelajaran/{{$data->id}}/destroy')"
@@ -88,18 +88,19 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="jenis">Jenis</label>
-                    <select class="form-control" autocomplete="off" id="jenis" name="jenis">
-                        @if($filter->has('jenis'))
-                        <option value="{{ $filter->jenis }}">{{ $filter->jenis }}</option>
-                        @foreach($jenis_mapel as $data)
-                        @if($filter->jenis !== $data->jenis)
-                        <option value="{{ $data->jenis }}">{{ $data->jenis }}</option>
+                    <label for="jenis_mata_pelajaran">Jenis Mata Pelajaran</label>
+                    <select class="form-control" autocomplete="off" id="jenis_mata_pelajaran"
+                        name="jenis_mata_pelajaran">
+                        @if($filter->has('jenis_mata_pelajaran'))
+                        <option value="{{ $filter->jenis_mata_pelajaran }}">{{ $filter->jenis_mata_pelajaran }}</option>
+                        @foreach($jenis_mata_pelajaran as $data)
+                        @if($filter->jenis_mata_pelajaran !== $data->jenis_mata_pelajaran)
+                        <option value="{{ $data->jenis_mata_pelajaran }}">{{ $data->jenis_mata_pelajaran }}</option>
                         @endif
                         @endforeach
                         @else
-                        @foreach($jenis_mapel as $data)
-                        <option value="{{ $data->jenis }}">{{ $data->jenis }}</option>
+                        @foreach($jenis_mata_pelajaran as $data)
+                        <option value="{{ $data->jenis_mata_pelajaran }}">{{ $data->jenis_mata_pelajaran }}</option>
                         @endforeach
                         @endif
                     </select>
@@ -128,7 +129,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">File</label>
+                    <label for="data_mata_pelajaran">File</label>
                     <input type="file" class="form-control" required id="excel" name="data_mata_pelajaran"
                         accept=".xlsx, .xls">
                     <div class="text-small text-danger mt-2">
@@ -161,30 +162,30 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="jenis">Jenis <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('jenis') is-invalid @enderror" id="jenis"
-                        name="jenis" value="">
-                    @error('jenis')
+                    <label for="jenis_mata_pelajaran">Jenis <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('jenis_mata_pelajaran') is-invalid @enderror"
+                        id="jenis_mata_pelajaran" name="jenis_mata_pelajaran" value="">
+                    @error('jenis_mata_pelajaran')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="kode_mapel">Kode Mapel <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('kode_mapel') is-invalid @enderror"
-                        id="kode_mapel" name="kode_mapel" value="">
-                    @error('kode_mapel')
+                    <label for="kode_mata_pelajaran">Kode Mata Pelajaran <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('kode_mata_pelajaran') is-invalid @enderror"
+                        id="kode_mata_pelajaran" name="kode_mata_pelajaran" value="">
+                    @error('kode_mata_pelajaran')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="nama">Nama <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
-                        name="nama" value="">
-                    @error('nama')
+                    <label for="nama_mata_pelajaran">Nama Mata Pelajaran<span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama_mata_pelajaran') is-invalid @enderror"
+                        id="nama_mata_pelajaran" name="nama_mata_pelajaran" value="">
+                    @error('nama_mata_pelajaran')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
