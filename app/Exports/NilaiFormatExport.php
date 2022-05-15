@@ -24,7 +24,7 @@ class NilaiFormatExport implements FromView
     {
         $guru_mata_pelajaran = GuruMataPelajaran::find($this->guru_mata_pelajaran_id);
 
-        $setting = Setting::all()[0];
+        $setting = Setting::all()->first();
 
         $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $guru_mata_pelajaran->kelas)->get();
         $mata_pelajaran = $guru_mata_pelajaran->mata_pelajaran;

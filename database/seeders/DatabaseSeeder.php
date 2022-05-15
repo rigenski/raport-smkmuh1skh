@@ -15,13 +15,6 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         $this->call([
-            UsersTableSeeder::class,
-            GuruTableSeeder::class,
-            WaliKelasTableSeeder::class,
-            SiswaTableSeeder::class,
-            SiswaAktifTableSeeder::class,
-            MataPelajaranTableSeeder::class,
-            GuruMataPelajaranTableSeeder::class,
             SettingTableSeeder::class,
         ]);
     }

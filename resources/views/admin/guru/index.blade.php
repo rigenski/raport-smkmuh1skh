@@ -8,8 +8,8 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalImport">
-                    Import Excel
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-import">
+                    Import
                 </button>
             </div>
         </div>
@@ -34,27 +34,27 @@
             <table class="table table-striped table-bordered data">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Kode Guru</th>
-                        <th scope="col">Nama Guru</th>
+                        <th scope="col" style="width: 40px;">No</th>
+                        <th scope="col">Kode</th>
+                        <th scope="col">Nama</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($guru as $data)
+                    @foreach($data_guru as $guru)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->kode_guru }}</td>
-                        <td>{{ $data->nama_guru }}</td>
+                        <td>{{ $guru->kode }}</td>
+                        <td>{{ $guru->nama }}</td>
                         <td>
-                            <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'guru/{{$data->id}}/update'); $('#modalEdit #formEdit #kode_guru').attr('value', '{{$data->kode_guru}}'); $('#modalEdit #formEdit #nama_guru').attr('value', '{{$data->nama_guru}}');"
+                            <a href="#modal-edit" data-toggle="modal"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'guru/{{$guru->id}}/update'); $('#modal-edit #form-edit #kode').attr('value', '{{$guru->kode}}'); $('#modal-edit #form-edit #nama').attr('value', '{{$guru->nama}}');"
                                 class="btn btn-warning m-1">Ubah</a>
-                            <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'guru/{{$data->id}}/destroy')"
+                            <a href="#modal-delete" data-toggle="modal"
+                                onclick="$('#modal-delete #formDelete').attr('action', 'guru/{{$guru->id}}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
                     </tr>
@@ -71,22 +71,26 @@
 @section('modal')
 
 <!-- Modal Import -->
-<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form class="modal-content" action="{{ route('admin.guru.import') }}" method="post"
             enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Guru</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span class="text-primary"> Guru</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama_guru">File</label>
-                    <input type="file" class="form-control" required id="excel" name="data_guru" accept=".xlsx, .xls">
+                    <label for="nama">File <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="data_guru" name="data_guru" accept=".xlsx, .xls">
+                        <label class="custom-file-label" for="data_guru">Pilih File</label>
+                    </div>
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
@@ -103,33 +107,33 @@
 </div>
 
 <!-- Modal Edit -->
-<div class="modal fade" id="modalEdit" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="formEdit" class="modal-content" action="" method="post">
+        <form id="form-edit" class="modal-content" action="" method="post">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Edit Guru</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary"> Guru</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama_guru">Nama Guru <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nama_guru') is-invalid @enderror"
-                        id="nama_guru" name="nama_guru" value="">
-                    @error('nama_guru')
+                    <label for="nama">Nama <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
+                        name="nama" value="">
+                    @error('nama')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="kode_guru">Kode Guru <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('kode_guru') is-invalid @enderror"
-                        id="kode_guru" name="kode_guru" value="">
-                    @error('kode_guru')
+                    <label for="kode">Kode <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('kode') is-invalid @enderror" id="kode"
+                        name="kode" value="">
+                    @error('kode')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
@@ -155,11 +159,11 @@
 </div>
 
 <!-- Modal Delete -->
-<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form id="formDelete" class="modal-content" action="" method="get">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Hapus <span class="text-primary"> Guru</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

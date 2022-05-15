@@ -8,10 +8,11 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modalFilter">
+                <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modal-filter">
                     Filter
                 </button>
-                @if($filter->all() && count($siswa_aktif))
+                @if(( $filter->has('tahun_pelajaran') || $filter->has('kelas') || $filter->has('semester')) &&
+                count($data_siswa_aktif))
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
                     Print PDF
                 </button>
@@ -39,17 +40,13 @@
         </div>
     </div>
     <div class="card-body">
-        @if( !$filter->tahun_pelajaran || !$filter->angkatan || !$filter->kelas || !$filter->semester )
-        <div class="alert alert-danger">
-            * FILTER <b>DATA RANKING</b> TERLEBIH DAHULU
-        </div>
-        @else
+        @if( $filter->has('tahun_pelajaran') || $filter->has('kelas') || $filter->has('semester') )
         <div class="mb-4">
             <table class="mb-2">
                 <thead>
                     <tr>
                         <th colspan="3">
-                            <h5 class="text-dark">INFORMASI</h5>
+                            <h5 class="text-dark font-weight-bold">INFORMASI</h5>
                         </th>
                     </tr>
                 </thead>
@@ -72,14 +69,15 @@
                 </tbody>
             </table>
         </div>
+        @else
+        <div class="alert alert-warning">FILTER DATA <span class="font-weight-bold">RANKING</span>
+            TERLEBIH DAHULU</div>
         @endif
         <div class="table-responsive">
             <table class="table table-striped table-bordered data">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Tahun Pelajaran</th>
-                        <th scope="col">Kelas</th>
+                        <th scope="col" style="width: 40px;">No</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama</th>
                         <th scope="col">Jumlah Nilai</th>
@@ -88,20 +86,18 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($siswa_aktif as $data)
+                    @foreach($data_siswa_aktif as $siswa_aktif)
                     <?php $jmlh_nilai = 0; ?>
-                    @foreach($data->nilai->where('semester', $filter->semester) as $nilai)
+                    @foreach($siswa_aktif->nilai->where('semester', $filter->semester) as $nilai)
                     <?php $jmlh_nilai += $nilai->nilai ?>
                     @endforeach
-                    <?php $rata_nilai = $jmlh_nilai / (count($data->nilai) ? count($data->nilai) : 1); ?>
+                    <?php $rata_nilai = $jmlh_nilai / (count($siswa_aktif->nilai) ? count($siswa_aktif->nilai) : 1); ?>
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->tahun_pelajaran }}</td>
-                        <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->siswa->nomer_induk_siswa }}</td>
-                        <td>{{ $data->siswa->nama_siswa }}</td>
+                        <td>{{ $siswa_aktif->siswa->nis }}</td>
+                        <td>{{ $siswa_aktif->siswa->nama }}</td>
                         <td>{{ $jmlh_nilai }}</td>
                         <td>{{ $rata_nilai }}</td>
                     </tr>
@@ -118,10 +114,10 @@
 @section('modal')
 
 <!-- Modal Filter -->
-<div class="modal fade" id="modalFilter" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form class="modal-content" action="{{ route('admin.ranking') }}" method="get">
             <div class="modal-header">
                 <h5 class="modal-title" id="staticBackdropLabel">Filter Data Ranking</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -129,68 +125,69 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('admin.ranking') }}" method="get">
-                    <div class="form-group">
-                        <label for="tahun_pelajaran">Tahun Pelajaran</label>
-                        <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
-                            @if($filter->tahun_pelajaran)
-                            <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
-                            @foreach($tahun_pelajaran as $data)
-                            @if($data != $filter->tahun_pelajaran)
-                            <option value="{{ $data }}">{{ $data }}</option>
-                            @endif
-                            @endforeach
-                            @else
-                            @foreach($tahun_pelajaran as $data)
-                            <option value="{{ $data }}">{{ $data }}</option>
-                            @endforeach
-                            @endif
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="angkatan">Angkatan</label>
-                        <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
-                            @foreach($angkatan as $data)
-                            <option value="{{ $data }}">{{ $data }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="kelas">Kelas</label>
-                        <select class="form-control" autocomplete="off" id="kelas" name="kelas">
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="semester">Semester</label>
-                        <select class="form-control" autocomplete="off" name="semester">
-                            @if($filter->semester)
-                            <option value="{{ $filter->semester }}">{{ $filter->semester }}</option>
-                            @foreach($semester as $data)
-                            @if($data != $filter->semester)
-                            <option value="{{ $data }}">{{ $data }}</option>
-                            @endif
-                            @endforeach
-                            @else
-                            @foreach($semester as $data)
-                            <option value="{{ $data }}">{{ $data }}</option>
-                            @endforeach
-                            @endif
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label for="tahun_pelajaran">Tahun Pelajaran</label>
+                    <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
+                        @if($filter->has('tahun_pelajaran'))
+                        <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($filter->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
+                        @endif
+                        @endforeach
+                        @else
+                        <option value="{{ $setting->tahun_pelajaran }}">{{ $setting->tahun_pelajaran }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($setting->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
+                        @endif
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="angkatan">Angkatan</label>
+                    <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
+                        @foreach($data_angkatan as $angkatan)
+                        <option value="{{ $angkatan->angkatan }}">{{ $angkatan->angkatan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="kelas">Kelas</label>
+                    <select class="form-control" autocomplete="off" id="kelas" name="kelas">
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="semester">Semester</label>
+                    <select class="form-control" autocomplete="off" name="semester">
+                        @if($filter->has('semester'))
+                        <option value="{{ $filter->semester }}">{{ $filter->semester }}</option>
+                        @foreach($data_semester as $semester)
+                        @if($semester != $filter->semester)
+                        <option value="{{ $semester }}">{{ $semester }}</option>
+                        @endif
+                        @endforeach
+                        @else
+                        @foreach($data_semester as $semester)
+                        <option value="{{ $semester }}">{{ $semester }}</option>
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>
-                </form>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <!-- Modal Export -->
 <div class="modal fade" id="modalPrint" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <form class="modal-content" id="form-print" action="{{ route('admin.ranking.print') }}" method="get">
             <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
                         $filter->kelas ? $filter->kelas : '' }} </span> - Semester <span class="text-primary">{{
@@ -200,13 +197,16 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-footer">
-                <form id="formDelete" action="{{ route('admin.ranking.print') }}" method="get">
-                    <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
-                    <button type="submit" class="btn btn-primary">Cetak</button>
-                </form>
+            <div class="modal-body">
+                <label for="tanggal_legger">Tanggal Legger <span class="text-danger">*</span></label>
+                <input type="date" required class="form-control @error('tanggal_legger') is-invalid @enderror"
+                    id="tanggal_legger" name="tanggal_legger" value="">
             </div>
-        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-primary">Cetak</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -214,7 +214,7 @@
 
 @section('script')
 <script>
-    const data_siswa = @json($siswa);
+    const data_siswa = @json($data_siswa);
 
     const elTahunPelajaran = document.getElementById('tahun_pelajaran');
     const elAngkatan = document.getElementById('angkatan');

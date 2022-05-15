@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\SiswaFormatExport;
+use App\Models\Setting;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -12,16 +13,23 @@ class SiswaController extends Controller
 {
     public function index()
     {
-        $siswa = Siswa::all();
+        $setting = Setting::all()->first();
 
-        return view('admin.siswa.index', compact('siswa'));
+        if ($setting) {
+
+            $data_siswa = Siswa::all();
+        } else {
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
+        }
+
+        return view('admin.siswa.index', compact('data_siswa'));
     }
 
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'nomer_induk_siswa' => 'required',
-            'nama_siswa' => 'required',
+            'nis' => 'required',
+            'nama' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -31,8 +39,8 @@ class SiswaController extends Controller
         $siswa = Siswa::find($id);
 
         $siswa->update([
-            'nomer_induk_siswa' => $request->nomer_induk_siswa,
-            'nama_siswa' => $request->nama_siswa,
+            'nis' => $request->nis,
+            'nama' => $request->nama,
         ]);
 
         return redirect()->back()->with('success', 'Data siswa berhasil diperbarui');

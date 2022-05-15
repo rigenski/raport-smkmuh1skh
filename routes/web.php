@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DokumenController;
+use App\Http\Controllers\EkskulController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\GuruMataPelajaranController;
+use App\Http\Controllers\KetidakhadiranController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\NilaiController;
 use App\Http\Controllers\RankingController;
@@ -87,17 +90,35 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
   Route::get('/admin/ranking/print', [RankingController::class, 'print'])->name('admin.ranking.print');
 
   Route::get('/admin/riwayat', [RiwayatController::class, 'index'])->name('admin.riwayat');
+
+  Route::post('/admin/dokumen/store', [DokumenController::class, 'store'])->name('admin.dokumen.store');
+  Route::post('/admin/dokumen/{id}/update', [DokumenController::class, 'update'])->name('admin.dokumen.update');
+  Route::get('/admin/dokumen/{id}/destroy', [DokumenController::class, 'destroy'])->name('admin.dokumen.destroy');
 });
 
 Route::group(['middleware' => ['auth', 'checkRole:admin,guru,wali kelas']], function () {
   Route::get('/admin/nilai', [NilaiController::class, 'index'])->name('admin.nilai');
   Route::post('/admin/nilai/import', [NilaiController::class, 'import'])->name('admin.nilai.import');
+  Route::post('/admin/nilai/{siswa_aktif_id}/{mata_pelajaran_id}/store', [NilaiController::class, 'store'])->name('admin.nilai.store');
   Route::get('/admin/nilai/export-format', [NilaiController::class, 'export_format'])->name('admin.nilai.export_format');
   Route::post('/admin/nilai/{id}/update', [NilaiController::class, 'update'])->name('admin.nilai.update');
-  Route::get('/admin/nilai/{id}/destroy', [NilaiController::class, 'destroy'])->name('admin.nilai.destroy');
+
+  Route::get('/admin/dokumen', [DokumenController::class, 'index'])->name('admin.dokumen');
 });
 
 Route::group(['middleware' => ['auth', 'checkRole:admin,wali kelas']], function () {
   Route::get('/admin/raport', [RaportController::class, 'index'])->name('admin.raport');
   Route::get('/admin/raport/print', [RaportController::class, 'print'])->name('admin.raport.print');
+
+  Route::get('/admin/ekskul', [EkskulController::class, 'index'])->name('admin.ekskul');
+  Route::post('/admin/ekskul/import', [EkskulController::class, 'import'])->name('admin.ekskul.import');
+  Route::post('/admin/ekskul/{siswa_aktif_id}/store', [EkskulController::class, 'store'])->name('admin.ekskul.store');
+  Route::get('/admin/ekskul/export-format', [EkskulController::class, 'export_format'])->name('admin.ekskul.export_format');
+  Route::post('/admin/ekskul/{id}/update', [EkskulController::class, 'update'])->name('admin.ekskul.update');
+
+  Route::get('/admin/ketidakhadiran', [KetidakhadiranController::class, 'index'])->name('admin.ketidakhadiran');
+  Route::post('/admin/ketidakhadiran/import', [KetidakhadiranController::class, 'import'])->name('admin.ketidakhadiran.import');
+  Route::post('/admin/ketidakhadiran/{siswa_aktif_id}/store', [KetidakhadiranController::class, 'store'])->name('admin.ketidakhadiran.store');
+  Route::get('/admin/ketidakhadiran/export-format', [KetidakhadiranController::class, 'export_format'])->name('admin.ketidakhadiran.export_format');
+  Route::post('/admin/ketidakhadiran/{id}/update', [KetidakhadiranController::class, 'update'])->name('admin.ketidakhadiran.update');
 });

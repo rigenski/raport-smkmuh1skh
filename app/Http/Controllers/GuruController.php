@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\GuruFormatExport;
 use App\Models\Guru;
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -13,16 +14,22 @@ class GuruController extends Controller
 {
     public function index()
     {
-        $guru = Guru::all();
+        $setting = Setting::all();
 
-        return view('admin.guru.index', compact('guru'));
+        if (count($setting)) {
+            $data_guru = Guru::all();
+        } else {
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
+        }
+
+        return view('admin.guru.index', compact('data_guru'));
     }
 
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'kode_guru' => 'required',
-            'nama_guru' => 'required',
+            'kode' => 'required',
+            'nama' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -32,20 +39,20 @@ class GuruController extends Controller
         $guru = Guru::find($id);
 
         $guru->update([
-            'kode_guru' => $request->kode_guru,
-            'nama_guru' => $request->nama_guru
+            'kode' => $request->kode,
+            'nama' => $request->nama
         ]);
 
         if ($request->password) {
             User::find($guru->user_id)->update([
-                "username" => $request->kode_guru,
+                "username" => $request->kode,
                 "password" => bcrypt($request->password)
             ]);
+        } else {
+            User::find($guru->user_id)->update([
+                "username" => $request->kode,
+            ]);
         }
-
-        User::find($guru->user_id)->update([
-            "username" => $request->kode_guru,
-        ]);
 
         return redirect()->back()->with('success', 'Data guru berhasil diperbarui');
     }

@@ -8,11 +8,11 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalFilter">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-filter">
                     Filter
                 </button>
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
-                    Import Excel
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modal-import">
+                    Import
                 </button>
             </div>
         </div>
@@ -33,12 +33,50 @@
         </div>
     </div>
     <div class="card-body">
+        @if( $filter->has('tahun_pelajaran') )
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark font-weight-bold">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->tahun_pelajaran }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark font-weight-bold">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $setting->tahun_pelajaran }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @endif
         <div class="table-responsive">
             <table class="table table-striped table-bordered data">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Tahun Pelajaran</th>
+                        <th scope="col" style="width: 40px;">No</th>
                         <th scope="col">Kelas</th>
                         <th scope="col">Mata Pelajaran</th>
                         <th scope="col">Guru</th>
@@ -47,21 +85,20 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($guru_mata_pelajaran as $data)
+                    @foreach($data_guru_mata_pelajaran as $guru_mata_pelajaran)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->tahun_pelajaran }}</td>
-                        <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->mata_pelajaran->nama_mata_pelajaran }}</td>
-                        <td>{{ $data->guru->nama_guru }}</td>
+                        <td>{{ $guru_mata_pelajaran->kelas }}</td>
+                        <td>{{ $guru_mata_pelajaran->mata_pelajaran->nama }}</td>
+                        <td>{{ $guru_mata_pelajaran->guru->nama }}</td>
                         <td>
-                            <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'guru-mata-pelajaran/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #mata_pelajaran').attr('value', '{{$data->mata_pelajaran->id}}'); $('#modalEdit #formEdit #mata_pelajaran').text('{{$data->mata_pelajaran->nama_mata_pelajaran}}'); $('#modalEdit #formEdit #guru').attr('value', '{{$data->guru->id}}'); $('#modalEdit #formEdit #guru').text('{{$data->guru->nama_guru}}');"
+                            <a href="#modal-edit" data-toggle="modal"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'guru-mata-pelajaran/{{$guru_mata_pelajaran->id}}/update'); $('#modal-edit #form-edit #kelas').attr('value', '{{$guru_mata_pelajaran->kelas}}'); $('#modal-edit #form-edit #mata_pelajaran').attr('value', '{{$guru_mata_pelajaran->mata_pelajaran->id}}'); $('#modal-edit #form-edit #mata_pelajaran').text('{{$guru_mata_pelajaran->mata_pelajaran->nama}}'); $('#modal-edit #form-edit #guru').attr('value', '{{$guru_mata_pelajaran->guru->id}}'); $('#modal-edit #form-edit #guru').text('{{$guru_mata_pelajaran->guru->nama}}');"
                                 class="btn btn-warning m-1">Ubah</a>
-                            <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'guru-mata-pelajaran/{{$data->id}}/destroy')"
+                            <a href="#modal-delete" data-toggle="modal"
+                                onclick="$('#modal-delete #form-delete').attr('action', 'guru-mata-pelajaran/{{$guru_mata_pelajaran->id}}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
                     </tr>
@@ -78,12 +115,13 @@
 @section('modal')
 
 <!-- Modal Filter -->
-<div class="modal fade" id="modalFilter" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form action="{{ route('admin.guru_mata_pelajaran') }}" method="get" class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Filter Data Wali Kelas</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span class="text-primary">Guru Mata
+                        Pelajaran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -94,14 +132,17 @@
                     <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                         @if($filter->has('tahun_pelajaran'))
                         <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
-                        @foreach($tahun_pelajaran as $data)
-                        @if($filter->tahun_pelajaran !== $data)
-                        <option value="{{ $data }}">{{ $data }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($filter->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
                         @endif
                         @endforeach
                         @else
-                        @foreach($tahun_pelajaran as $data)
-                        <option value="{{ $data }}">{{ $data }}</option>
+                        <option value="{{ $setting->tahun_pelajaran }}">{{ $setting->tahun_pelajaran }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($setting->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
+                        @endif
                         @endforeach
                         @endif
                     </select>
@@ -116,23 +157,27 @@
 </div>
 
 <!-- Modal Import -->
-<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form class="modal-content" action="{{ route('admin.guru_mata_pelajaran.import') }}" method="post"
             enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Wali Kelas</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span class="text-primary">Guru Mata
+                        Pelajaran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">File</label>
-                    <input type="file" class="form-control" required id="excel" name="data_guru_mata_pelajaran"
-                        accept=".xlsx, .xls">
+                    <label for="nama">File <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="data_guru_mata_pelajaran"
+                            name="data_guru_mata_pelajaran" accept=".xlsx, .xls">
+                        <label class="custom-file-label" for="data_guru_mata_pelajaran">Pilih File</label>
+                    </div>
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
@@ -143,20 +188,21 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Import</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Edit -->
-<div class="modal fade" id="modalEdit" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="formEdit" class="modal-content" action="" method="post">
+        <form id="form-edit" class="modal-content" action="" method="post">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Edit Wali Kelas</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary">Guru Mata
+                        Pelajaran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -177,8 +223,8 @@
                     <select class="form-control @error('mata_pelajaran') is-invalid @enderror" autocomplete="off"
                         name="mata_pelajaran" required>
                         <option value="" id="mata_pelajaran"></option>
-                        @foreach($mata_pelajaran as $data)
-                        <option value="{{ $data->id }}">{{ $data->nama_mata_pelajaran }}</option>
+                        @foreach($data_mata_pelajaran as $mata_pelajaran)
+                        <option value="{{ $mata_pelajaran->id }}">{{ $mata_pelajaran->nama }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -187,32 +233,33 @@
                     <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" name="guru"
                         required>
                         <option value="" id="guru"></option>
-                        @foreach($guru as $data)
-                        <option value="{{ $data->id }}">{{ $data->nama_guru }}</option>
+                        @foreach($data_guru as $guru)
+                        <option value="{{ $guru->id }}">{{ $guru->nama }}</option>
                         @endforeach
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Ubah</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Delete -->
-<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Hapus <span class="text-primary"> Guru Mata
+                        Pelajaran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-footer">
-                <form id="formDelete" action="" method="get">
+                <form id="form-delete" action="" method="get">
                     <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>

@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Nilai;
 use App\Models\Riwayat;
-use App\Models\Siswa;
+use App\Models\Setting;
 use App\Models\WaliKelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,21 +14,30 @@ class RiwayatController extends Controller
     {
         $filter = $request;
 
-        $riwayat = Riwayat::all();
+        $setting = Setting::all()->first();
 
-        if ($filter->has('tahun_pelajaran')) {
-            $wali_kelas = WaliKelas::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+        if ($setting) {
+            $data_riwayat = Riwayat::all();
 
-            $nilai = DB::table('nilai')
-                ->join('siswa_aktif', 'nilai.siswa_aktif_id', 'siswa_aktif.id')
-                ->get();
+            if ($filter->has('tahun_pelajaran')) {
+                $data_wali_kelas = WaliKelas::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+
+                $data_nilai = DB::table('nilai')
+                    ->join('siswa_aktif', 'nilai.siswa_aktif_id', 'siswa_aktif.id')
+                    ->get();
+            } else {
+                $data_wali_kelas = WaliKelas::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+
+                $data_nilai = DB::table('nilai')
+                    ->join('siswa_aktif', 'nilai.siswa_aktif_id', 'siswa_aktif.id')
+                    ->get();
+            }
+
+            $data_semester = [1, 2];
+
+            return view('admin.riwayat.index', compact('filter', 'data_riwayat', 'data_wali_kelas', 'data_nilai', 'data_semester', 'setting'));
         } else {
-            $wali_kelas = [];
-            $nilai = [];
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
-
-        $semester = [1, 2];
-
-        return view('admin.riwayat.index', compact('filter', 'riwayat', 'wali_kelas', 'nilai', 'semester'));
     }
 }

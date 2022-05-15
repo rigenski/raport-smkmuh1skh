@@ -8,11 +8,11 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modalFilter">
+                <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-filter">
                     Filter
                 </button>
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
-                    Import Excel
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modal-import">
+                    Import
                 </button>
             </div>
         </div>
@@ -33,12 +33,61 @@
         </div>
     </div>
     <div class="card-body">
+        @if( $filter->has('tahun_pelajaran') || $filter->has('angkatan') || $filter->has('kelas') )
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark font-weight-bold">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->tahun_pelajaran }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Angkatan</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->angkatan }}</b></td>
+                    </tr>
+                    <tr>
+                        <td class="h6">Kelas</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $filter->kelas }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @else
+        <div class="mb-4">
+            <table class="mb-2">
+                <thead>
+                    <tr>
+                        <th colspan="3">
+                            <h5 class="text-dark font-weight-bold">INFORMASI</h5>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="h6">Tahun Pelajaran</td>
+                        <td class="h6 px-2">:</td>
+                        <td class="h6 text-primary"><b>{{ $setting->tahun_pelajaran }}</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        @endif
         <div class="table-responsive">
             <table class="table table-striped table-bordered data">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Nomer Induk Siswa</th>
+                        <th scope="col" style="width: 40px;">No</th>
+                        <th scope="col">NIS</th>
                         <th scope="col">Nama Siswa</th>
                         <th scope="col">Kelas</th>
                         <th scope="col">Jurusan</th>
@@ -47,21 +96,21 @@
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($siswa_aktif as $data)
+                    @foreach($data_siswa_aktif as $siswa_aktif)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->siswa->nomer_induk_siswa }}</td>
-                        <td>{{ $data->siswa->nama_siswa }}</td>
-                        <td>{{ $data->kelas }}</td>
-                        <td>{{ $data->jurusan }}</td>
+                        <td>{{ $siswa_aktif->siswa->nis }}</td>
+                        <td>{{ $siswa_aktif->siswa->nama }}</td>
+                        <td>{{ $siswa_aktif->kelas }}</td>
+                        <td>{{ $siswa_aktif->jurusan }}</td>
                         <td>
-                            <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'siswa-aktif/{{$data->id}}/update'); $('#modalEdit #formEdit #kelas').attr('value', '{{$data->kelas}}'); $('#modalEdit #formEdit #jurusan').attr('value', '{{$data->jurusan}}');"
+                            <a href="#modal-edit" data-toggle="modal"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'siswa-aktif/{{$siswa_aktif->id}}/update'); $('#modal-edit #form-edit #kelas').attr('value', '{{$siswa_aktif->kelas}}'); $('#modal-edit #form-edit #jurusan').attr('value', '{{$siswa_aktif->jurusan}}');"
                                 class="btn btn-warning m-1">Ubah</a>
-                            <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'siswa-aktif/{{$data->id}}/destroy')"
+                            <a href="#modal-delete" data-toggle="modal"
+                                onclick="$('#modal-delete #form-delete').attr('action', 'siswa-aktif/{{$siswa_aktif->id}}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
                     </tr>
@@ -78,12 +127,13 @@
 @section('modal')
 
 <!-- Modal Filter -->
-<div class="modal fade" id="modalFilter" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form action="{{ route('admin.siswa_aktif') }}" method="get" class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Filter Data Siswa Aktif</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span class="text-primary"> Siswa
+                        Aktif</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -94,61 +144,66 @@
                     <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                         @if($filter->has('tahun_pelajaran'))
                         <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
-                        @foreach($tahun_pelajaran as $data)
-                        @if($filter->tahun_pelajaran !== $data)
-                        <option value="{{ $data }}">{{ $data }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($filter->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
                         @endif
                         @endforeach
                         @else
-                        @foreach($tahun_pelajaran as $data)
-                        <option value="{{ $data }}">{{ $data }}</option>
+                        <option value="{{ $setting->tahun_pelajaran }}">{{ $setting->tahun_pelajaran }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($setting->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
+                        @endif
                         @endforeach
                         @endif
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="angkatan">Angkatan</label>
+                    <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
+                        @foreach($data_angkatan as $angkatan)
+                        <option value="{{ $angkatan->angkatan }}">{{ $angkatan->angkatan }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="kelas">Kelas</label>
                     <select class="form-control" autocomplete="off" id="kelas" name="kelas">
-                        @if($filter->has('kelas'))
-                        <option value="{{ $filter->kelas }}">{{ $filter->kelas }}</option>
-                        @foreach($kelas as $data)
-                        @if($filter->kelas !== $data->kelas)
-                        <option value="{{ $data->kelas }}">{{ $data->kelas }}</option>
-                        @endif
-                        @endforeach
-                        @else
-                        @foreach($kelas as $data)
-                        <option value="{{ $data->kelas }}">{{ $data->kelas }}</option>
-                        @endforeach
-                        @endif
                     </select>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Import -->
-<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form class="modal-content" action="{{ route('admin.siswa_aktif.import') }}" method="post"
             enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Siswa Aktif</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span class="text-primary"> Siswa
+                        Aktif</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama_siswa">File</label>
-                    <input type="file" class="form-control" required id="excel" name="data_siswa_aktif" accept=".xlsx, .xls">
+                    <label for="nama">File <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="data_siswa_aktif" name="data_siswa_aktif"
+                            accept=".xlsx, .xls">
+                        <label class="custom-file-label" for="data_siswa_aktif">Pilih File</label>
+                    </div>
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
@@ -159,20 +214,21 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Import</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Edit -->
-<div class="modal fade" id="modalEdit" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="formEdit" class="modal-content" action="" method="post">
+        <form id="form-edit" class="modal-content" action="" method="post">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Edit Siswa Aktif</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary"> Siswa Aktif</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -201,18 +257,18 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Ubah</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Delete -->
-<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="formDelete" class="modal-content" action="" method="get">
+        <form id="form-delete" class="modal-content" action="" method="get">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Hapus <span class="text-primary"> Siswa Aktif</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -224,4 +280,64 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+    const data_siswa = @json($data_siswa);
+
+    const elTahunPelajaran = document.getElementById('tahun_pelajaran');
+    const elAngkatan = document.getElementById('angkatan');
+    const elKelas = document.getElementById('kelas');
+
+    const changeKelas = () => {
+        const angkatan = elAngkatan.value;
+        const tahun_pelajaran = elTahunPelajaran.value;
+        
+        const filter_tahun_pelajaran = (data) => {
+            return data.tahun_pelajaran == tahun_pelajaran;
+        }
+        
+        const data_kelas_filter = data_siswa.filter(filter_tahun_pelajaran);
+
+        const filter_angkatan = (data) => {
+            return data.angkatan == angkatan;
+        }
+        
+        const data_kelas_filter2 = data_kelas_filter.filter(filter_angkatan);
+        
+        const kelas_selected = []; 
+        
+        data_kelas_filter2.map((data) => {
+            kelas_selected.push(data.kelas);
+        })
+
+        const delete_duplicate = (value, index, self) => {
+            return self.indexOf(value) === index;
+        }
+
+        const data_kelas_filter3 = kelas_selected.filter(delete_duplicate);
+
+        let kelas_option = '';
+
+        data_kelas_filter3.map((data, i) => {
+            kelas_option += `<option value="${data}">${data}</option>`;
+        })
+
+        elKelas.innerHTML = kelas_option;
+    }
+
+    elTahunPelajaran.addEventListener('change', () => {
+        changeKelas();
+    })
+    
+    elAngkatan.addEventListener('change', () => {
+        changeKelas();
+    })
+
+    window.onload = () => {
+        changeKelas();
+    };
+</script>
+
 @endsection

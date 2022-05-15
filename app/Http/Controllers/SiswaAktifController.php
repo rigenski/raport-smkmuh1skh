@@ -15,17 +15,24 @@ class SiswaAktifController extends Controller
     {
         $filter = $request;
 
-        $setting = Setting::all()[0];
+        $setting = Setting::all()->first();
 
-        if ($filter->has('tahun_pelajaran') && $filter->has('kelas')) {
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
+        if ($setting) {
+
+            if ($filter->has('tahun_pelajaran') && $filter->has('kelas')) {
+                $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
+            } else {
+                $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            }
+
+            $data_siswa = SiswaAktif::all();
+
+            $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
+
+            return view('admin.siswa-aktif.index', compact('filter', 'setting', 'data_siswa', 'data_siswa_aktif', 'data_angkatan'));
         } else {
-            $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
-
-        $kelas = SiswaAktif::all()->unique('kelas')->values()->all();
-
-        return view('admin.siswa-aktif.index', compact('filter', 'siswa_aktif', 'kelas'));
     }
 
     public function update(Request $request, $id)
@@ -74,6 +81,6 @@ class SiswaAktifController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new SiswaAktifFormatExport(), 'data-siswa-aktif-mutuharjo' . '.xlsx');
+        return Excel::download(new SiswaAktifFormatExport(), 'data-siswa_aktif_mutuharjo' . '.xlsx');
     }
 }

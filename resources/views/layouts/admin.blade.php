@@ -45,7 +45,7 @@
           <div class="sidebar-brand">
             <a href="/admin">DASHBOARD RAPORT</a>
           </div>
-          <ul class="sidebar-menu">
+          <ul class="sidebar-menu" style="padding-bottom: 200px;">
             @if(auth()->user()->role === 'admin')
             <li class="menu-header">UTAMA</li>
             <li class="@yield('nav_item-admin')">
@@ -60,6 +60,13 @@
                 <span>Setting</span>
               </a>
             </li>
+            <li class="@yield('nav_item-dokumen')">
+              <a class="nav-link" href="{{ route('admin.dokumen') }}">
+                <i class="fas fa-file"></i>
+                <span>Dokumen</span>
+              </a>
+            </li>
+            <li class="menu-header">MATA PELAJARAN</li>
             <li class="@yield('nav_item-mata_pelajaran')">
               <a class="nav-link" href="{{ route('admin.mata_pelajaran') }}">
                 <i class="fas fa-book"></i>
@@ -98,6 +105,19 @@
                 <span>Siswa Aktif</span>
               </a>
             </li>
+            <li class="menu-header">TAMBAHAN</li>
+            <li class="@yield('nav_item-ekskul')">
+              <a class="nav-link" href="{{ route('admin.ekskul') }}">
+                <i class="fas fa-thumbtack"></i>
+                <span>Ekskul</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-ketidakhadiran')">
+              <a class="nav-link" href="{{ route('admin.ketidakhadiran') }}">
+                <i class="fas fa-paperclip"></i>
+                <span>Ketidakhadiran</span>
+              </a>
+            </li>
             <li class="menu-header">NILAI</li>
             <li class="@yield('nav_item-nilai')">
               <a class="nav-link" href="{{ route('admin.nilai') }}">
@@ -123,7 +143,6 @@
                 <span>Riwayat</span>
               </a>
             </li>
-
             @elseif(auth()->user()->role === 'guru')
             <li class="menu-header">UTAMA</li>
             <li class="@yield('nav_item-admin')">
@@ -138,12 +157,30 @@
                 <span>Nilai</span>
               </a>
             </li>
+            <li class="@yield('nav_item-dokumen')">
+              <a class="nav-link" href="{{ route('admin.dokumen') }}">
+                <i class="fas fa-file"></i>
+                <span>Dokumen</span>
+              </a>
+            </li>
             @elseif(auth()->user()->role === 'wali kelas')
             <li class="menu-header">UTAMA</li>
             <li class="@yield('nav_item-admin')">
               <a class="nav-link" href="{{ route('admin') }}">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-ekskul')">
+              <a class="nav-link" href="{{ route('admin.ekskul') }}">
+                <i class="fas fa-thumbtack"></i>
+                <span>Ekskul</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-ketidakhadiran')">
+              <a class="nav-link" href="{{ route('admin.ketidakhadiran') }}">
+                <i class="fas fa-paperclip"></i>
+                <span>Ketidakhadiran</span>
               </a>
             </li>
             <li class="@yield('nav_item-nilai')">
@@ -156,6 +193,12 @@
               <a class="nav-link" href="{{ route('admin.raport') }}">
                 <i class="fas fa-book"></i>
                 <span>Raport</span>
+              </a>
+            </li>
+            <li class="@yield('nav_item-dokumen')">
+              <a class="nav-link" href="{{ route('admin.dokumen') }}">
+                <i class="fas fa-file"></i>
+                <span>Dokumen</span>
               </a>
             </li>
             @endif

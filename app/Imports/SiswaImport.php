@@ -16,8 +16,8 @@ class SiswaImport implements ToModel, WithStartRow
     public function model(array $row)
     {
         return new Siswa([
-            "nomer_induk_siswa" => $row[0],
-            "nama_siswa" => $row[1],
+            "nis" => $row[0],
+            "nama" => $row[1],
         ]);
     }
 

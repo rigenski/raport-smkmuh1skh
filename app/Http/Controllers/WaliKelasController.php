@@ -16,17 +16,22 @@ class WaliKelasController extends Controller
     {
         $filter = $request;
 
-        $setting = Setting::all()[0];
+        $setting = Setting::all()->first();
 
-        if ($request->has('tahun_pelajaran')) {
-            $wali_kelas = WaliKelas::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+        if ($setting) {
+
+            if ($request->has('tahun_pelajaran')) {
+                $data_wali_kelas = WaliKelas::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+            } else {
+                $data_wali_kelas = WaliKelas::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            }
         } else {
-            $wali_kelas = WaliKelas::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
 
-        $guru = Guru::all();
+        $data_guru = Guru::all();
 
-        return view('admin.wali-kelas.index', compact('filter', 'wali_kelas', 'guru'));
+        return view('admin.wali-kelas.index', compact('filter', 'setting', 'data_wali_kelas', 'data_guru'));
     }
 
     public function update(Request $request, $id)
@@ -66,6 +71,14 @@ class WaliKelasController extends Controller
     public function import()
     {
         try {
+            $data_guru = Guru::all();
+
+            foreach ($data_guru as $data) {
+                $data->user->update([
+                    'role' => 'guru'
+                ]);
+            }
+
             Excel::import(new \App\Imports\WaliKelasImport, request()->file('data_wali_kelas'));
         } catch (\Exception $ex) {
             return redirect()->back()->with('error', 'Data wali kelas gagal diimport');

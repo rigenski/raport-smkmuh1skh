@@ -1,7 +1,7 @@
 @extends('layouts.admin')
-@section('nav_item-wali_kelas', 'active')
+@section('nav_item-dokumen', 'active')
 
-@section('title', 'Wali Kelas')
+@section('title', 'Dokumen')
 
 @section('content')
 <div class="card mb-4">
@@ -11,8 +11,8 @@
                 <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-filter">
                     Filter
                 </button>
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modal-import">
-                    Import
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modal-create">
+                    Tambah
                 </button>
             </div>
         </div>
@@ -77,27 +77,28 @@
                 <thead>
                     <tr>
                         <th scope="col" style="width: 40px;">No</th>
-                        <th scope="col">Kelas</th>
-                        <th scope="col">Guru</th>
+                        <th scope="col">Nama</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($data_wali_kelas as $wali_kelas)
+                    @foreach($data_dokumen as $dokumen)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $wali_kelas->kelas }}</td>
-                        <td>{{ $wali_kelas->guru->nama }}</td>
+                        <td>{{ $dokumen->nama }}</td>
                         <td>
+                            <a href="/dokumen/{{ $dokumen->dokumen }}" class="btn btn-primary m-1">Unduh</a>
+                            @if(auth()->user()->role == 'admin')
                             <a href="#modal-edit" data-toggle="modal"
-                                onclick="$('#modal-edit #form-edit').attr('action', 'wali-kelas/{{$wali_kelas->id}}/update'); $('#modal-edit #form-edit #kelas').attr('value', '{{$wali_kelas->kelas}}'); $('#modal-edit #form-edit #guru').attr('value', '{{$wali_kelas->guru->id}}'); $('#modal-edit #form-edit #guru').text('{{$wali_kelas->guru->nama}}');"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'dokumen/{{$dokumen->id}}/update'); $('#modal-edit #form-edit #nama').attr('value', '{{$dokumen->nama}}');"
                                 class="btn btn-warning m-1">Ubah</a>
                             <a href="#modal-delete" data-toggle="modal"
-                                onclick="$('#modal-delete #form-delete').attr('action', 'wali-kelas/{{$wali_kelas->id}}/destroy')"
+                                onclick="$('#modal-delete #form-delete').attr('action', 'dokumen/{{$dokumen->id}}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
+                            @endif
                         </td>
                     </tr>
                     <?php $count++; ?>
@@ -111,15 +112,14 @@
 @endsection
 
 @section('modal')
-
 <!-- Modal Filter -->
 <div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form action="{{ route('admin.wali_kelas') }}" method="get" class="modal-content">
+        <form action="{{ route('admin.dokumen') }}" method="get" class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span class="text-primary"> Wali
-                        Kelas</span></h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span class="text-primary"> Dokumen</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -154,40 +154,61 @@
     </div>
 </div>
 
-<!-- Modal Import -->
-<div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<!-- Modal Create -->
+<div class="modal fade" id="modal-create" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form class="modal-content" action="{{ route('admin.wali_kelas.import') }}" method="post"
+        <form id="form-create" class="modal-content" action="{{ route('admin.dokumen.store') }}" method="post"
             enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span class="text-primary"> Wali
-                        Kelas</span>
-                </h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Tambah <span class="text-primary"> Dokumen</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama">File <span class="text-danger">*</span></label>
+                    <label for="tahun_pelajaran">Tahun Pelajaran <span class="text-danger">*</span></label>
+                    <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
+                        @if($filter->has('tahun_pelajaran'))
+                        <option value="{{ $filter->tahun_pelajaran }}">{{ $filter->tahun_pelajaran }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($filter->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
+                        @endif
+                        @endforeach
+                        @else
+                        <option value="{{ $setting->tahun_pelajaran }}">{{ $setting->tahun_pelajaran }}</option>
+                        @foreach($data_tahun_pelajaran as $tahun_pelajaran)
+                        @if($setting->tahun_pelajaran !== $tahun_pelajaran)
+                        <option value="{{ $tahun_pelajaran }}">{{ $tahun_pelajaran }}</option>
+                        @endif
+                        @endforeach
+                        @endif
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="nama">Nama <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
+                        name="nama" value="">
+                    @error('nama')
+                    <div class="invalid-feedback">
+                        {{ $message}}
+                    </div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="dokumen">Dokumen <span class="text-danger">*</span></label>
                     <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="data_wali_kelas" name="data_wali_kelas"
-                            accept=".xlsx, .xls">
-                        <label class="custom-file-label" for="data_wali_kelas">Pilih File</label>
+                        <input type="file" class="custom-file-input" id="dokumen" name="dokumen">
+                        <label class="custom-file-label" for="dokumen">Pilih File</label>
                     </div>
-                    <div class="text-small text-danger mt-2">
-                        * Mohon masukkan data dengan benar sebelum dikirim
-                    </div>
-                    <a href="{{ route('admin.wali_kelas.export_format') }}" class="btn btn-warning mt-4">Unduh
-                        Format
-                        Import</a>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Import</button>
+                <button type="submit" class="btn btn-primary">Tambah</button>
             </div>
         </form>
     </div>
@@ -197,34 +218,31 @@
 <div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="form-edit" class="modal-content" action="" method="post">
+        <form id="form-edit" class="modal-content" action="" method="post" enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary"> Wali Kelas</span></h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary"> Dokumen</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="kelas">Kelas <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('kelas') is-invalid @enderror" id="kelas"
-                        name="kelas" value="">
-                    @error('kelas')
+                    <label for="nama">Nama <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
+                        name="nama" value="">
+                    @error('nama')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="guru">Guru <span class="text-danger">*</span></label>
-                    <select class="form-control @error('guru') is-invalid @enderror" autocomplete="off" name="guru"
-                        required>
-                        <option value="" id="guru"></option>
-                        @foreach($data_guru as $guru)
-                        <option value="{{ $guru->id }}">{{ $guru->nama }}</option>
-                        @endforeach
-                    </select>
+                    <label for="dokumen">Dokumen</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="dokumen" name="dokumen">
+                        <label class="custom-file-label" for="dokumen">Pilih File</label>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -240,7 +258,7 @@
     <div class="modal-dialog">
         <form id="form-delete" class="modal-content" action="" method="get">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Hapus <span class="text-primary"> Wali Kelas</span></h5>
+                <h5 class="modal-title" id="exampleModalLabel">Hapus Dokumen ?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

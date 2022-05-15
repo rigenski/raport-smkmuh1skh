@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateEkstraTable extends Migration
+class CreateDokumenTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateEkstraTable extends Migration
      */
     public function up()
     {
-        Schema::create('ekstra', function (Blueprint $table) {
+        Schema::create('dokumen', function (Blueprint $table) {
             $table->id();
+            $table->string('tahun_pelajaran');
             $table->string('nama');
-            $table->string('keterangan');
-            $table->foreignId('siswa_aktif_id')->constrained('siswa_aktif')->onDelete('cascade');
+            $table->string('dokumen')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ class CreateEkstraTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ekstra');
+        Schema::dropIfExists('dokumen');
     }
 }

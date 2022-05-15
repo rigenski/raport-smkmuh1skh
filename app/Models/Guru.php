@@ -19,7 +19,7 @@ class Guru extends Model
 
     public function wali_kelas()
     {
-        return $this->hasOne(WaliKelas::class);
+        return $this->hasMany(WaliKelas::class);
     }
 
     public function guru_mata_pelajaran()

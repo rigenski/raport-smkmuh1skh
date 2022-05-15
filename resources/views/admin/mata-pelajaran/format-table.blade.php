@@ -1,9 +1,9 @@
 <table>
   <thead>
     <tr>
-      <th><b>JENIS MATA PELAJARAN</b></th>
-      <th><b>KODE MATA PELAJARAN</b></th>
-      <th><b>NAMA MATA PELAJARAN</b></th>
+      <th><b>JENIS</b></th>
+      <th><b>KODE</b></th>
+      <th><b>NAMA</b></th>
     </tr>
   </thead>
 </table>

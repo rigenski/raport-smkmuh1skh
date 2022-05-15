@@ -16,10 +16,13 @@ class MataPelajaranImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
+        $mata_pelajaran = MataPelajaran::all()->last();
+
         return new MataPelajaran([
-            "jenis_mata_pelajaran" => $row[0],
-            "kode_mata_pelajaran" => $row[1],
-            "nama_mata_pelajaran" => $row[2],
+            "jenis" => $row[0],
+            "kode" => $row[1],
+            "nama" => $row[2],
+            "urutan" => $mata_pelajaran ? $mata_pelajaran->id + 1 : 1,
         ]);
     }
 

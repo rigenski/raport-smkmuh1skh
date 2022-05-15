@@ -1,7 +1,7 @@
 @extends('layouts.admin')
-@section('nav_item-nilai', 'active')
+@section('nav_item-ketidakhadiran', 'active')
 
-@section('title', 'Nilai')
+@section('title', 'Ketidakhadiran')
 
 @if(auth()->user()->role === 'admin')
 
@@ -32,8 +32,7 @@
         </div>
     </div>
     <div class="card-body">
-        @if( $filter->has('tahun_pelajaran') || $filter->has('kelas') || $filter->has('mata_pelajaran') ||
-        $filter->has('semester') )
+        @if( $filter->has('tahun_pelajaran') || $filter->has('kelas') || $filter->has('semester') )
         <div class="mb-4">
             <table class="mb-2">
                 <thead>
@@ -55,11 +54,6 @@
                         <td class="h6 text-primary"><b>{{ $filter->kelas }}</b></td>
                     </tr>
                     <tr>
-                        <td class="h6">Mata Pelajaran</td>
-                        <td class="h6 px-2">:</td>
-                        <td class="h6 text-primary"><b>{{ $filter->mata_pelajaran }}</b></td>
-                    </tr>
-                    <tr>
                         <td class="h6">Semester</td>
                         <td class="h6 px-2">:</td>
                         <td class="h6 text-primary"><b>{{ $filter->semester }}</b></td>
@@ -68,7 +62,7 @@
             </table>
         </div>
         @else
-        <div class="alert alert-warning">FILTER DATA <span class="font-weight-bold">NILAI</span>
+        <div class="alert alert-warning">FILTER DATA <span class="font-weight-bold">KETIDAKHADIRAN</span>
             TERLEBIH DAHULU</div>
         @endif
         <div class="table-responsive">
@@ -78,8 +72,9 @@
                         <th scope="col" style="width: 40px;">No</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama Siswa</th>
-                        <th scope="col">Nilai</th>
-                        <th scope="col">Keterangan</th>
+                        <th scope="col">Sakit</th>
+                        <th scope="col">Izin</th>
+                        <th scope="col">Tanpa Keterangan</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -92,18 +87,21 @@
                         </td>
                         <td>{{ $siswa_aktif->nis }}</td>
                         <td>{{ $siswa_aktif->nama_siswa }}</td>
-                        <td>{{ $siswa_aktif->nilai ? $siswa_aktif->nilai : '-' }}</td>
-                        <td>{{ $siswa_aktif->keterangan_nilai ? $siswa_aktif->keterangan_nilai : '-' }}</td>
-                        @if( $siswa_aktif->nilai_id )
+                        <td>{{ $siswa_aktif->sakit || $siswa_aktif->sakit == '0' ? $siswa_aktif->sakit : '-' }}</td>
+                        <td>{{ $siswa_aktif->izin || $siswa_aktif->izin == '0' ? $siswa_aktif->izin : '-' }}</td>
+                        <td>{{ $siswa_aktif->tanpa_keterangan || $siswa_aktif->tanpa_keterangan == '0' ?
+                            $siswa_aktif->tanpa_keterangan : '-'
+                            }}</td>
+                        @if( $siswa_aktif->ketidakhadiran_id )
                         <td>
                             <a href="#modal-edit" data-toggle="modal"
-                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->nilai_id }}/update'); $('#modal-edit #form-edit #nilai').attr('value', '{{ $siswa_aktif->nilai }}'); $('#modal-edit #form-edit #keterangan').attr('value', '{{ $siswa_aktif->keterangan_nilai }}');"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'ketidakhadiran/{{ $siswa_aktif->ketidakhadiran_id }}/update'); $('#modal-edit #form-edit #sakit').attr('value', '{{ $siswa_aktif->sakit }}'); $('#modal-edit #form-edit #izin').attr('value', '{{ $siswa_aktif->izin }}'); $('#modal-edit #form-edit #tanpa_keterangan').attr('value', '{{ $siswa_aktif->tanpa_keterangan }}');"
                                 class="btn btn-warning m-1">Ubah</a>
                         </td>
                         @else
                         <td>
                             <a href="#modal-edit" data-toggle="modal"
-                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->siswa_aktif_id }}/{{ $mata_pelajaran->id }}/store');"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'ketidakhadiran/{{ $siswa_aktif->siswa_aktif_id }}/store');"
                                 class="btn btn-warning m-1">Ubah</a>
                         </td>
                         @endif
@@ -124,10 +122,10 @@
 <div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form class="modal-content" action="{{ route('admin.nilai') }}" method="get">
+        <form class="modal-content" action="{{ route('admin.ketidakhadiran') }}" method="get">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span class="text-primary">Nilai</span>
-                </h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span
+                        class="text-primary">Ketidakhadiran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -154,12 +152,17 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="mata_pelajaran">Mata Pelajaran</label>
-                    <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran"></select>
+                    <label for="angkatan">Angkatan</label>
+                    <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
+                        @foreach($data_angkatan as $angkatan)
+                        <option value="{{ $angkatan->angkatan }}">{{ $angkatan->angkatan }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="kelas">Kelas</label>
-                    <select class="form-control" autocomplete="off" id="kelas" name="kelas"></select>
+                    <select class="form-control" autocomplete="off" id="kelas" name="kelas">
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="semester">Semester</label>
@@ -181,7 +184,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </form>
     </div>
@@ -194,27 +197,38 @@
         <form id="form-edit" class="modal-content" action="" method="post">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary">Nilai</span></h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary">Ketidakhadiran</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nilai">Nilai <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nilai') is-invalid @enderror" id="nilai"
-                        name="nilai" value="">
-                    @error('nilai')
+                    <label for="sakit">Sakit <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('sakit') is-invalid @enderror" id="sakit"
+                        name="sakit" value="">
+                    @error('sakit')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="keterangan">Keterangan <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('keterangan') is-invalid @enderror"
-                        id="keterangan" name="keterangan" value="">
-                    @error('keterangan')
+                    <label for="izin">izin <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('izin') is-invalid @enderror" id="izin"
+                        name="izin" value="">
+                    @error('izin')
+                    <div class="invalid-feedback">
+                        {{ $message}}
+                    </div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="tanpa_keterangan">Tanpa Keterangan <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('tanpa_keterangan') is-invalid @enderror"
+                        id="tanpa_keterangan" name="tanpa_keterangan" value="">
+                    @error('tanpa_keterangan')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
@@ -228,28 +242,53 @@
         </form>
     </div>
 </div>
+
+<!-- Modal Delete -->
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="form-delete" class="modal-content" action="" method="get">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-danger">Hapus</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
 
 @section('script')
 <script>
-    const data_mata_pelajaran = @json($data_mata_pelajaran);
+    const data_siswa = @json($data_siswa);
 
     const elTahunPelajaran = document.getElementById('tahun_pelajaran');
-    const elMataPelajaran = document.getElementById('mata_pelajaran');
+    const elAngkatan = document.getElementById('angkatan');
     const elKelas = document.getElementById('kelas');
 
     const changeKelas = () => {
+        const angkatan = elAngkatan.value;
         const tahun_pelajaran = elTahunPelajaran.value;
-
-        const selected = (data) => {
+        
+        const filter_tahun_pelajaran = (data) => {
             return data.tahun_pelajaran == tahun_pelajaran;
         }
+        
+        const data_kelas_filter = data_siswa.filter(filter_tahun_pelajaran);
 
-        const data_kelas_filter = data_mata_pelajaran.filter(selected);
-
+        const filter_angkatan = (data) => {
+            return data.angkatan == angkatan;
+        }
+        
+        const data_kelas_filter2 = data_kelas_filter.filter(filter_angkatan);
+        
         const kelas_selected = []; 
-
-        data_kelas_filter.map((data) => {
+        
+        data_kelas_filter2.map((data) => {
             kelas_selected.push(data.kelas);
         })
 
@@ -257,53 +296,30 @@
             return self.indexOf(value) === index;
         }
 
-        const data_kelas_filter2 = kelas_selected.filter(delete_duplicate);
+        const data_kelas_filter3 = kelas_selected.filter(delete_duplicate);
 
-        elKelas.innerHTML = '';
+        let kelas_option = '';
 
-        data_kelas_filter2.map((data) => {
-            elKelas.innerHTML += `<option value="${data}">${data}</option>`;
-        })
-    }
-
-    const changeMataPelajaran = () => {
-        const tahun_pelajaran = elTahunPelajaran.value;
-
-        const selected = (data) => {
-            return data.tahun_pelajaran == tahun_pelajaran;
-        }
-
-        const data_mata_pelajaran_filter = data_mata_pelajaran.filter(selected);
-
-        const mata_pelajaran_selected = []; 
-
-        data_mata_pelajaran_filter.map((data) => {
-            mata_pelajaran_selected.push(data.nama);
+        data_kelas_filter3.map((data, i) => {
+            kelas_option += `<option value="${data}">${data}</option>`;
         })
 
-        const delete_duplicate = (value, index, self) => {
-            return self.indexOf(value) === index;
-        }
-
-        const data_mata_pelajaran_filter2 = mata_pelajaran_selected.filter(delete_duplicate);
-
-        elMataPelajaran.innerHTML = '';
-
-        data_mata_pelajaran_filter2.map((data) => {
-            elMataPelajaran.innerHTML += `<option value="${data}">${data}</option>`;
-        })
+        elKelas.innerHTML = kelas_option;
     }
 
     elTahunPelajaran.addEventListener('change', () => {
-        changeMataPelajaran();
         changeKelas();
     })
     
-    window.onload = () => {
-        changeMataPelajaran();
+    elAngkatan.addEventListener('change', () => {
         changeKelas();
-    }
+    })
+
+    window.onload = () => {
+        changeKelas();
+    };
 </script>
+
 @endsection
 
 @else
@@ -324,9 +340,6 @@
                 <button type="button" class="btn btn-info" data-toggle="modal" data-target="#modal-filter">
                     Filter
                 </button>
-                <button type="button" class="btn btn-warning ml-2" data-toggle="modal" data-target="#modalFormatImport">
-                    Format
-                    Import</button>
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modal-import">
                     Import
                 </button>
@@ -349,8 +362,6 @@
         </div>
     </div>
     <div class="card-body">
-        @if( $filter->has('kelas') || $filter->has('mata_pelajaran') ||
-        $filter->has('semester') )
         <div class="mb-4">
             <table class="mb-2">
                 <thead>
@@ -369,25 +380,17 @@
                     <tr>
                         <td class="h6">Kelas</td>
                         <td class="h6 px-2">:</td>
-                        <td class="h6 text-primary"><b>{{ $filter->kelas }}</b></td>
-                    </tr>
-                    <tr>
-                        <td class="h6">Mata Pelajaran</td>
-                        <td class="h6 px-2">:</td>
-                        <td class="h6 text-primary"><b>{{ $filter->mata_pelajaran }}</b></td>
+                        <td class="h6 text-primary"><b>{{ $kelas }}</b></td>
                     </tr>
                     <tr>
                         <td class="h6">Semester</td>
                         <td class="h6 px-2">:</td>
-                        <td class="h6 text-primary"><b>{{ $filter->semester }}</b></td>
+                        <td class="h6 text-primary"><b>{{ $filter->semester ? $filter->semester : $semester }}</b>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        @else
-        <div class="alert alert-warning">FILTER DATA <span class="font-weight-bold">NILAI</span>
-            TERLEBIH DAHULU</div>
-        @endif
         <div class="table-responsive">
             <table class="table table-striped table-bordered data">
                 <thead>
@@ -395,8 +398,9 @@
                         <th scope="col" style="width: 40px;">No</th>
                         <th scope="col">NIS</th>
                         <th scope="col">Nama Siswa</th>
-                        <th scope="col">Nilai</th>
-                        <th scope="col">Keterangan</th>
+                        <th scope="col">Sakit</th>
+                        <th scope="col">Izin</th>
+                        <th scope="col">Tanpa Keterangan</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
@@ -409,22 +413,21 @@
                         </td>
                         <td>{{ $siswa_aktif->nis }}</td>
                         <td>{{ $siswa_aktif->nama_siswa }}</td>
-                        <td>{{ $siswa_aktif->nilai ? $siswa_aktif->nilai : '-' }}</td>
-                        <td>{{ $siswa_aktif->keterangan_nilai ? $siswa_aktif->keterangan_nilai : '-' }}</td>
-                        @if( $siswa_aktif->status_nilai )
-                        <td>
-                            <button class="btn btn-warning m-1" disabled>Ubah</button>
-                        </td>
-                        @elseif( $siswa_aktif->nilai )
+                        <td>{{ $siswa_aktif->sakit || $siswa_aktif->sakit == '0' ? $siswa_aktif->sakit : '-' }}</td>
+                        <td>{{ $siswa_aktif->izin || $siswa_aktif->izin == '0' ? $siswa_aktif->izin : '-' }}</td>
+                        <td>{{ $siswa_aktif->tanpa_keterangan || $siswa_aktif->tanpa_keterangan == '0' ?
+                            $siswa_aktif->tanpa_keterangan : '-'
+                            }}</td>
+                        @if( $siswa_aktif->ketidakhadiran_id )
                         <td>
                             <a href="#modal-edit" data-toggle="modal"
-                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->nilai_id }}/update'); $('#modal-edit #form-edit #nilai').attr('value', '{{ $siswa_aktif->nilai }}'); $('#modal-edit #form-edit #keterangan').attr('value', '{{ $siswa_aktif->keterangan_nilai }}');"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'ketidakhadiran/{{ $siswa_aktif->ketidakhadiran_id }}/update'); $('#modal-edit #form-edit #sakit').attr('value', '{{ $siswa_aktif->sakit }}'); $('#modal-edit #form-edit #izin').attr('value', '{{ $siswa_aktif->izin }}'); $('#modal-edit #form-edit #tanpa_keterangan').attr('value', '{{ $siswa_aktif->tanpa_keterangan }}');"
                                 class="btn btn-warning m-1">Ubah</a>
                         </td>
                         @else
                         <td>
                             <a href="#modal-edit" data-toggle="modal"
-                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->siswa_aktif_id }}/{{ $siswa_aktif->mapel_id }}/store');"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'ketidakhadiran/{{ $siswa_aktif->siswa_aktif_id }}/store');"
                                 class="btn btn-warning m-1">Ubah</a>
                         </td>
                         @endif
@@ -445,23 +448,15 @@
 <div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form class="modal-content" action="{{ route('admin.nilai') }}" method="get">
+        <form class="modal-content" action="{{ route('admin.ketidakhadiran') }}" method="get">
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span class="text-primary">Nilai</span>
-                </h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span
+                        class="text-primary">Ketidakhadiran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="mata_pelajaran">Mata Pelajaran</label>
-                    <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran"></select>
-                </div>
-                <div class="form-group">
-                    <label for="kelas">Kelas</label>
-                    <select class="form-control" autocomplete="off" id="kelas" name="kelas"></select>
-                </div>
                 <div class="form-group">
                     <label for="semester">Semester</label>
                     <select class="form-control" autocomplete="off" name="semester">
@@ -481,8 +476,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
+                <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </form>
     </div>
@@ -492,12 +487,12 @@
 <div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form class="modal-content" action="{{ route('admin.nilai.import') }}" method="post"
+        <form class="modal-content" action="{{ route('admin.ketidakhadiran.import') }}" method="post"
             enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span class="text-primary">Nilai</span>
-                </h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span
+                        class="text-primary">Ketidakhadiran</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -505,52 +500,24 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="nama">File <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control" required id="excel" name="data_nilai" accept=".xlsx, .xls">
+                    <input type="file" class="form-control" required id="excel" name="data_ketidakhadiran"
+                        accept=".xlsx, .xls">
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
+                    <a href="{{ route('admin.ketidakhadiran.export_format') }}" class="btn btn-warning mt-4">Unduh
+                        Format
+                        Import</a>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Import</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal Format Import -->
-<div class="modal fade" id="modalFormatImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <form class="modal-content" action="{{ route('admin.nilai.export_format') }}" method="get">
-            <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Format Import <span class="text-primary">Nilai</span>
-                </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="guru_mata_pelajaran">Kelas - Mata Pelajaran</label>
-                    <select class="form-control" autocomplete="off" id="guru_mata_pelajaran" name="guru_mata_pelajaran">
-                        @foreach(auth()->user()->guru->guru_mata_pelajaran as $data)
-                        <option value="{{ $data->id }}">{{ $data->kelas }} - {{
-                            $data->mata_pelajaran->nama
-                            }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-warning">Unduh Format Export</button>
-            </div>
-        </form>
-    </div>
-</div>
 
 <!-- Modal Edit -->
 <div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
@@ -559,27 +526,38 @@
         <form id="form-edit" class="modal-content" action="" method="post">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary">Nilai</span></h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Edit <span class="text-primary">Ketidakhadiran</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nilai">Nilai <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nilai') is-invalid @enderror" id="nilai"
-                        name="nilai" value="">
-                    @error('nilai')
+                    <label for="sakit">Sakit <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('sakit') is-invalid @enderror" id="sakit"
+                        name="sakit" value="">
+                    @error('sakit')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="keterangan">Keterangan <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('keterangan') is-invalid @enderror"
-                        id="keterangan" name="keterangan" value="">
-                    @error('keterangan')
+                    <label for="izin">izin <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('izin') is-invalid @enderror" id="izin"
+                        name="izin" value="">
+                    @error('izin')
+                    <div class="invalid-feedback">
+                        {{ $message}}
+                    </div>
+                    @enderror
+                </div>
+                <div class="form-group">
+                    <label for="tanpa_keterangan">Tanpa Keterangan <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('tanpa_keterangan') is-invalid @enderror"
+                        id="tanpa_keterangan" name="tanpa_keterangan" value="">
+                    @error('tanpa_keterangan')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
@@ -593,75 +571,6 @@
         </form>
     </div>
 </div>
-@endsection
-
-@section('script')
-<script>
-    const data_mata_pelajaran = @json($data_mata_pelajaran);
-    const tahun_pelajaran = @json($setting->tahun_pelajaran);
-
-    const elMataPelajaran = document.getElementById('mata_pelajaran');      
-    const elKelas = document.getElementById('kelas');
-
-    const changeKelas = () => {
-        const selected = (data) => {
-            return data.tahun_pelajaran == tahun_pelajaran;
-        }
-
-        const data_kelas_filter = data_mata_pelajaran.filter(selected);
-
-        const kelas_selected = []; 
-
-        data_kelas_filter.map((data) => {
-            kelas_selected.push(data.kelas);
-        })
-
-        const delete_duplicate = (value, index, self) => {
-            return self.indexOf(value) === index;
-        }
-
-        const data_kelas_filter2 = kelas_selected.filter(delete_duplicate);
-
-        elKelas.innerHTML = '';
-
-        data_kelas_filter2.map((data) => {
-            elKelas.innerHTML += `<option value="${data}">${data}</option>`;
-        })
-    }
-
-    const changeMataPelajaran = () => {
-        const selected = (data) => {
-            return data.tahun_pelajaran == tahun_pelajaran;
-        }
-
-        const data_mata_pelajaran_filter = data_mata_pelajaran.filter(selected);
-
-        
-        const mata_pelajaran_selected = []; 
-        
-        data_mata_pelajaran_filter.map((data) => {
-            mata_pelajaran_selected.push(data.nama);
-        })  
-
-        const delete_duplicate = (value, index, self) => {
-            return self.indexOf(value) === index;
-        }
-
-        const data_mata_pelajaran_filter2 = mata_pelajaran_selected.filter(delete_duplicate);
-
-        elMataPelajaran.innerHTML = '';
-
-        data_mata_pelajaran_filter2.map((data) => {
-            elMataPelajaran.innerHTML += `<option value="${data}">${data}</option>`;
-        })
-    }
-    
-    window.onload = () => {
-        changeMataPelajaran();
-        changeKelas();
-    }
-
-</script>
 @endsection
 
 @endif

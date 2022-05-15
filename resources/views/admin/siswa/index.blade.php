@@ -8,8 +8,8 @@
     <div class="card-header row">
         <div class="col-12 col-sm-6 p-0 my-1">
             <div class="d-flex align-items-start">
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalImport">
-                    Import Excel
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modal-import">
+                    Import
                 </button>
             </div>
         </div>
@@ -34,27 +34,27 @@
             <table class="table table-striped table-bordered data">
                 <thead>
                     <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Nomer Induk Siswa</th>
-                        <th scope="col">Nama Siswa</th>
+                        <th scope="col" style="width: 40px;">No</th>
+                        <th scope="col">NIS</th>
+                        <th scope="col">Nama</th>
                         <th scope="col">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php $count = 1; ?>
-                    @foreach($siswa as $data)
+                    @foreach($data_siswa as $siswa)
                     <tr>
                         <td>
                             <?= $count ?>
                         </td>
-                        <td>{{ $data->nomer_induk_siswa }}</td>
-                        <td>{{ $data->nama_siswa }}</td>
+                        <td>{{ $siswa->nis }}</td>
+                        <td>{{ $siswa->nama }}</td>
                         <td>
-                            <a href="#modalEdit" data-toggle="modal"
-                                onclick="$('#modalEdit #formEdit').attr('action', 'siswa/{{$data->id}}/update'); $('#modalEdit #formEdit #nomer_induk_siswa').attr('value', '{{$data->nomer_induk_siswa}}'); $('#modalEdit #formEdit #nama_siswa').attr('value', '{{$data->nama_siswa}}');"
+                            <a href="#modal-edit" data-toggle="modal"
+                                onclick="$('#modal-edit #form-edit').attr('action', 'siswa/{{$siswa->id}}/update'); $('#modal-edit #form-edit #nis').attr('value', '{{$siswa->nis}}'); $('#modal-edit #form-edit #nama').attr('value', '{{$siswa->nama}}');"
                                 class="btn btn-warning m-1">Ubah</a>
-                            <a href="#modalDelete" data-toggle="modal"
-                                onclick="$('#modalDelete #formDelete').attr('action', 'siswa/{{$data->id}}/destroy')"
+                            <a href="#modal-delete" data-toggle="modal"
+                                onclick="$('#modal-delete #form-delete').attr('action', 'siswa/{{$siswa->id}}/destroy')"
                                 class="btn btn-danger m-1">Hapus</a>
                         </td>
                     </tr>
@@ -71,22 +71,27 @@
 @section('modal')
 
 <!-- Modal Import -->
-<div class="modal fade" id="modalImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form class="modal-content" action="{{ route('admin.siswa.import') }}" method="post"
             enctype="multipart/form-data">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Import Excel Data Siswa</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Import Data <span class="text-primary"> Siswa</span>
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nama_siswa">File</label>
-                    <input type="file" class="form-control" required id="excel" name="data_siswa" accept=".xlsx, .xls">
+                    <label for="data_siswa">File <span class="text-danger">*</span></label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="data_siswa" name="data_siswa"
+                            accept=".xlsx, .xls">
+                        <label class="custom-file-label" for="data_siswa">Pilih File</label>
+                    </div>
                     <div class="text-small text-danger mt-2">
                         * Mohon masukkan data dengan benar sebelum dikirim
                     </div>
@@ -97,40 +102,40 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Filter</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Edit -->
-<div class="modal fade" id="modalEdit" data-backdrop="static" data-keyboard="false" tabindex="-1"
+<div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="formEdit" class="modal-content" action="" method="post">
+        <form id="form-edit" class="modal-content" action="" method="post">
             @csrf
             <div class="modal-header">
-                <h5 class="modal-title" id="staticBackdropLabel">Edit Siswa</h5>
+                <h5 class="modal-title" id="staticBackdropLabel">Ubah <span class="text-primary"> Siswa</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="nomer_induk_siswa">Nomer Induk Siswa <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nomer_induk_siswa') is-invalid @enderror"
-                        id="nomer_induk_siswa" name="nomer_induk_siswa" value="">
-                    @error('nomer_induk_siswa')
+                    <label for="nis">NIS <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nis') is-invalid @enderror" id="nis"
+                        name="nis" value="">
+                    @error('nis')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
                     @enderror
                 </div>
                 <div class="form-group">
-                    <label for="nama_siswa">Nama Siswa <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('nama_siswa') is-invalid @enderror"
-                        id="nama_siswa" name="nama_siswa" value="">
-                    @error('nama_siswa')
+                    <label for="nama">Nama <span class="text-danger">*</span></label>
+                    <input type="text" required class="form-control @error('nama') is-invalid @enderror" id="nama"
+                        name="nama" value="">
+                    @error('nama')
                     <div class="invalid-feedback">
                         {{ $message}}
                     </div>
@@ -139,24 +144,24 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
-                <button type="submit" class="btn btn-primary">Simpan</button>
+                <button type="submit" class="btn btn-primary">Ubah</button>
             </div>
         </form>
     </div>
 </div>
 
 <!-- Modal Delete -->
-<div class="modal fade" id="modalDelete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Yakin menghapus data ?</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Hapus <span class="text-primary"> Siswa</span></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-footer">
-                <form id="formDelete" action="" method="get">
+                <form id="form-delete" action="" method="get">
                     <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
                     <button type="submit" class="btn btn-danger">Hapus</button>
                 </form>

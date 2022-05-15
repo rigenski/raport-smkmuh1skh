@@ -12,25 +12,14 @@ class SettingController extends Controller
     {
         $setting = Setting::all();
 
-        if (count($setting)) {
-            $is_setting = true;
-
-            $setting = $setting[0];
-        } else {
-            $is_setting = false;
-
-            $setting = [];
-        }
-
-        return view('admin.setting.index', compact('setting', 'is_setting'));
+        return view('admin.setting.index', compact('setting'));
     }
 
     public function update(Request $request)
     {
-        $data_setting = Setting::all();
+        $setting = Setting::all()->first();
 
-        if (count($data_setting)) {
-            $setting = $data_setting[0];
+        if ($setting) {
 
             $setting->update([
                 'sekolah' => $request->nama_sekolah,
@@ -42,9 +31,9 @@ class SettingController extends Controller
 
             if ($request->hasFile('logo')) {
                 $rand = Str::random(20);
-                $name_image = $rand . "." . $request->logo->getClientOriginalExtension();
-                $request->file('logo')->move('images/setting', $name_image);
-                $setting->logo = $name_image;
+                $name_file = $rand . "." . $request->logo->getClientOriginalExtension();
+                $request->file('logo')->move('images/setting', $name_file);
+                $setting->logo = $name_file;
                 $setting->save();
             }
         } else {
@@ -58,9 +47,9 @@ class SettingController extends Controller
 
             if ($request->hasFile('logo')) {
                 $rand = Str::random(20);
-                $name_image = $rand . "." . $request->logo->getClientOriginalExtension();
-                $request->file('logo')->move('images/setting', $name_image);
-                $setting->logo = $name_image;
+                $name_file = $rand . "." . $request->logo->getClientOriginalExtension();
+                $request->file('logo')->move('images/setting', $name_file);
+                $setting->logo = $name_file;
                 $setting->save();
             }
         }

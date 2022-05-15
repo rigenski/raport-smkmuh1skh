@@ -19,16 +19,24 @@ class NilaiImport implements ToModel, WithStartRow
      * @return \Illuminate\Database\Eloquent\Model|null
      */
 
-    public function model(array $row)       
+    public function model(array $row)
     {
-        $setting = Setting::all()[0];
+        $setting = Setting::all()->first();
 
         $siswa_aktif = DB::table('siswa')
             ->join('siswa_aktif', 'siswa.id', '=', 'siswa_aktif.siswa_id')
-            ->where('siswa.nomer_induk_siswa', '=', $row[3])
-            ->get()[0];
+            ->where('siswa.nis', '=', $row[3])
+            ->get()->first();
 
-        $mata_pelajaran = MataPelajaran::where('kode_mata_pelajaran', $row[0])->get()[0];
+        $mata_pelajaran = MataPelajaran::where('kode', $row[0])->get()->first();
+
+        $data_nilai = Nilai::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('semester', $row[7])->where('siswa_aktif_id', $siswa_aktif->id)->where('mata_pelajaran_id', $mata_pelajaran->id)->get();
+
+        if (count($data_nilai)) {
+            foreach ($data_nilai as $nilai) {
+                $nilai->delete();
+            }
+        }
 
         return new Nilai([
             "tahun_pelajaran" => $setting->tahun_pelajaran,

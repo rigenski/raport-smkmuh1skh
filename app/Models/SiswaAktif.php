@@ -21,4 +21,14 @@ class SiswaAktif extends Model
     {
         return $this->hasMany(Nilai::class);
     }
+
+    public function ekskul()
+    {
+        return $this->hasMany(Ekskul::class);
+    }
+
+    public function ketidakhadiran()
+    {
+        return $this->hasMany(Ketidakhadiran::class);
+    }
 }

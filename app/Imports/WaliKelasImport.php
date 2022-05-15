@@ -16,16 +16,16 @@ class WaliKelasImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $guru = Guru::where('kode_guru', $row[2])->get();
+        $guru = Guru::where('kode', $row[2])->get()->first();
 
-        $guru[0]->user->update([
+        $guru->user->update([
             'role' => 'wali kelas',
         ]);
 
         return new WaliKelas([
             "tahun_pelajaran" => $row[0],
             "kelas" => $row[1],
-            "guru_id" => $guru[0]->id,
+            "guru_id" => $guru->id,
         ]);
     }
 

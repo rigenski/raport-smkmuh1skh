@@ -16,7 +16,7 @@ class SiswaAktifImport implements ToModel, WithStartRow
      */
     public function model(array $row)
     {
-        $siswa = Siswa::where('nomer_induk_siswa', $row[1])->get()[0];
+        $siswa = Siswa::where('nis', $row[1])->get()->first();
 
         $angkatan = explode(' ',  $row[3])[0];
 

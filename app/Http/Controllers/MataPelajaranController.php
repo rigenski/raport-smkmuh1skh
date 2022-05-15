@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\MataPelajaranFormatExport;
 use App\Models\MataPelajaran;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -14,23 +15,31 @@ class MataPelajaranController extends Controller
     {
         $filter = $request;
 
-        if ($filter->has('jenis_mata_pelajaran')) {
-            $mata_pelajaran = MataPelajaran::where('jenis_mata_pelajaran', $filter->jenis_mata_pelajaran)->get();
+        $setting = Setting::all()->first();
+
+        if ($setting) {
+
+            if ($filter->has('jenis')) {
+                $data_mata_pelajaran = MataPelajaran::where('jenis', $filter->jenis)->orderBy('urutan', 'ASC')->get();
+            } else {
+                $data_mata_pelajaran = MataPelajaran::orderBy('urutan', 'ASC')->get();
+            }
         } else {
-            $mata_pelajaran = MataPelajaran::all();
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
 
-        $jenis_mata_pelajaran = MataPelajaran::all()->unique('jenis_mata_pelajaran')->values()->all();
+        $data_jenis_mata_pelajaran = MataPelajaran::all()->unique('jenis')->values()->all();
 
-        return view('admin.mata-pelajaran.index', compact('filter', 'mata_pelajaran', 'jenis_mata_pelajaran'));
+        return view('admin.mata-pelajaran.index', compact('filter', 'data_mata_pelajaran', 'data_jenis_mata_pelajaran'));
     }
 
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'jenis_mata_pelajaran' => 'required',
-            'kode_mata_pelajaran' => 'required',
-            'nama_mata_pelajaran' => 'required',
+            'jenis' => 'required',
+            'kode' => 'required',
+            'nama' => 'required',
+            'urutan' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -40,9 +49,10 @@ class MataPelajaranController extends Controller
         $mata_pelajaran = MataPelajaran::find($id);
 
         $mata_pelajaran->update([
-            'jenis_mata_pelajaran' => $request->jenis_mata_pelajaran,
-            'kode_mata_pelajaran' => $request->kode_mata_pelajaran,
-            'nama_mata_pelajaran' => $request->nama_mata_pelajaran,
+            'jenis' => $request->jenis,
+            'kode' => $request->kode,
+            'nama' => $request->nama,
+            'urutan' => $request->urutan,
         ]);
 
         return redirect()->back()->with('success', 'Data mata pelajaran berhasil diperbarui');

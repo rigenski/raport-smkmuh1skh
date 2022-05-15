@@ -17,18 +17,23 @@ class GuruMataPelajaranController extends Controller
     {
         $filter = $request;
 
-        $setting = Setting::all()[0];
+        $setting = Setting::all()->first();
 
-        if ($request->has('tahun_pelajaran')) {
-            $guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+        if ($setting) {
+
+            if ($request->has('tahun_pelajaran')) {
+                $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $filter->tahun_pelajaran)->get();
+            } else {
+                $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            }
         } else {
-            $guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $setting->tahun_pelajaran)->get();
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
 
-        $guru = Guru::all();
-        $mata_pelajaran = MataPelajaran::all();
+        $data_guru = Guru::all();
+        $data_mata_pelajaran = MataPelajaran::all();
 
-        return view('admin.guru-mata-pelajaran.index', compact('filter', 'setting', 'guru_mata_pelajaran', 'mata_pelajaran', 'guru'));
+        return view('admin.guru-mata-pelajaran.index', compact('filter', 'setting', 'data_guru_mata_pelajaran', 'data_mata_pelajaran', 'data_guru'));
     }
 
     public function update(Request $request, $id)
