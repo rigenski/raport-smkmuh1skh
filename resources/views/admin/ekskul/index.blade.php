@@ -200,24 +200,14 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="ekskul">Ekskul <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('ekskul') is-invalid @enderror" id="ekskul"
+                    <label for="ekskul">Ekskul</label>
+                    <input type="text" class="form-control" id="ekskul"
                         name="ekskul" value="">
-                    @error('ekskul')
-                    <div class="invalid-feedback">
-                        {{ $message}}
-                    </div>
-                    @enderror
                 </div>
                 <div class="form-group">
-                    <label for="keterangan">Keterangan <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('keterangan') is-invalid @enderror"
+                    <label for="keterangan">Keterangan</label>
+                    <input type="text" class="form-control"
                         id="keterangan" name="keterangan" value="">
-                    @error('keterangan')
-                    <div class="invalid-feedback">
-                        {{ $message}}
-                    </div>
-                    @enderror
                 </div>
             </div>
             <div class="modal-footer">
@@ -496,25 +486,14 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="ekskul">Ekskul <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('ekskul') is-invalid @enderror" id="ekskul"
+                    <label for="ekskul">Ekskul</label>
+                    <input type="text" class="form-control" id="ekskul"
                         name="ekskul" value="">
-                    @error('ekskul')
-                    <div class="invalid-feedback">
-                        {{ $message}}
-                    </div>
-                    @enderror
                 </div>
                 <div class="form-group">
-                    <label for="keterangan">Keterangan <span class="text-danger">*</span></label>
-                    <input type="text" required class="form-control @error('keterangan') is-invalid @enderror"
+                    <label for="keterangan">Keterangan</label>
+                    <input type="text" class="form-control"
                         id="keterangan" name="keterangan" value="">
-                    @error('keterangan')
-                    <div class="invalid-feedback">
-                        {{ $message}}
-                    </div>
-                    @enderror
-                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>

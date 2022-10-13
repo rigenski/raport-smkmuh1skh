@@ -34,7 +34,6 @@ class EkskulController extends Controller
                         })
                         ->where('siswa_aktif.kelas', $filter->kelas)
                         ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'ekskul.id as ekskul_id', 'ekskul.semester', 'ekskul.nama as nama_ekskul', 'ekskul.keterangan as keterangan_ekskul')
-                        ->orderBy('nis', 'ASC')
                         ->get();
                 } else {
                     $data_siswa_aktif = [];
@@ -69,7 +68,6 @@ class EkskulController extends Controller
                             })
                             ->where('siswa_aktif.kelas', $kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'ekskul.id as ekskul_id', 'ekskul.semester', 'ekskul.nama as nama_ekskul', 'ekskul.keterangan as keterangan_ekskul')
-                            ->orderBy('nis', 'ASC')
                             ->get();
                     } else {
                         $data_siswa_aktif = DB::table('siswa_aktif')
@@ -81,7 +79,6 @@ class EkskulController extends Controller
                             })
                             ->where('siswa_aktif.kelas', $kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'ekskul.id as ekskul_id', 'ekskul.semester', 'ekskul.nama as nama_ekskul', 'ekskul.keterangan as keterangan_ekskul')
-                            ->orderBy('nis', 'ASC')
                             ->get();
                     }
 
@@ -127,14 +124,14 @@ class EkskulController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'ekskul' => 'required',
-            'keterangan' => 'required',
-        ]);
+        // $validator = Validator::make($request->all(), [
+        //     'ekskul' => 'required',
+        //     'keterangan' => 'required',
+        // ]);
 
-        if ($validator->fails()) {
-            return redirect()->route('admin.ekskul')->with('error', 'Data ekskul gagal diperbarui');
-        }
+        // if ($validator->fails()) {
+        //     return redirect()->route('admin.ekskul')->with('error', 'Data ekskul gagal diperbarui');
+        // }
 
         $ekskul = Ekskul::find($id);
 
@@ -163,6 +160,6 @@ class EkskulController extends Controller
 
         $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 
-        return Excel::download(new EkskulFormatExport($wali_kelas->id), 'data-ekskul-mutuharjo' . '.xlsx');
+        return Excel::download(new EkskulFormatExport($wali_kelas->id), 'data-ekskul-' . $wali_kelas->kelas . '.xlsx');
     }
 }

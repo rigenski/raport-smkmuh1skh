@@ -7,9 +7,10 @@ use App\Models\SiswaAktif;
 use App\Models\WaliKelas;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 
-class KetidakhadiranFormatExport implements FromView
+class KetidakhadiranFormatExport implements FromView, ShouldAutoSize
 {
 
     protected $wali_kelas_id;

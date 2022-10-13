@@ -8,9 +8,10 @@ use App\Models\Setting;
 use App\Models\SiswaAktif;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 
-class NilaiFormatExport implements FromView
+class NilaiFormatExport implements FromView, ShouldAutoSize
 {
 
     protected $guru_mata_pelajaran_id;

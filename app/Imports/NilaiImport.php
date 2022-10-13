@@ -37,15 +37,19 @@ class NilaiImport implements ToModel, WithStartRow
                 $nilai->delete();
             }
         }
-
-        return new Nilai([
+        
+        if(($row[7] == '1' || $row[7] == '2' ) && is_numeric($row[5])) {
+         return new Nilai([
             "tahun_pelajaran" => $setting->tahun_pelajaran,
             "semester" => $row[7],
             "nilai" => $row[5],
             "keterangan" => $row[6],
             "siswa_aktif_id" => $siswa_aktif->id,
             "mata_pelajaran_id" => $mata_pelajaran->id,
-        ]);
+        ]);   
+        } else {
+            return redirect()-back();
+        }
     }
 
     public function startRow(): int

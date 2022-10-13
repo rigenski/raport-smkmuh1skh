@@ -4,9 +4,10 @@ namespace App\Exports;
 
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
 
-class WaliKelasFormatExport implements FromView
+class WaliKelasFormatExport implements FromView, ShouldAutoSize
 {
 
     public function view(): View

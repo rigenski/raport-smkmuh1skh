@@ -92,9 +92,9 @@
                         </td>
                         <td>{{ $siswa_aktif->nis }}</td>
                         <td>{{ $siswa_aktif->nama_siswa }}</td>
-                        <td>{{ $siswa_aktif->nilai ? $siswa_aktif->nilai : '-' }}</td>
+                        <td>{{ $siswa_aktif->nilai ? $siswa_aktif->nilai : '0' }}</td>
                         <td>{{ $siswa_aktif->keterangan_nilai ? $siswa_aktif->keterangan_nilai : '-' }}</td>
-                        @if( $siswa_aktif->nilai_id )
+                        @if( $siswa_aktif->nilai_id !== null )
                         <td>
                             <a href="#modal-edit" data-toggle="modal"
                                 onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->nilai_id }}/update'); $('#modal-edit #form-edit #nilai').attr('value', '{{ $siswa_aktif->nilai }}'); $('#modal-edit #form-edit #keterangan').attr('value', '{{ $siswa_aktif->keterangan_nilai }}');"
@@ -409,13 +409,9 @@
                         </td>
                         <td>{{ $siswa_aktif->nis }}</td>
                         <td>{{ $siswa_aktif->nama_siswa }}</td>
-                        <td>{{ $siswa_aktif->nilai ? $siswa_aktif->nilai : '-' }}</td>
+                        <td>{{ $siswa_aktif->nilai ? $siswa_aktif->nilai : '0' }}</td>
                         <td>{{ $siswa_aktif->keterangan_nilai ? $siswa_aktif->keterangan_nilai : '-' }}</td>
-                        @if( $siswa_aktif->status_nilai )
-                        <td>
-                            <button class="btn btn-warning m-1" disabled>Ubah</button>
-                        </td>
-                        @elseif( $siswa_aktif->nilai )
+                        @if( $siswa_aktif->nilai !== null )
                         <td>
                             <a href="#modal-edit" data-toggle="modal"
                                 onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->nilai_id }}/update'); $('#modal-edit #form-edit #nilai').attr('value', '{{ $siswa_aktif->nilai }}'); $('#modal-edit #form-edit #keterangan').attr('value', '{{ $siswa_aktif->keterangan_nilai }}');"

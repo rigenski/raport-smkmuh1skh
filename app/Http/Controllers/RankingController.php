@@ -71,7 +71,7 @@ class RankingController extends Controller
                 $table_kkm = '';
                 $list_kejuruan = '';
 
-                $no = 1;
+                
 
                 $data_nama_mata_pelajaran = [];
 
@@ -93,17 +93,17 @@ class RankingController extends Controller
                     $jmlh_nilai = 0;
 
                     foreach ($siswa_aktif->nilai->where('semester', $session_semester) as $nilai) {
-                        $jmlh_nilai += $nilai->nilai;
+                        $jmlh_nilai += (int)$nilai->nilai;
                     }
 
                     array_push($data_ranking, [$jmlh_nilai, $siswa_aktif->siswa->nis]);
 
-                    $no++;
                     $i++;
                 }
 
                 rsort($data_ranking);
 
+                $no = 1;
                 $i = 0;
                 foreach ($data_siswa_aktif as $siswa_aktif) {
                     $table_nilai = '';
@@ -115,7 +115,7 @@ class RankingController extends Controller
                         $nilai = 0;
 
                         foreach ($siswa_aktif->nilai->where('semester', $session_semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai) {
-                            $nilai = $data_nilai->nilai;
+                            $nilai = (int)$data_nilai->nilai;
                         }
 
                         $jmlh_nilai += $nilai;

@@ -33,14 +33,14 @@ class NilaiController extends Controller
                         $data_siswa_aktif = DB::table('siswa_aktif')
                             ->where('siswa_aktif.tahun_pelajaran', $filter->tahun_pelajaran)
                             ->leftJoin('siswa', 'siswa.id', 'siswa_aktif.siswa_id')
-                            ->leftJoin('nilai', function ($join) use ($filter) {
+                            ->leftJoin('nilai', function ($join) use ($filter, $mata_pelajaran) {
                                 $join->on('siswa_aktif.id', 'nilai.siswa_aktif_id')
-                                    ->where('nilai.semester', $filter->semester);
+                                    ->where('nilai.semester', $filter->semester)
+                                    ->where('nilai.mata_pelajaran_id', $mata_pelajaran->id);
                             })
                             ->leftJoin('mata_pelajaran', 'mata_pelajaran.id', 'nilai.mata_pelajaran_id')
                             ->where('siswa_aktif.kelas', $filter->kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'nilai.id as nilai_id', 'nilai.semester', 'nilai.nilai', 'nilai.keterangan as keterangan_nilai', 'nilai.status as status_nilai', 'mata_pelajaran.id as mapel_id', 'mata_pelajaran.jenis as jenis_mapel', 'mata_pelajaran.kode as kode_mapel', 'mata_pelajaran.nama as nama_mapel')
-                            ->orderBy('nis', 'ASC')
                             ->get();
                     } else {
                         return redirect()->back()->with('error', 'Data mata pelajaran tidak ada');
@@ -57,7 +57,6 @@ class NilaiController extends Controller
 
                 $data_mata_pelajaran = DB::table('guru_mata_pelajaran')
                     ->join('mata_pelajaran', 'guru_mata_pelajaran.mata_pelajaran_id', '=', 'mata_pelajaran.id')
-                    ->orderBy('urutan', 'ASC')
                     ->get();
 
                 $data_semester = [1, 2];
@@ -77,12 +76,16 @@ class NilaiController extends Controller
                         $data_siswa_aktif = DB::table('siswa_aktif')
                             ->where('siswa_aktif.tahun_pelajaran', $setting->tahun_pelajaran)
                             ->leftJoin('siswa', 'siswa.id', 'siswa_aktif.siswa_id')
-                            ->leftJoin('nilai', 'siswa_aktif.id', 'nilai.siswa_aktif_id')
+                            ->leftJoin('nilai', function ($join) use ($filter, $mata_pelajaran) {
+                                $join->on('siswa_aktif.id', 'nilai.siswa_aktif_id')
+                                    ->where('nilai.semester', $filter->semester)
+                                    ->where('nilai.mata_pelajaran_id', $mata_pelajaran->id);
+                            })
                             ->leftJoin('mata_pelajaran', 'mata_pelajaran.id', 'nilai.mata_pelajaran_id')
                             ->where('siswa_aktif.kelas', $filter->kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'nilai.id as nilai_id', 'nilai.semester', 'nilai.nilai', 'nilai.keterangan as keterangan_nilai', 'nilai.status as status_nilai', 'mata_pelajaran.id as mapel_id', 'mata_pelajaran.jenis as jenis_mapel', 'mata_pelajaran.kode as kode_mapel', 'mata_pelajaran.nama as nama_mapel')
-                            ->orderBy('nis', 'ASC')
                             ->get();
+                            
                     } else {
                         return redirect()->back()->with('error', 'Data mata pelajaran tidak ada');
                     }
@@ -90,7 +93,6 @@ class NilaiController extends Controller
                     $data_siswa_aktif = [];
                     $mata_pelajaran = null;
                 }
-
 
                 $data_mata_pelajaran = DB::table('guru_mata_pelajaran')
                     ->join('mata_pelajaran', 'guru_mata_pelajaran.mata_pelajaran_id', '=', 'mata_pelajaran.id')
@@ -110,7 +112,7 @@ class NilaiController extends Controller
         }
     }
 
-    public function store(Request $request, $siswa_aktif_id, $mapel_id)
+    public function store(Request $request, $siswa_aktif_id, $mata_pelajaran_id)
     {
         $validator = Validator::make($request->all(), [
             'nilai' => 'required',
@@ -130,7 +132,7 @@ class NilaiController extends Controller
             "nilai" => $request->nilai,
             "keterangan" => $request->keterangan,
             "siswa_aktif_id" => $siswa_aktif_id,
-            "mata_pelajaran_id" => $mapel_id,
+            "mata_pelajaran_id" => $mata_pelajaran_id,
         ]);
 
         return redirect()->back()->with('success', 'Data nilai berhasil diperbarui');
@@ -170,6 +172,8 @@ class NilaiController extends Controller
 
     public function export_format(Request $request)
     {
-        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'data-nilai-mutuharjo' . '.xlsx');
+        $guru_mata_pelajaran = GuruMataPelajaran::find($request->guru_mata_pelajaran);
+        
+        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'data-nilai-' . $guru_mata_pelajaran->kelas . '-' . $guru_mata_pelajaran->mata_pelajaran->nama . '.xlsx');
     }
 }

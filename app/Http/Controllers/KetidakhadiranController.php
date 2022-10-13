@@ -34,7 +34,6 @@ class KetidakhadiranController extends Controller
                         })
                         ->where('siswa_aktif.kelas', $filter->kelas)
                         ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'ketidakhadiran.id as ketidakhadiran_id', 'ketidakhadiran.semester', 'ketidakhadiran.sakit', 'ketidakhadiran.izin', 'ketidakhadiran.tanpa_keterangan')
-                        ->orderBy('nis', 'ASC')
                         ->get();
                 } else {
                     $data_siswa_aktif = [];
@@ -70,7 +69,6 @@ class KetidakhadiranController extends Controller
                             })
                             ->where('siswa_aktif.kelas', $kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'ketidakhadiran.id as ketidakhadiran_id', 'ketidakhadiran.semester', 'ketidakhadiran.sakit', 'ketidakhadiran.izin', 'ketidakhadiran.tanpa_keterangan')
-                            ->orderBy('nis', 'ASC')
                             ->get();
                     } else {
                         $data_siswa_aktif = DB::table('siswa_aktif')
@@ -82,7 +80,6 @@ class KetidakhadiranController extends Controller
                             })
                             ->where('siswa_aktif.kelas', $kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'ketidakhadiran.id as ketidakhadiran_id', 'ketidakhadiran.semester', 'ketidakhadiran.sakit', 'ketidakhadiran.izin', 'ketidakhadiran.tanpa_keterangan')
-                            ->orderBy('nis', 'ASC')
                             ->get();
                     }
 
@@ -178,6 +175,6 @@ class KetidakhadiranController extends Controller
 
         $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 
-        return Excel::download(new KetidakhadiranFormatExport($wali_kelas->id), 'data-ketidakhadiran-mutuharjo' . '.xlsx');
+        return Excel::download(new KetidakhadiranFormatExport($wali_kelas->id), 'data-ketidakhadiran-'  . $wali_kelas->kelas .  '.xlsx');
     }
 }

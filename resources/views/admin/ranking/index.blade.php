@@ -89,7 +89,7 @@
                     @foreach($data_siswa_aktif as $siswa_aktif)
                     <?php $jmlh_nilai = 0; ?>
                     @foreach($siswa_aktif->nilai->where('semester', $filter->semester) as $nilai)
-                    <?php $jmlh_nilai += $nilai->nilai ?>
+                    <?php $jmlh_nilai += (int)$nilai->nilai ?>
                     @endforeach
                     <?php $rata_nilai = $jmlh_nilai / (count($siswa_aktif->nilai) ? count($siswa_aktif->nilai) : 1); ?>
                     <tr>
@@ -99,7 +99,7 @@
                         <td>{{ $siswa_aktif->siswa->nis }}</td>
                         <td>{{ $siswa_aktif->siswa->nama }}</td>
                         <td>{{ $jmlh_nilai }}</td>
-                        <td>{{ $rata_nilai }}</td>
+                        <td>{{ round($rata_nilai, 2) }}</td>
                     </tr>
                     <?php $count++; ?>
                     @endforeach
