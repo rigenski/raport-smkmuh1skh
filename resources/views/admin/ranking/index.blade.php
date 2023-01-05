@@ -13,12 +13,18 @@
                 </button>
                 @if(( $filter->has('tahun_pelajaran') || $filter->has('kelas') || $filter->has('semester')) &&
                 count($data_siswa_aktif))
-                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrintPDF">
                     Print PDF
+                </button>
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrintExcel">
+                    Export Excel
                 </button>
                 @else
                 <button type="button" class="btn btn-primary ml-2" disabled>
                     Print PDF
+                </button>
+                <button type="button" class="btn btn-primary ml-2" disabled>
+                    Export Excel
                 </button>
                 @endif
             </div>
@@ -91,7 +97,7 @@
                     @foreach($siswa_aktif->nilai->where('semester', $filter->semester) as $nilai)
                     <?php $jmlh_nilai += (int)$nilai->nilai ?>
                     @endforeach
-                    <?php $rata_nilai = $jmlh_nilai / (count($siswa_aktif->nilai) ? count($siswa_aktif->nilai) : 1); ?>
+                    <?php $rata_nilai = $jmlh_nilai / (count($siswa_aktif->nilai) ? count($siswa_aktif->nilai->where('semester', $filter->semester)) : 1); ?>
                     <tr>
                         <td>
                             <?= $count ?>
@@ -185,7 +191,7 @@
 </div>
 
 <!-- Modal Export -->
-<div class="modal fade" id="modalPrint" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="modalPrintPDF" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <form class="modal-content" id="form-print" action="{{ route('admin.ranking.print') }}" method="get">
             <div class="modal-header">
@@ -209,6 +215,34 @@
         </form>
     </div>
 </div>
+
+
+<!-- Modal Export Excel -->
+<div class="modal fade" id="modalPrintExcel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="form-print" action="{{ route('admin.ranking.export_excel') }}" method="get">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
+                        $filter->kelas ? $filter->kelas : '' }} </span> - Semester <span class="text-primary">{{
+                        $filter->semester ? $filter->semester : '' }}</span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="tanggal_legger">Tanggal Legger <span class="text-danger">*</span></label>
+                <input type="date" required class="form-control @error('tanggal_legger') is-invalid @enderror"
+                    id="tanggal_legger" name="tanggal_legger" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-primary">Cetak</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 @endsection
 

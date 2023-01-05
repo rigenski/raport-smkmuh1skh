@@ -52,10 +52,14 @@ class RaportController extends Controller
 
                 if ($wali_kelas) {
                     $kelas = $wali_kelas->kelas;
-
+                    
                     session(['raport-tahun_pelajaran' => $setting->tahun_pelajaran]);
                     session(['raport-kelas' => $kelas]);
-                    session(['raport-semester' => $filter->semester ? $filter->semester : '1']);
+                    session(['raport-semester' => $filter->semester ? $filter->semester : '1' ]);
+                    
+                    session(['ranking-tahun_pelajaran' => $setting->tahun_pelajaran]);
+                    session(['ranking-kelas' => $kelas]);
+                    session(['ranking-semester' => $filter->semester ? $filter->semester : '1' ]);
 
                     if ($filter->has('semester')) {
 
@@ -155,25 +159,25 @@ class RaportController extends Controller
                     $table_ekskul = '';
 
                     $ekskul = $siswa_aktif->ekskul->where('semester', $session_semester)->first();
-
-
+                    
+                  
 
                     if ($ekskul) {
 
                         $ekskul_nama = explode('_', $ekskul->nama);
                         $ekskul_keterangan = explode('_', $ekskul->keterangan);
 
-                        for ($x = 1; $x <= count($ekskul_nama); $x++) {
-                            if ($ekskul_nama[$x - 1] !== "") {
-                                $table_ekskul .= "<tr>
+                            for ($x = 1; $x <= count($ekskul_nama); $x++) {
+                                if($ekskul_nama[$x - 1] !== "") {
+                                    $table_ekskul .= "<tr>
                                     <td style='border: 0.6px solid #000;padding: 2px 4px;width: 16px;text-align: center;'>" . $x .  "</td>
                                     <td style='border: 0.6px solid #000;padding: 2px 4px;width: 192px;'>" . $ekskul_nama[$x - 1] .  "</td>
                                     <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: justify;'>" . $ekskul_keterangan[$x - 1] .  "</td>
                                     </tr>";
+                                }
                             }
-                        }
                     }
-
+                    
                     $ketidakhadiran = $siswa_aktif->ketidakhadiran->where('semester', $session_semester)->first();
 
                     if ($ketidakhadiran) {
@@ -204,9 +208,9 @@ class RaportController extends Controller
                     <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
                 </tr>";
                     }
-
-                    $table_catatan = "";
-
+                    
+                     $table_catatan = "";
+                    
                     if ($session_semester == 2) {
                         $table_catatan = "<td style='vertical-align: top;padding-left: 12px;'>
                             <div style='font-family: Arial;font-size: 10px;' ><b>Keputusan:</b><div>
@@ -215,7 +219,7 @@ class RaportController extends Controller
                             <div style='font-family: Arial;font-size: 10px;' ><b>Naik / Tinggal *</b>) Kelas .....<div>
                             <br />
                             <div style='font-family: Arial;font-size: 10px;' ><b>*</b>) Coret yang tidak perlu<div>
-                            </td>";
+                            </td>";   
                     }
 
 
@@ -263,14 +267,14 @@ class RaportController extends Controller
                                             </tbody>
                                         </table>
                                     </td>" .
-                        $table_catatan
-                        .
-                        "</tr>
+                                        $table_catatan
+                                    .
+                                "</tr>
                             </table>
                             </body>
                             </html>
                             ";
-
+                    
                     $mpdf->showImageErrors = true;
                     $mpdf->WriteHTML($html);
                     $mpdf->Image(asset('/images/logo-ttd-kepsek.png'), 80, 260, 40, 28, 'png', '', true, false);
@@ -350,22 +354,22 @@ class RaportController extends Controller
 
                     // TTD WALI SISWA
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(20, 244);
+                    $mpdf->SetXY(20, 256);
                     $mpdf->WriteCell(6.4, 0.4, 'Orang Tua / Wali Siswa', 0, 'C');
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(20, 257);
+                    $mpdf->SetXY(20, 267);
                     $mpdf->WriteCell(6.4, 0.4, '............................', 0, 'C');
 
                     // TTD WALI KELAS
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(140, 241);
+                    $mpdf->SetXY(140, 253);
                     $mpdf->WriteCell(6.4, 0.4, 'Sukoharjo, ' . $date_now, 0, 'C');
-                    $mpdf->SetXY(140, 244);
+                    $mpdf->SetXY(140, 256);
                     $mpdf->WriteCell(6.4, 0.4, 'Wali Kelas', 0, 'C');
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(140, 257);
+                    $mpdf->SetXY(140, 267);
                     $mpdf->WriteCell(6.4, 0.4, $wali_kelas->guru->nama, 0, 'C');
-                    $mpdf->SetXY(140, 260);
+                    $mpdf->SetXY(140, 270);
                     $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
                     // TTD KEPALA SEKOLAH
                     $mpdf->SetFont('Arial', '', 8);
@@ -393,6 +397,3 @@ class RaportController extends Controller
         }
     }
 }
-
-
-// <h2 style='margin: 0;font-size: 20px;'></h2>

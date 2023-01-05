@@ -53,3 +53,35 @@
 </div>
 
 @endsection
+
+@section('modal')
+  
+<!-- Modal Print -->
+<div class="modal fade" id="modalPrint" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+      <form action="{{ route('admin.raport_p5.print') }}" method="get" class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Yakin Cetak Raport P5 Kelas <span class="text-primary"> {{
+                      $filter->kelas ? $filter->kelas : '' }}</span> - Semester <span class="text-primary"> {{
+                      $filter->semester ? $filter->semester
+                      : ''
+                      }}</span></h5>
+              </span></h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <label for="tanggal_raport">Tanggal Raport <span class="text-danger">*</span></label>
+              <input type="date" required class="form-control @error('tanggal_raport') is-invalid @enderror"
+                  id="tanggal_raport" name="tanggal_raport" value="">
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+              <button type="submit" class="btn btn-primary">Cetak</button>
+          </div>
+      </form>
+  </div>
+</div>
+
+@endsection

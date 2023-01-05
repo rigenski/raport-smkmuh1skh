@@ -9,6 +9,9 @@ use App\Models\WaliKelas;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Mpdf\Mpdf;
+use App\Exports\RankingExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class RankingController extends Controller
 {
@@ -202,17 +205,17 @@ class RankingController extends Controller
                         <li style='margin: none;padding-top: 2px;'><table style='font-size: 8px;border: none;'><tr><td style='padding-left: 8px;padding-right: 8px;'>Ket: </td><td style='background: #969696;width: 24px;'></td><td style='padding-left: 4px;'>Belum Tuntas</td></tr></table></li>
                         <li style='margin: none;padding-top: 2px;'>Cetak: " . $date_now->translatedFormat('d F Y') . ', ' . $date_now->toTimeString() . ' WIB' . " </li>
                     </ul>
-                        <p style='text-align: right;margin-right: 86px;margin-top: 48px;font-size: 12px;'>Sukoharjo, " . $date_legger .  "</p>
+                        <p style='text-align: right;margin-right: 86px;margin-top: 0;font-size: 12px;'>Sukoharjo, " . $date_legger .  "</p>
                     </body>
                     </html>
                     ";
 
                 $mpdf = new Mpdf();
-                $mpdf->AddPage('L', '', '', '', '', 8, 8, 18, 18, 0, 0);
+                $mpdf->AddPage('L', '', '', '', '', 8, 8, 18, 8, 0, 0);
                 $mpdf->showImageErrors = true;
                 $mpdf->WriteHTML($html);
                 // HEADER 
-                $mpdf->Image(asset('/images/setting/' . $setting->logo), 12, 2, 'auto', 14, 'png', '', true, false);
+                $mpdf->Image(asset('/images/setting/' . $setting->logo), 12, 4, 'auto', 12, 'png', '', true, false);
                 $mpdf->SetFont('', 'B', 11);
                 $mpdf->SetXY(24, 8);
                 $mpdf->WriteCell(6.4, 0.4, strtoupper($setting->sekolah), 0, 'C');
@@ -235,5 +238,10 @@ class RankingController extends Controller
         } else {
             return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
+    }
+    
+     public function export_excel(Request $request)
+    {
+        return Excel::download(new RankingExport($request->tanggal_legger), 'Daftar Nilai Ranking SMK Muhammadiyah 1 Sukoharjo' . '.xlsx');
     }
 }

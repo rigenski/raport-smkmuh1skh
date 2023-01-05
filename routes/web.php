@@ -89,6 +89,7 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
 
   Route::get('/admin/ranking', [RankingController::class, 'index'])->name('admin.ranking');
   Route::get('/admin/ranking/print', [RankingController::class, 'print'])->name('admin.ranking.print');
+  Route::get('/admin/ranking/export-excel', [RankingController::class, 'export_excel'])->name('admin.ranking.export_excel');
 
   Route::get('/admin/riwayat', [RiwayatController::class, 'index'])->name('admin.riwayat');
 

@@ -23,10 +23,11 @@ class KetidakhadiranImport implements ToModel, WithStartRow
 
         $siswa_aktif = DB::table('siswa')
             ->join('siswa_aktif', 'siswa.id', '=', 'siswa_aktif.siswa_id')
+            ->where('siswa_aktif.tahun_pelajaran', $setting->tahun_pelajaran)
             ->where('siswa.nis', '=', $row[1])
             ->get()->first();
 
-        $data_ketidakhadiran = Ketidakhadiran::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('semester', $row[5])->where('siswa_aktif_id', $siswa_aktif->id)->get();
+        $data_ketidakhadiran = Ketidakhadiran::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('semester', $row[6])->where('siswa_aktif_id', $siswa_aktif->id)->get();
 
         if (count($data_ketidakhadiran)) {
             foreach ($data_ketidakhadiran as $ketidakhadiran) {

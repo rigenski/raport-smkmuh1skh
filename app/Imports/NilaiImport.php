@@ -25,6 +25,7 @@ class NilaiImport implements ToModel, WithStartRow
 
         $siswa_aktif = DB::table('siswa')
             ->join('siswa_aktif', 'siswa.id', '=', 'siswa_aktif.siswa_id')
+            ->where('siswa_aktif.tahun_pelajaran', $setting->tahun_pelajaran)
             ->where('siswa.nis', '=', $row[3])
             ->get()->first();
 

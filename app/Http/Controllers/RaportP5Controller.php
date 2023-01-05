@@ -12,10 +12,11 @@ use Mpdf\Mpdf;
 
 class RaportP5Controller extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $filter = $request;
 
-        return view('admin.raport-p5.index');
+        return view('admin.raport-p5.index', compact('filter'));
     }
 
     public function projek()

@@ -301,23 +301,35 @@
 @section('content')
 <div class="card mb-4">
     <div class="card-header row">
-        <div class="col-12 col-sm-6 p-0 my-1">
+        <div class="col-12 col-sm-8 p-0 my-1">
             <div class="d-flex align-items-start">
                 <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modal-filter">
                     Filter
                 </button>
                 @if(count($data_siswa_aktif))
                 <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
-                    Print PDF
+                    Print Raport
+                </button>
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrintPDF">
+                    Print Ranking
+                </button>
+                <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrintExcel">
+                    Export Ranking
                 </button>
                 @else
                 <button type="button" class="btn btn-primary ml-2" disabled>
-                    Print PDF
+                    Print Raport
+                </button>
+                <button type="button" class="btn btn-primary ml-2" disabled>
+                    Print Ranking
+                </button>
+                <button type="button" class="btn btn-primary ml-2" disabled>
+                    Export Ranking
                 </button>
                 @endif
             </div>
         </div>
-        <div class="col-12 col-sm-6 p-0 my-1">
+        <div class="col-12 col-sm-4 p-0 my-1">
             <div class="d-flex align-items-end flex-column">
                 <div>
                     @if(session('success'))
@@ -483,6 +495,60 @@
                 </form>
             </div>
         </div>
+    </div>
+</div>
+
+
+<!-- Modal Export -->
+<div class="modal fade" id="modalPrintPDF" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="form-print" action="{{ route('admin.ranking.print') }}" method="get">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
+                        $filter->kelas ? $filter->kelas : '' }} </span> - Semester <span class="text-primary">{{
+                        $filter->semester ? $filter->semester : '' }}</span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="tanggal_legger">Tanggal Legger <span class="text-danger">*</span></label>
+                <input type="date" required class="form-control @error('tanggal_legger') is-invalid @enderror"
+                    id="tanggal_legger" name="tanggal_legger" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-primary">Cetak</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Modal Export Excel -->
+<div class="modal fade" id="modalPrintExcel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="form-print" action="{{ route('admin.ranking.export_excel') }}" method="get">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span class="text-primary"> {{
+                        $filter->kelas ? $filter->kelas : '' }} </span> - Semester <span class="text-primary">{{
+                        $filter->semester ? $filter->semester : '' }}</span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label for="tanggal_legger">Tanggal Legger <span class="text-danger">*</span></label>
+                <input type="date" required class="form-control @error('tanggal_legger') is-invalid @enderror"
+                    id="tanggal_legger" name="tanggal_legger" value="">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                <button type="submit" class="btn btn-primary">Cetak</button>
+            </div>
+        </form>
     </div>
 </div>
 
