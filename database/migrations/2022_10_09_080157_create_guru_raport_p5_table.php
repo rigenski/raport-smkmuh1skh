@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRaportP5Table extends Migration
+class CreateGuruRaportP5Table extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,12 @@ class CreateRaportP5Table extends Migration
      */
     public function up()
     {
-        Schema::create('raport_p5', function (Blueprint $table) {
+        Schema::create('guru_raport_p5', function (Blueprint $table) {
             $table->id();
             $table->string('tahun_pelajaran');
-            $table->string('judul');
-            $table->text('catatan')->nullable();
+            $table->string('semester');
+            $table->string('kelas');
+            $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -29,6 +30,6 @@ class CreateRaportP5Table extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('raport_p5');
+        Schema::dropIfExists('guru_raport_p5');
     }
 }

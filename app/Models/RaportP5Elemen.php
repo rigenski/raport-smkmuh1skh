@@ -14,6 +14,11 @@ class RaportP5Elemen extends Model
 
     public function raport_p5_dimensi()
     {
-        return $this->hasMany(RaportP5Dimensi::class);
+        return $this->belongsTo(RaportP5Dimensi::class);
+    }
+
+    public function nilai_p5()
+    {
+        return $this->hasMany(NilaiP5::class);
     }
 }

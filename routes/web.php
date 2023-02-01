@@ -6,6 +6,7 @@ use App\Http\Controllers\DokumenController;
 use App\Http\Controllers\EkskulController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\GuruMataPelajaranController;
+use App\Http\Controllers\GuruRaportP5Controller;
 use App\Http\Controllers\KetidakhadiranController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\NilaiController;
@@ -75,6 +76,12 @@ Route::group(['middleware' => ['auth', 'checkRole:admin']], function () {
   Route::post('/admin/guru-mata-pelajaran/{id}/update', [GuruMataPelajaranController::class, 'update'])->name('admin.guru_mata_pelajaran.update');
   Route::get('/admin/guru-mata-pelajaran/{id}/destroy', [GuruMataPelajaranController::class, 'destroy'])->name('admin.guru_mata_pelajaran.destroy');
 
+  Route::get('/admin/guru-raport-p5', [GuruRaportP5Controller::class, 'index'])->name('admin.guru_raport_p5');
+  Route::post('/admin/guru-raport-p5/import', [GuruRaportP5Controller::class, 'import'])->name('admin.guru_raport_p5.import');
+  Route::get('/admin/guru-raport-p5/export-format', [GuruRaportP5Controller::class, 'export_format'])->name('admin.guru_raport_p5.export_format');
+  Route::post('/admin/guru-raport-p5/{id}/update', [GuruRaportP5Controller::class, 'update'])->name('admin.guru_raport_p5.update');
+  Route::get('/admin/guru-raport-p5/{id}/destroy', [GuruRaportP5Controller::class, 'destroy'])->name('admin.guru_raport_p5.destroy');
+
   Route::get('/admin/siswa', [SiswaController::class, 'index'])->name('admin.siswa');
   Route::post('/admin/siswa/import', [SiswaController::class, 'import'])->name('admin.siswa.import');
   Route::get('/admin/siswa/export-format', [SiswaController::class, 'export_format'])->name('admin.siswa.export_format');
@@ -122,6 +129,8 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,wali kelas']], function 
   Route::post('/admin/raport_p5/elemen/edit', [RaportP5Controller::class, 'editElemen'])->name('admin.raport_p5.elemen.edit');
   Route::get('/admin/raport_p5/catatan', [RaportP5Controller::class, 'catatan'])->name('admin.raport_p5.catatan');
   Route::post('/admin/raport_p5/catatan/edit', [RaportP5Controller::class, 'editCatatan'])->name('admin.raport_p5.catatan.edit');
+  Route::post('/admin/raport_p5/import', [RaportP5Controller::class, 'import'])->name('admin.raport_p5.import');
+  Route::get('/admin/raport_p5/export-format', [RaportP5Controller::class, 'export_format'])->name('admin.raport_p5.export_format');
 
   Route::get('/admin/ekskul', [EkskulController::class, 'index'])->name('admin.ekskul');
   Route::post('/admin/ekskul/import', [EkskulController::class, 'import'])->name('admin.ekskul.import');

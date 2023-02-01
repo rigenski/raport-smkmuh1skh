@@ -26,4 +26,9 @@ class Guru extends Model
     {
         return $this->hasMany(GuruMataPelajaran::class);
     }
+
+    public function guru_raport_p5()
+    {
+        return $this->hasMany(GuruRaportP5::class);
+    }
 }

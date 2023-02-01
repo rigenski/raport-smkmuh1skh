@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\RaportP5FormatExport;
 use App\Models\Setting;
+use App\Models\SiswaAktif;
 use App\Models\RaportP5;
 use App\Models\RaportP5Projek;
 use App\Models\RaportP5Dimensi;
 use App\Models\RaportP5Elemen;
 use Illuminate\Http\Request;
+use App\Models\WaliKelas;
 use Mpdf\Mpdf;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RaportP5Controller extends Controller
 {
@@ -16,7 +21,65 @@ class RaportP5Controller extends Controller
     {
         $filter = $request;
 
-        return view('admin.raport-p5.index', compact('filter'));
+        $setting = Setting::all()->first();
+
+        if ($setting) {
+            if (auth()->user()->role == 'admin') { 
+                if ($filter->has('tahun_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
+                    session(['raport_p5-tahun_pelajaran' => $filter->tahun_pelajaran]);
+                    session(['raport_p5-kelas' => $filter->kelas]);
+                    session(['raport_p5-semester' => $filter->semester]);
+
+                    $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
+                } else {
+                    $data_siswa_aktif = [];
+                }
+
+                $data_raport_p5_dimensi = RaportP5Dimensi::all();
+
+                $data_siswa = SiswaAktif::all();
+
+                $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
+
+                $data_semester = [1, 2];
+
+                return view('admin.raport-p5.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_raport_p5_dimensi'));
+            } else {
+                $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
+
+                $semester = 1;
+
+                if ($wali_kelas) {
+                    $kelas = $wali_kelas->kelas;
+                    
+                    session(['raport_p5-tahun_pelajaran' => $setting->tahun_pelajaran]);
+                    session(['raport_p5-kelas' => $kelas]);
+                    session(['raport_p5-semester' => $filter->semester ? $filter->semester : '1' ]);
+                    
+
+                    if ($filter->has('semester')) {
+                        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
+                    } else {
+                        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
+                    }
+
+                    $data_siswa = SiswaAktif::all();
+
+                    $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
+
+                    $data_raport_p5_dimensi = RaportP5Dimensi::all();
+
+                    $data_semester = [1, 2];
+
+                    return view('admin.raport-p5.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'kelas', 'data_raport_p5_dimensi', 'semester'));
+                } else {
+                    return redirect()->back()->with('error', 'Data wali kelas tidak ada');
+                }
+            }
+        } else {
+            return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
+        }
+
     }
 
     public function projek()
@@ -158,196 +221,272 @@ class RaportP5Controller extends Controller
         return redirect()->back()->with('success', 'Data Raport P5 Catatan berhasil disimpan');
     }
 
-    public function print()
+    public function print(Request $request)
     {
-        $mpdf = new Mpdf();
+        date_default_timezone_set("Asia/Jakarta");
+
+        $date_now = Carbon::parse($request->tanggal_raport ? $request->tanggal_raport : now()->toDateString())->translatedFormat('d F Y');
 
         $setting = Setting::all()->first();
-
+        
         if ($setting) {
+            $session_tahun_pelajaran = session()->get('raport_p5-tahun_pelajaran');
+            $session_kelas = session()->get('raport_p5-kelas');
+            $session_semester = session()->get('raport_p5-semester');
 
+            $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
 
-            $html = "
-            <html>
-            <head>
-            </head>
-            <body style='font-family: Arial;'>
-                <div style='padding-top: 160px'></div>
-                <div style='margin-bottom: 16px;'>
-                    <h4 style='margin: 0;'>Projek Profil 1 | Donec sollicitudin molestie malesuada</h4>
-                    <p style='margin: 0;color: #555;'>Nulla quis lorem ut libero malesuada feugiat. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Proin eget tortor risus. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit. Sed porttitor lectus nibh.</p>
-                </div>
-                <div style='margin-bottom: 16px;'>
-                    <h4 style='margin: 0;'>Projek Profil 2 | Donec sollicitudin molestie malesuada</h4>
-                    <p style='margin: 0;color: #555;'>Nulla quis lorem ut libero malesuada feugiat. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Proin eget tortor risus. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus. Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit. Sed porttitor lectus nibh.</p>
-                </div>
+            $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get()->first();
+            
+            $raport_p5_data = RaportP5::get()->first();
+            $raport_p5_projek_data = RaportP5Projek::all();
 
-                <table style='border-collapse:collapse;border-spacing: 0;width: 100%;font-size: 14px;'>
-                    <tbody>
+            if ($wali_kelas) {
+                $mpdf = new Mpdf();
+  
+                foreach ($data_siswa_aktif as $siswa_aktif) {
+
+                    $raport_p5_projek_header = '';
+
+                    foreach ($raport_p5_projek_data as $index => $raport_p5_projek)  {
+                        $raport_p5_projek_header .= "
+                        <div style='margin-bottom: 8px;'>
+                            <h4 style='margin: 0;font-size: 12px;'>Projek Profil " . ($index + 1) . " | " . $raport_p5_projek->nama . "</h4>
+                            <p style='margin: 0;font-size: 12px;color: #555;'>" . $raport_p5_projek->deskripsi . "</p>
+                        </div>";
+                    }
+        
+                    $raport_p5_projek_table = '';
+        
+                    foreach ($raport_p5_projek_data as $index => $raport_p5_projek)  {
+                        $raport_p5_dimensi_table = '';
+                    
+                        foreach($raport_p5_projek->raport_p5_dimensi as $raport_p5_dimensi) {
+                            $raport_p5_elemen_table = '';
+        
+                            foreach($raport_p5_dimensi->raport_p5_elemen as $raport_p5_elemen) {
+                                $nilai = count($raport_p5_elemen->nilai_p5->where('siswa_aktif_id', $siswa_aktif->id)->where('semester', $session_semester)) ? $raport_p5_elemen->nilai_p5->where('siswa_aktif_id', $siswa_aktif->id)->where('semester', $session_semester)->first()->nilai : '-';
+                                $icon = "<img src='https://i.ibb.co/W6w8Z89/check.png' style='height: 12px;' />";
+
+                                $raport_p5_elemen_table .= "
+                                    <tr>
+                                        <td style='vertical-align: top;border-bottom: 1px solid #aaa;padding: 4px 0 4px 8px;'>
+                                            <ul>
+                                                <li>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                        <td style='padding: 4px;border-bottom: 1px solid #aaa;'>
+                                            <b>" . $raport_p5_elemen->sub_elemen . ".</b> " . $raport_p5_elemen->akhir_fase . "
+                                        </td>
+                                        <td style='padding: 4px;border-bottom: 1px solid #aaa;text-align: center;'>" . ($nilai === 'A' ? $icon : null)  . "</td>
+                                        <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;text-align: center;'>" . ($nilai === 'B' ? $icon : null) . "</td>
+                                        <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;text-align: center;'>" . ($nilai === 'C' ? $icon : null) . "</td>
+                                        <td style='padding: 4px;border-bottom: 1px solid #aaa;text-align: center;'>" . ($nilai === 'D' ? $icon : null) . "</td>
+                                    </tr>
+                                ";
+                            }
+                            
+        
+                            $raport_p5_dimensi_table .= "
+                            <tr>
+                            <th colspan='6' style='text-align: left;background: #eee;border-top: 1px solid #aaa;border-bottom: 1px solid #aaa;padding: 4px 8px;'>" . $raport_p5_dimensi->nama . "</th>
+                            </tr>
+                            " . $raport_p5_elemen_table;      
+                        }
+                                 
+        
+                        $raport_p5_projek_table .= "
                         <tr>
-                            <th colspan='2' style='font-size: 18px;font-weight: bold;text-align: left;padding: 4px 8px;'>
-                                1. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae
+                            <th colspan='2' style='font-size: 12px;font-weight: bold;text-align: left;padding: 4px 8px;'>
+                                " . ($index + 1) . ". " . $raport_p5_projek->nama . "
                             </th>
-                            <th style='width: 56px;;font-weight: bold;vertical-align: bottom;padding: 4px 8px;'>
+                            <th style='width: 56px;font-size: 12px;font-weight: bold;vertical-align: bottom;padding: 4px 8px;'>
                                 MB
                             </th>
-                            <th style='width: 56px;;font-weight: bold;vertical-align: bottom;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;padding: 4px 8px;'>
+                            <th style='width: 56px;font-size: 12px;font-weight: bold;vertical-align: bottom;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;padding: 4px 8px;'>
                                 SB
                             </th>
-                            <th style='width: 56px;;font-weight: bold;vertical-align: bottom;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;padding: 4px 8px;'>
+                            <th style='width: 56px;font-size: 12px;font-weight: bold;vertical-align: bottom;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;padding: 4px 8px;'>
                                 BSH 
                             </th>
-                            <th style='width: 56px;;font-weight: bold;vertical-align: bottom;padding: 4px 8px;'>
+                            <th style='width: 56px;font-size: 12px;font-weight: bold;vertical-align: bottom;padding: 4px 8px;'>
                                 SAB
                             </th>
                         </tr>
-                        <tr>
-                            <th colspan='6' style='text-align: left;background: #eee;border-top: 1px solid #aaa;border-bottom: 1px solid #aaa;padding: 4px 8px;'>Quisque velit nisi</th>
-                        </tr>
-                        <tr>
-                            <td style='vertical-align: top;border-bottom: 1px solid #aaa;padding: 4px 0 4px 8px;'>
-                                <ul>
-                                    <li>
-                                    </li>
-                                </ul>
-                            </td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'>
-                                <b>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.</b> Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                            </td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'></td>
-                        </tr>
-                        <tr>
-                            <td style='vertical-align: top;border-bottom: 1px solid #aaa;padding: 4px 0 4px 8px;'>
-                                <ul>
-                                    <li>
-                                    </li>
-                                </ul>
-                            </td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'>
-                                <b>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.</b> Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                            </td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'></td>
-                        </tr>
-                        <tr>
-                            <th colspan='6' style='text-align: left;background: #eee;border-top: 1px solid #aaa;border-bottom: 1px solid #aaa;padding: 4px 8px;'>Quisque velit nisi</th>
-                        </tr>
-                        <tr>
-                            <td style='vertical-align: top;border-bottom: 1px solid #aaa;padding: 4px 0 4px 8px;'>
-                                <ul>
-                                    <li>
-                                    </li>
-                                </ul>
-                            </td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'>
-                                <b>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.</b> Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Pellentesque in ipsum id orci porta dapibus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                            </td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;border-left: 1px dotted #aaa;border-right: 1px dotted #aaa;'></td>
-                            <td style='padding: 4px;border-bottom: 1px solid #aaa;'></td>
-                        </tr>
-                        <tr>
-                            <td colspan='6' style='text-align: left;padding: 8px;'>
-                                <span style='font-weight: bold;'>
-                                Catatan proses :
-                                </span>
-                                <br />
-                                <span>
-                                Vivamus suscipit tortor eget felis porttitor volutpat. Vivamus magna justo, lacinia eget consectetur sed, convallis at tellus. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </body>
-            </html>
-            ";
+                        " . $raport_p5_dimensi_table;
+                    }
+        
+                    $html = "
+                        <html>
+                        <head>
+                        </head>
+                        <body style='font-family: Arial;'>
+                            <div style='padding-top: 130px'></div>
+                            " . $raport_p5_projek_header . "
+            
+                            <table style='border-collapse:collapse;border-spacing: 0;width: 100%;font-size: 12px;'>
+                                <tbody>
+                                " . $raport_p5_projek_table . "
+                                    <tr>
+                                        <td colspan='6' style='text-align: left;padding: 8px;'>
+                                            <span style='font-weight: bold;'>
+                                            Catatan proses :
+                                            </span>
+                                            <br />
+                                            <span>
+                                        " . $raport_p5_data->catatan . "
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </body>
+                        </html>
+                    ";
+        
+                    $mpdf->WriteHTML($html);
+                    $mpdf->Image(asset('https://i.ibb.co/pKZdBfM/logo-sekolah.png'), 184, 13, 'auto', 14, 'png', '', true, false);
+        
+                    // TOP
+                    $mpdf->SetFont('Arial', '', 16);
+                    $mpdf->SetXY(16, 12);
+                    $mpdf->MultiCell(100, 8, $raport_p5_data->judul, 0);
+        
+                    // BIODATA
+                    // NAMA
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(16, 32);
+                    $mpdf->WriteCell(6.4, 0.4, 'Nama Peserta Didik', 0, 'C');
+                    $mpdf->SetXY(52, 32);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(55, 32);
+                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->siswa->nama, 0, 'C');
+                    // NISN
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(16, 36);
+                    $mpdf->WriteCell(6.4, 0.4, 'NIS', 0, 'C');
+                    $mpdf->SetXY(52, 36);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(55, 36);
+                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->siswa->nis, 0, 'C');
+                    // SEKOLAH
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(16, 40);
+                    $mpdf->WriteCell(6.4, 0.4, 'Sekolah', 0, 'C');
+                    $mpdf->SetXY(52, 40);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(55, 40);
+                    $mpdf->WriteCell(6.4, 0.4, $setting->sekolah, 0, 'C');
+                    // ALAMAT
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(16, 44);
+                    $mpdf->WriteCell(6.4, 0.4, 'Alamat', 0, 'C');
+                    $mpdf->SetXY(52, 44);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(55, 44);
+                    $mpdf->MultiCell(60, 0.4, $setting->alamat, 0, 'L');
+                    // KELAS
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(120, 32);
+                    $mpdf->WriteCell(6.4, 0.4, 'Kelas', 0, 'C');
+                    $mpdf->SetXY(160, 32);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(162, 32);
+                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->kelas, 0, 'C');
+                    // FASE
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(120, 36);
+                    $mpdf->WriteCell(6.4, 0.4, 'Fase', 0, 'C');
+                    $mpdf->SetXY(160, 36);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(162, 36);
+                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->angkatan == 'X' ? 'E' : 'F', 0, 'C');
+                    // SEMESTER
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(120, 40);
+                    $mpdf->WriteCell(6.4, 0.4, 'Semester', 0, 'C');
+                    $mpdf->SetXY(160, 40);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(162, 40);
+                    $mpdf->WriteCell(6.4, 0.4, $session_semester, 0, 'C');            
+                    // TAHUN PELAJARAN
+                    $mpdf->SetFont('Arial', 'B', 8.6);
+                    $mpdf->SetXY(120, 44);
+                    $mpdf->WriteCell(6.4, 0.4, 'Tahun Pelajaran', 0, 'C');
+                    $mpdf->SetXY(160, 44);
+                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8.6);
+                    $mpdf->SetXY(162, 44);
+                    $mpdf->WriteCell(6.4, 0.4, $session_tahun_pelajaran, 0, 'C');   
+                    // TTD WALI SISWA
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(20, 256);
+                    $mpdf->WriteCell(6.4, 0.4, 'Orang Tua / Wali Siswa', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(20, 267);
+                    $mpdf->WriteCell(6.4, 0.4, '............................', 0, 'C');
 
-            $mpdf->WriteHTML($html);
-            $mpdf->Image(asset('/images/setting/' . $setting->logo), 184, 13, 'auto', 14, 'png', '', true, false);
+                    // TTD WALI KELAS
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(140, 253);
+                    $mpdf->WriteCell(6.4, 0.4, 'Sukoharjo, ' . $date_now, 0, 'C');
+                    $mpdf->SetXY(140, 256);
+                    $mpdf->WriteCell(6.4, 0.4, 'Wali Kelas', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(140, 267);
+                    $mpdf->WriteCell(6.4, 0.4, $wali_kelas->guru->nama, 0, 'C');
+                    $mpdf->SetXY(140, 270);
+                    $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
+                    // TTD KEPALA SEKOLAH
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(82, 260);
+                    $mpdf->WriteCell(6.4, 0.4, 'Mengetahui,', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(82, 263);
+                    $mpdf->WriteCell(6.4, 0.4, 'Kepala Sekolah', 0, 'C');
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(82, 277);
+                    $mpdf->WriteCell(6.4, 0.4, $setting->kepala_sekolah, 0, 'C');
+                    $mpdf->SetXY(82, 280);
+                    $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');         
+                }
 
-            // TOP
-            $mpdf->SetFont('Arial', '', 16);
-            $mpdf->SetXY(16, 16);
-            $mpdf->WriteCell(6.4, 0.4, 'RAPORT PROJEK PENGUATAN PROFIL', 0, 'C');
-            $mpdf->SetXY(16, 24);
-            $mpdf->WriteCell(6.4, 0.4, 'PELAJAR PANCASILA', 0, 'C');
-
-            // BIODATA
-            // NAMA
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(16, 36);
-            $mpdf->WriteCell(6.4, 0.4, 'Nama Peserta Didik', 0, 'C');
-            $mpdf->SetXY(52, 36);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(55, 36);
-            $mpdf->WriteCell(6.4, 0.4, 'Rigen Maulana', 0, 'C');
-            // NISN
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(16, 40);
-            $mpdf->WriteCell(6.4, 0.4, 'NIS', 0, 'C');
-            $mpdf->SetXY(52, 40);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(55, 40);
-            $mpdf->WriteCell(6.4, 0.4, '11123', 0, 'C');
-            // SEKOLAH
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(16, 44);
-            $mpdf->WriteCell(6.4, 0.4, 'Sekolah', 0, 'C');
-            $mpdf->SetXY(52, 44);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(55, 44);
-            $mpdf->WriteCell(6.4, 0.4, 'SMK Muhammadiyah 1 Sukoharjo', 0, 'C');
-            // ALAMAT
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(16, 48);
-            $mpdf->WriteCell(6.4, 0.4, 'Alamat', 0, 'C');
-            $mpdf->SetXY(52, 48);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(55, 48);
-            $mpdf->MultiCell(60, 0.4, 'Jl. Anggrek No. 2 Sukoharjo', 0, 'L');
-            // KELAS
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(120, 36);
-            $mpdf->WriteCell(6.4, 0.4, 'Kelas', 0, 'C');
-            $mpdf->SetXY(160, 36);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(162, 36);
-            $mpdf->WriteCell(6.4, 0.4, 'X PPLG 1', 0, 'C');
-            // FASE
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(120, 40);
-            $mpdf->WriteCell(6.4, 0.4, 'Fase', 0, 'C');
-            $mpdf->SetXY(160, 40);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(162, 40);
-            $mpdf->WriteCell(6.4, 0.4, 'X' == 'X' ? 'E' : 'F', 0, 'C');
-            // TAHUN PELAJARAN
-            $mpdf->SetFont('Arial', 'B', 8.6);
-            $mpdf->SetXY(120, 44);
-            $mpdf->WriteCell(6.4, 0.4, 'Tahun Pelajaran', 0, 'C');
-            $mpdf->SetXY(160, 44);
-            $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-            $mpdf->SetFont('Arial', '', 8.6);
-            $mpdf->SetXY(162, 44);
-            $mpdf->WriteCell(6.4, 0.4, '2021/2022', 0, 'C');
-
-            $mpdf->Output('Raport P5 Siswa SMK Muhammadiyah 1 Sukoharjo.pdf', 'I');
-            exit;
+                $mpdf->Output('Raport P5 Siswa SMK Muhammadiyah 1 Sukoharjo.pdf', 'I');
+                exit;
+                
+                return redirect()->route('admin.raport')->with('success', 'Cetak Raport P5 telah berhasil ...');
+            } else {
+                return redirect()->back()->with('error', 'Data wali kelas tidak ada');
+            }
         } else {
             return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
+    }
+
+    public function import()
+    {
+        try {
+            Excel::import(new \App\Imports\NilaiP5Import(), request()->file('data_raport_p5'));
+        } catch (\Exception $ex) {
+            return redirect()->back()->with('error', 'Data raport p5 gagal diimport');
+        }
+
+        return redirect()->back()->with('success', 'Data raport p5 berhasil diimport');
+    }
+
+    public function export_format(Request $request) {
+        $setting = Setting::all()->first();
+
+        $wali_kelas = WaliKelas::where('kelas', $request->kelas)->where('tahun_pelajaran', $request->tahun_pelajaran)->get()->first();
+
+        return Excel::download(new RaportP5FormatExport($wali_kelas->id), 'data-p5-'  . $wali_kelas->kelas .  '.xlsx');
     }
 }

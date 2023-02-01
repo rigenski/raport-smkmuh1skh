@@ -49,7 +49,7 @@ class NilaiImport implements ToModel, WithStartRow
             "mata_pelajaran_id" => $mata_pelajaran->id,
         ]);   
         } else {
-            return redirect()-back();
+            return redirect()->back();
         }
     }
 

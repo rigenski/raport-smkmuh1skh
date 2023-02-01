@@ -5,16 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class RaportP5 extends Model
+class GuruRaportP5 extends Model
 {
     use HasFactory;
 
-    protected $table = 'raport_p5';
+    protected $table = 'guru_raport_p5';
     protected $guarded = [];
 
-    public function raport_p5_projek()
+    public function guru()
     {
-        return $this->hasMany(RaportP5Projek::class);
+        return $this->belongsTo(Guru::class);
     }
-
 }

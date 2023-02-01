@@ -78,6 +78,12 @@
             <span>Guru Mata Pelajaran</span>
           </a>
         </li>
+        <li class="@yield('nav_item-guru_raport_p5')">
+          <a class="nav-link" href="{{ route('admin.guru_raport_p5') }}">
+            <i class="fas fa-users"></i>
+            <span>Guru Raport P5</span>
+          </a>
+        </li>
         <li class="menu-header">SISWA</li>
         <li class="@yield('nav_item-siswa')">
           <a class="nav-link" href="{{ route('admin.siswa') }}">
@@ -192,6 +198,13 @@
           <a class="nav-link" href="{{ route('admin.dokumen') }}">
             <i class="fas fa-file"></i>
             <span>Dokumen</span>
+          </a>
+        </li>
+        <li class="menu-header">Nilai Lanjutan</li>
+        <li class="@yield('nav_item-raport_p5')">
+          <a class="nav-link" href="{{ route('admin.raport_p5') }}">
+            <i class="fas fa-book"></i>
+            <span>Raport P5</span>
           </a>
         </li>
         @endif

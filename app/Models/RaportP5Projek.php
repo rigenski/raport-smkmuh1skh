@@ -14,11 +14,11 @@ class RaportP5Projek extends Model
 
     public function raport_p5()
     {
-        return $this->hasMany(RaportP5::class);
+        return $this->BelongsTo(RaportP5::class);
     }
 
     public function raport_p5_dimensi()
     {
-        return $this->BelongsTo(RaportP5Dimensi::class);
+        return $this->hasMany(RaportP5Dimensi::class);
     }
 }

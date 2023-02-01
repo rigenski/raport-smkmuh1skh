@@ -183,30 +183,30 @@ class RaportController extends Controller
                     if ($ketidakhadiran) {
 
                         $table_ketidakhadiran = "<tr>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Sakit</td>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->sakit .  " hari</td>
-                </tr>
-                <tr>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Izin</td>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->izin .  " hari</td>
-                </tr>
-                <tr>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Tanpa Keterangan</td>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->tanpa_keterangan .  " hari</td>
-                </tr>";
-                    } else {
-                        $table_ketidakhadiran = "<tr>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Sakit</td>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
-                </tr>
-                <tr>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Izin</td>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
-                </tr>
-                <tr>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Tanpa Keterangan</td>
-                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
-                </tr>";
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Sakit</td>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->sakit .  " hari</td>
+                        </tr>
+                        <tr>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Izin</td>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->izin .  " hari</td>
+                        </tr>
+                        <tr>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Tanpa Keterangan</td>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->tanpa_keterangan .  " hari</td>
+                        </tr>";
+                            } else {
+                                $table_ketidakhadiran = "<tr>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Sakit</td>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
+                        </tr>
+                        <tr>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Izin</td>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
+                        </tr>
+                        <tr>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Tanpa Keterangan</td>
+                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
+                        </tr>";
                     }
                     
                      $table_catatan = "";
@@ -385,7 +385,7 @@ class RaportController extends Controller
                     $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
                 }
 
-                $mpdf->Output('Raport Siswa SMK Muhammadiyah 1 Sukoharjo.pdf', 'I');
+                $mpdf->Output('Raport  Siswa SMK Muhammadiyah 1 Sukoharjo.pdf', 'I');
                 exit;
 
                 return redirect()->route('admin.raport')->with('success', 'Cetak Raport telah berhasil ...');
