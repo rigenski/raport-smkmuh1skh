@@ -81,6 +81,6 @@ class SiswaAktifController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new SiswaAktifFormatExport(), 'data-siswa_aktif_mutuharjo' . '.xlsx');
+        return Excel::download(new SiswaAktifFormatExport(), 'Data Siswa Aktif' . '.xlsx');
     }
 }

@@ -16,6 +16,7 @@ class CreateRaportP5Table extends Migration
         Schema::create('raport_p5', function (Blueprint $table) {
             $table->id();
             $table->string('tahun_pelajaran');
+            $table->string('semester');
             $table->string('judul');
             $table->text('catatan')->nullable();
             $table->timestamps();

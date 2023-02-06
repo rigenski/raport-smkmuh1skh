@@ -68,6 +68,6 @@ class SiswaController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new SiswaFormatExport(), 'data-siswa-mutuharjo' . '.xlsx');
+        return Excel::download(new SiswaFormatExport(), 'Data Siswa' . '.xlsx');
     }
 }

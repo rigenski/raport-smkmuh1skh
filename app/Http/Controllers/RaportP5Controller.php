@@ -6,6 +6,7 @@ use App\Exports\RaportP5FormatExport;
 use App\Models\Setting;
 use App\Models\SiswaAktif;
 use App\Models\RaportP5;
+use App\Models\GuruRaportP5;
 use App\Models\RaportP5Projek;
 use App\Models\RaportP5Dimensi;
 use App\Models\RaportP5Elemen;
@@ -14,6 +15,8 @@ use App\Models\WaliKelas;
 use Mpdf\Mpdf;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class RaportP5Controller extends Controller
 {
@@ -35,7 +38,13 @@ class RaportP5Controller extends Controller
                     $data_siswa_aktif = [];
                 }
 
-                $data_raport_p5_dimensi = RaportP5Dimensi::all();
+                $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+                if($raport_p5) {
+                    $data_raport_p5_projek = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
+                } else {
+                    $data_raport_p5_projek = [];
+                }
 
                 $data_siswa = SiswaAktif::all();
 
@@ -43,63 +52,105 @@ class RaportP5Controller extends Controller
 
                 $data_semester = [1, 2];
 
-                return view('admin.raport-p5.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_raport_p5_dimensi'));
+                return view('admin.raport-p5.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_raport_p5_projek'));
             } else {
-                $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
-
-                $semester = 1;
-
-                if ($wali_kelas) {
-                    $kelas = $wali_kelas->kelas;
-                    
+                if ($filter->has('kelas') && $filter->has('semester')) {
                     session(['raport_p5-tahun_pelajaran' => $setting->tahun_pelajaran]);
-                    session(['raport_p5-kelas' => $kelas]);
-                    session(['raport_p5-semester' => $filter->semester ? $filter->semester : '1' ]);
-                    
+                    session(['raport_p5-kelas' => $filter->kelas]);
+                    session(['raport_p5-semester' => $filter->semester]);
 
-                    if ($filter->has('semester')) {
-                        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
-                    } else {
-                        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
-                    }
-
-                    $data_siswa = SiswaAktif::all();
-
-                    $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
-
-                    $data_raport_p5_dimensi = RaportP5Dimensi::all();
-
-                    $data_semester = [1, 2];
-
-                    return view('admin.raport-p5.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'kelas', 'data_raport_p5_dimensi', 'semester'));
+                    $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
                 } else {
-                    return redirect()->back()->with('error', 'Data wali kelas tidak ada');
+                    $data_siswa_aktif = [];
                 }
+
+                $raport_p5 = RaportP5::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+                if($raport_p5) {
+                    $data_raport_p5_projek = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
+                } else {
+                    $data_raport_p5_projek = [];
+                }
+
+                $data_siswa = SiswaAktif::all();
+
+                $data_kelas = DB::table('guru_raport_p5')
+                    ->where('guru_raport_p5.guru_id', '=', auth()->user()->guru->id)
+                    ->get();
+
+                $data_semester = [1, 2];
+
+                return view('admin.raport-p5.index', compact('filter', 'setting', 'data_semester', 'data_siswa_aktif', 'data_kelas', 'data_raport_p5_projek'));
             }
         } else {
             return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
-
     }
 
-    public function projek()
+    public function setting(Request $request)
     {
-        $data_raport_p5_projek = RaportP5Projek::all();
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+        $data_semester = [1, 2];
+
+        return view('admin.raport-p5.setting', compact('request', 'raport_p5', 'data_semester'));
+    }
+
+    public function editSetting(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'tahun_pelajaran' => 'required',
+            'judul' => 'required',
+            'catatan' => 'required',
+            'semester' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', 'Data Raport P5 gagal disimpan');
+        }
+
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
         
-        return view('admin.raport-p5.projek', compact('data_raport_p5_projek'));
+
+        if($raport_p5) {
+            $raport_p5->update([
+                'judul' => $request->judul,
+                'catatan' => $request->catatan,
+            ]);
+        } else {
+            RaportP5::create([
+                'tahun_pelajaran' => $request->tahun_pelajaran,
+                'judul' => $request->judul,
+                'catatan' => $request->catatan,
+                'semester' => $request->semester,
+            ]);
+        }
+
+
+        return redirect()->back()->with('success', 'Data Raport P5 berhasil disimpan');
+    }
+
+    public function projek(Request $request)
+    {
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+        if(!$raport_p5) {
+            return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
+        }
+
+        $data_raport_p5_projek = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
+        
+        return view('admin.raport-p5.projek', compact('request', 'data_raport_p5_projek'));
     }
 
     public function editProjek(Request $request)
     {
-        $raport_p5 = RaportP5::all()->first();
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
 
         if(!$raport_p5) {
-            $raport_p5 = RaportP5::create([
-                'judul' => 'RAPORT PENGUATAN PROFIL PELAJAR PANCASILA'
-            ]);
+            return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
         }
 
-        $data_raport_p5_project_selected = RaportP5Projek::whereNotIn('id', $request->id ?? [])->get();
+        $data_raport_p5_project_selected = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->whereNotIn('id', $request->id ?? [])->get();
 
         foreach($data_raport_p5_project_selected as $raport_p5_project) {
             $raport_p5_project->delete();
@@ -129,7 +180,13 @@ class RaportP5Controller extends Controller
 
     public function dimensi(Request $request)
     {
-        $data_raport_p5_projek = RaportP5Projek::all();
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+        if(!$raport_p5) {
+            return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
+        }
+
+        $data_raport_p5_projek = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
         $data_raport_p5_dimensi = RaportP5Dimensi::where('raport_p5_projek_id', $request->projek_id)->get();
 
         return view('admin.raport-p5.dimensi', compact('data_raport_p5_projek', 'data_raport_p5_dimensi', 'request'));
@@ -137,6 +194,12 @@ class RaportP5Controller extends Controller
 
     public function editDimensi(Request $request)
     {
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+        if(!$raport_p5) {
+            return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
+        }
+
         $data_raport_p5_dimensi_selected = RaportP5Dimensi::where('raport_p5_projek_id', $request->projek_id)->whereNotIn('id', $request->id ?? [])->get();
 
         foreach($data_raport_p5_dimensi_selected as $raport_p5_dimensi) {
@@ -165,7 +228,13 @@ class RaportP5Controller extends Controller
 
     public function elemen(Request $request)
     {
-        $data_raport_p5_projek = RaportP5Projek::all();
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+        if(!$raport_p5) {
+            return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
+        }
+
+        $data_raport_p5_projek = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
         $data_raport_p5_dimensi = RaportP5Dimensi::where('raport_p5_projek_id', $request->projek_id)->get();
         $data_raport_p5_elemen = RaportP5Elemen::where('raport_p5_dimensi_id', $request->dimensi_id)->get();
 
@@ -173,6 +242,12 @@ class RaportP5Controller extends Controller
     }
 
     public function editElemen(Request $request) {
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $request->tahun_pelajaran)->where('semester', $request->semester)->first();
+
+        if(!$raport_p5) {
+            return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
+        }
+
         $data_raport_p5_elemen_selected = RaportP5Elemen::where('raport_p5_dimensi_id', $request->dimensi_id)->whereNotIn('id', $request->id ?? [])->get();
 
         foreach($data_raport_p5_elemen_selected as $raport_p5_elemen) {
@@ -201,26 +276,6 @@ class RaportP5Controller extends Controller
         return redirect()->back()->with('success', 'Data Raport P5 Elemen berhasil disimpan');
     }
 
-    public function catatan()
-    {
-        $raport_p5 = RaportP5::all()->first();
-
-        return view('admin.raport-p5.catatan', compact('raport_p5'));
-    }
-    
-    public function editCatatan(Request $request)
-    {
-        $raport_p5 = RaportP5::all()->first();
-
-        if($raport_p5) {
-            $raport_p5->update([
-                'catatan' => $request->catatan
-            ]);
-        }
-
-        return redirect()->back()->with('success', 'Data Raport P5 Catatan berhasil disimpan');
-    }
-
     public function print(Request $request)
     {
         date_default_timezone_set("Asia/Jakarta");
@@ -237,9 +292,14 @@ class RaportP5Controller extends Controller
             $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
 
             $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get()->first();
-            
-            $raport_p5_data = RaportP5::get()->first();
-            $raport_p5_projek_data = RaportP5Projek::all();
+
+            $raport_p5 = RaportP5::where('tahun_pelajaran', $session_tahun_pelajaran)->where('semester', $session_semester)->first();
+
+            if(!$raport_p5) {
+                return redirect()->route('admin.raport_p5.setting', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester])->with('error', 'Isi data Raport P5 terlebih dahulu');
+            }
+    
+            $raport_p5_projek_data = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
 
             if ($wali_kelas) {
                 $mpdf = new Mpdf();
@@ -270,7 +330,7 @@ class RaportP5Controller extends Controller
 
                                 $raport_p5_elemen_table .= "
                                     <tr>
-                                        <td style='vertical-align: top;border-bottom: 1px solid #aaa;padding: 4px 0 4px 8px;'>
+                                        <td style='width: 20px;vertical-align: top;border-bottom: 1px solid #aaa;padding: 4px 0 4px 8px;'>
                                             <ul>
                                                 <li>
                                                 </li>
@@ -335,7 +395,7 @@ class RaportP5Controller extends Controller
                                             </span>
                                             <br />
                                             <span>
-                                        " . $raport_p5_data->catatan . "
+                                        " . $raport_p5->catatan . "
                                             </span>
                                         </td>
                                     </tr>
@@ -351,7 +411,7 @@ class RaportP5Controller extends Controller
                     // TOP
                     $mpdf->SetFont('Arial', '', 16);
                     $mpdf->SetXY(16, 12);
-                    $mpdf->MultiCell(100, 8, $raport_p5_data->judul, 0);
+                    $mpdf->MultiCell(100, 8, $raport_p5->judul, 0);
         
                     // BIODATA
                     // NAMA
@@ -483,10 +543,12 @@ class RaportP5Controller extends Controller
     }
 
     public function export_format(Request $request) {
-        $setting = Setting::all()->first();
+        $guru_raport_p5 = GuruRaportP5::find($request->guru_raport_p5);
 
-        $wali_kelas = WaliKelas::where('kelas', $request->kelas)->where('tahun_pelajaran', $request->tahun_pelajaran)->get()->first();
+        if(!$guru_raport_p5) {
+            return redirect()->back()->with('error', 'Data kelas tidak ada ');
+        }
 
-        return Excel::download(new RaportP5FormatExport($wali_kelas->id), 'data-p5-'  . $wali_kelas->kelas .  '.xlsx');
+        return Excel::download(new RaportP5FormatExport($request->guru_raport_p5, $request->semester), 'Data Nilai P5 '  . $guru_raport_p5->kelas . '.xlsx');
     }
 }

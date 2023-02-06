@@ -162,6 +162,13 @@
             <span>Dokumen</span>
           </a>
         </li>
+        <li class="menu-header">Nilai Lanjutan</li>
+        <li class="@yield('nav_item-raport_p5')">
+          <a class="nav-link" href="{{ route('admin.raport_p5') }}">
+            <i class="fas fa-book"></i>
+            <span>Nilai P5</span>
+          </a>
+        </li>
         @elseif(auth()->user()->role === 'wali kelas')
         <li class="menu-header">UTAMA</li>
         <li class="@yield('nav_item-admin')">
@@ -204,7 +211,7 @@
         <li class="@yield('nav_item-raport_p5')">
           <a class="nav-link" href="{{ route('admin.raport_p5') }}">
             <i class="fas fa-book"></i>
-            <span>Raport P5</span>
+            <span>Nilai P5</span>
           </a>
         </li>
         @endif

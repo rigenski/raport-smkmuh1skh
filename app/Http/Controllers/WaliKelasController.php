@@ -89,6 +89,6 @@ class WaliKelasController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new WaliKelasFormatExport(), 'data-wali_kelas-mutuharjo' . '.xlsx');
+        return Excel::download(new WaliKelasFormatExport(), 'Data Wali Kelas' . '.xlsx');
     }
 }

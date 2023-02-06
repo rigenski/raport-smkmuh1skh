@@ -79,6 +79,6 @@ class GuruController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new GuruFormatExport(), 'data-guru-mutuharjo' . '.xlsx');
+        return Excel::download(new GuruFormatExport(), 'Data Guru' . '.xlsx');
     }
 }

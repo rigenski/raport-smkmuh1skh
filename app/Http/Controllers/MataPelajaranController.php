@@ -80,6 +80,6 @@ class MataPelajaranController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new MataPelajaranFormatExport(), 'data-mata_pelajaran-mutuharjo' . '.xlsx');
+        return Excel::download(new MataPelajaranFormatExport(), 'Data Mata Pelajaran ' . '.xlsx');
     }
 }

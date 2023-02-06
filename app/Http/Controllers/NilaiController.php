@@ -174,6 +174,6 @@ class NilaiController extends Controller
     {
         $guru_mata_pelajaran = GuruMataPelajaran::find($request->guru_mata_pelajaran);
         
-        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'data-nilai-' . $guru_mata_pelajaran->kelas . '-' . $guru_mata_pelajaran->mata_pelajaran->nama . '.xlsx');
+        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'Data Nilai ' . $guru_mata_pelajaran->kelas . '-' . $guru_mata_pelajaran->mata_pelajaran->nama . '.xlsx');
     }
 }

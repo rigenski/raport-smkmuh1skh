@@ -175,6 +175,6 @@ class KetidakhadiranController extends Controller
 
         $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 
-        return Excel::download(new KetidakhadiranFormatExport($wali_kelas->id), 'data-ketidakhadiran-'  . $wali_kelas->kelas .  '.xlsx');
+        return Excel::download(new KetidakhadiranFormatExport($wali_kelas->id), 'Data Ketidakhadiran '  . $wali_kelas->kelas .  '.xlsx');
     }
 }

@@ -112,25 +112,25 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,guru,wali kelas']], func
   Route::get('/admin/nilai/export-format', [NilaiController::class, 'export_format'])->name('admin.nilai.export_format');
   Route::post('/admin/nilai/{id}/update', [NilaiController::class, 'update'])->name('admin.nilai.update');
 
-  Route::get('/admin/dokumen', [DokumenController::class, 'index'])->name('admin.dokumen');
-});
-
-Route::group(['middleware' => ['auth', 'checkRole:admin,wali kelas']], function () {
-  Route::get('/admin/raport', [RaportController::class, 'index'])->name('admin.raport');
-  Route::get('/admin/raport/print', [RaportController::class, 'print'])->name('admin.raport.print');
-
   Route::get('/admin/raport_p5', [RaportP5Controller::class, 'index'])->name('admin.raport_p5');
   Route::get('/admin/raport_p5/print', [RaportP5Controller::class, 'print'])->name('admin.raport_p5.print');
+  Route::get('/admin/raport_p5/setting', [RaportP5Controller::class, 'setting'])->name('admin.raport_p5.setting');
+  Route::post('/admin/raport_p5/setting/edit', [RaportP5Controller::class, 'editSetting'])->name('admin.raport_p5.setting.edit');
   Route::get('/admin/raport_p5/projek', [RaportP5Controller::class, 'projek'])->name('admin.raport_p5.projek');
   Route::post('/admin/raport_p5/projek/edit', [RaportP5Controller::class, 'editProjek'])->name('admin.raport_p5.projek.edit');
   Route::get('/admin/raport_p5/dimensi', [RaportP5Controller::class, 'dimensi'])->name('admin.raport_p5.dimensi');
   Route::post('/admin/raport_p5/dimensi/edit', [RaportP5Controller::class, 'editdimensi'])->name('admin.raport_p5.dimensi.edit');
   Route::get('/admin/raport_p5/elemen', [RaportP5Controller::class, 'elemen'])->name('admin.raport_p5.elemen');
   Route::post('/admin/raport_p5/elemen/edit', [RaportP5Controller::class, 'editElemen'])->name('admin.raport_p5.elemen.edit');
-  Route::get('/admin/raport_p5/catatan', [RaportP5Controller::class, 'catatan'])->name('admin.raport_p5.catatan');
-  Route::post('/admin/raport_p5/catatan/edit', [RaportP5Controller::class, 'editCatatan'])->name('admin.raport_p5.catatan.edit');
   Route::post('/admin/raport_p5/import', [RaportP5Controller::class, 'import'])->name('admin.raport_p5.import');
   Route::get('/admin/raport_p5/export-format', [RaportP5Controller::class, 'export_format'])->name('admin.raport_p5.export_format');
+
+  Route::get('/admin/dokumen', [DokumenController::class, 'index'])->name('admin.dokumen');
+});
+
+Route::group(['middleware' => ['auth', 'checkRole:admin,wali kelas']], function () {
+  Route::get('/admin/raport', [RaportController::class, 'index'])->name('admin.raport');
+  Route::get('/admin/raport/print', [RaportController::class, 'print'])->name('admin.raport.print');
 
   Route::get('/admin/ekskul', [EkskulController::class, 'index'])->name('admin.ekskul');
   Route::post('/admin/ekskul/import', [EkskulController::class, 'import'])->name('admin.ekskul.import');

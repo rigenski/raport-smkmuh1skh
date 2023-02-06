@@ -5,32 +5,44 @@ namespace App\Exports;
 use App\Models\Setting;
 use App\Models\SiswaAktif;
 use App\Models\WaliKelas;
+use App\Models\GuruRaportP5;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use App\Models\RaportP5Dimensi;
+use App\Models\RaportP5;
+use App\Models\RaportP5Projek;
 
 
 class RaportP5FormatExport implements FromView, ShouldAutoSize
 {
 
-    protected $wali_kelas_id;
+    protected $guru_raport_p5_id;
+    protected $semester;
 
-    function __construct($wali_kelas)
+    function __construct($guru_raport_p5, $_semester)
     {
-        $this->wali_kelas_id = $wali_kelas;
+        $this->guru_raport_p5_id = $guru_raport_p5;
+        $this->semester = $_semester;
     }
 
     public function view(): View
     {
-        $wali_kelas = WaliKelas::find($this->wali_kelas_id);
+        $guru_raport_p5 = GuruRaportP5::find($this->guru_raport_p5_id);
 
         $setting = Setting::all()->first();
 
-        $data_raport_p5_dimensi = RaportP5Dimensi::all();
+        $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $guru_raport_p5->kelas)->get();
 
-        $siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $wali_kelas->kelas)->get();
+        $raport_p5 = RaportP5::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('semester', $this->semester)->first();
 
-        return view('admin/raport-p5/format-table', compact('setting', 'siswa_aktif', 'data_raport_p5_dimensi'));
+        if($raport_p5) {
+            $data_raport_p5_projek = RaportP5Projek::where('raport_p5_id', $raport_p5->id)->get();
+        } else {
+            $data_raport_p5_projek = [];
+        }
+
+        $semester = $this->semester;
+
+        return view('admin/raport-p5/format-table', compact('setting', 'siswa_aktif', 'data_raport_p5_projek', 'semester'));
     }
 }

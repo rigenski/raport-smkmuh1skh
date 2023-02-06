@@ -6,6 +6,8 @@
 @section('content')
 <form action={{ route('admin.raport_p5.dimensi.edit') }} method="post" class="card mb-4">
   @csrf
+  <input type="hidden" name="tahun_pelajaran" value="{{ $request->tahun_pelajaran }}">
+  <input type="hidden" name="semester" value="{{ $request->semester }}">
   <div class="card-header row">
     <div class="col-12 col-sm-6 p-0 my-1">
       <h4 class="mb-0">DIMENSI</h4>
@@ -37,9 +39,9 @@
             @endif
             @foreach($data_raport_p5_projek as $raport_p5_projek)
               @if($request->projek_id == $raport_p5_projek->id)
-              <option value={{ $raport_p5_projek->id }} selected>{{ $raport_p5_projek->nama }}</option>
+              <option value="{{ $raport_p5_projek->id }}" selected>{{ $raport_p5_projek->nama }}</option>
               @else
-              <option value={{ $raport_p5_projek->id }}>{{ $raport_p5_projek->nama }}</option>
+              <option value="{{ $raport_p5_projek->id }}">{{ $raport_p5_projek->nama }}</option>
               @endif
             @endforeach
           </select>
@@ -48,14 +50,14 @@
       @if(count($data_raport_p5_dimensi) && $request->projek_id)
         @foreach($data_raport_p5_dimensi as $raport_p5_dimensi)
           <div id="form-clone" class="mb-2 col-12 col-md-6">
-            <input type="hidden" name="id[]" value={{ $raport_p5_dimensi->id}}>
+            <input type="hidden" name="id[]" value="{{ $raport_p5_dimensi->id}}">
             <div class="d-flex justify-content-between">
               <h6 class="mb-0 text-primary"># 1</h6>
               <button type="button" id="button-remove" class="text-danger bg-transparent border-0 font-weight-bold"><u>Hapus</u></button>
             </div>
             <div class="form-group mb-2">
               <label for="nama">Nama Dimensi<span class="text-danger">*</span></label>
-              <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama[]" value={{ $raport_p5_dimensi->nama }}
+              <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama[]" value="{{ $raport_p5_dimensi->nama }}"
               autocomplete="off" required>
             </div>
           </div>
@@ -84,8 +86,8 @@
       </div>
       <div class="col-12 col-sm-6 p-0 my-1">
         <div class="d-flex justify-content-end">
-          <a href={{ route('admin.raport_p5.projek') }} type="button" class="btn mr-2 btn-warning">Sebelumnya</a>
-          <a href={{ route('admin.raport_p5.elemen') }} type="button" class="btn btn-primary">Selanjutnya</a>
+          <a href={{ route('admin.raport_p5.projek', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester]) }} type="button" class="btn mr-2 btn-warning">Sebelumnya</a>
+          <a href={{ route('admin.raport_p5.elemen', ['tahun_pelajaran' => $request->tahun_pelajaran, 'semester' => $request->semester]) }} type="button" class="btn btn-primary">Selanjutnya</a>
         </div>
       </div>
     </div>
@@ -120,7 +122,7 @@
     })
 
     function handleSelectProjek (e) {
-      window.location.href = `?projek_id=${e.value}`;
+      window.location.href = `?tahun_pelajaran={{ $request->tahun_pelajaran }}&semester={{ $request->semester }}&projek_id=${e.value}`;
     }
   </script>
 @endsection

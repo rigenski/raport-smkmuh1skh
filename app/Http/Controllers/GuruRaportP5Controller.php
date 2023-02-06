@@ -81,6 +81,6 @@ class GuruRaportP5Controller extends Controller
 
     public function export_format()
     {
-        return Excel::download(new GuruRaportP5FormatExport(), 'data-guru_raport_p5-mutuharjo' . '.xlsx');
+        return Excel::download(new GuruRaportP5FormatExport(), 'Data Guru Raport P5' . '.xlsx');
     }
 }
