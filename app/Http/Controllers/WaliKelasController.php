@@ -89,6 +89,6 @@ class WaliKelasController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new WaliKelasFormatExport(), 'Data Wali Kelas' . '.xlsx');
+        return Excel::download(new WaliKelasFormatExport(), 'Simaku - Data Wali Kelas' . '.xlsx');
     }
 }

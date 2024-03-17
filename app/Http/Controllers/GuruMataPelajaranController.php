@@ -81,6 +81,6 @@ class GuruMataPelajaranController extends Controller
 
     public function export_format()
     {
-        return Excel::download(new GuruMataPelajaranFormatExport(), 'Data Guru Mata Pelajaran' . '.xlsx');
+        return Excel::download(new GuruMataPelajaranFormatExport(), 'Simaku - Guru Mata Pelajaran' . '.xlsx');
     }
 }

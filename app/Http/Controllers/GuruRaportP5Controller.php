@@ -30,7 +30,7 @@ class GuruRaportP5Controller extends Controller
         }
 
         $data_guru = Guru::all();
-        
+
         $data_semester = [1, 2];
 
         return view('admin.guru-raport-p5.index', compact('filter', 'setting', 'data_guru_raport_p5', 'data_guru', 'data_semester'));
@@ -81,6 +81,6 @@ class GuruRaportP5Controller extends Controller
 
     public function export_format()
     {
-        return Excel::download(new GuruRaportP5FormatExport(), 'Data Guru Raport P5' . '.xlsx');
+        return Excel::download(new GuruRaportP5FormatExport(), 'Simaku - Data Guru Raport P5' . '.xlsx');
     }
 }

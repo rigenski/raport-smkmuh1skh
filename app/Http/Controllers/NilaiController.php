@@ -85,7 +85,6 @@ class NilaiController extends Controller
                             ->where('siswa_aktif.kelas', $filter->kelas)
                             ->select('siswa.id as siswa_id', 'siswa.nis', 'siswa.nama as nama_siswa', 'siswa_aktif.id as siswa_aktif_id', 'siswa_aktif.tahun_pelajaran', 'siswa_aktif.kelas', 'siswa_aktif.angkatan', 'siswa_aktif.jurusan', 'nilai.id as nilai_id', 'nilai.semester', 'nilai.nilai', 'nilai.keterangan as keterangan_nilai', 'nilai.status as status_nilai', 'mata_pelajaran.id as mapel_id', 'mata_pelajaran.jenis as jenis_mapel', 'mata_pelajaran.kode as kode_mapel', 'mata_pelajaran.nama as nama_mapel')
                             ->get();
-                            
                     } else {
                         return redirect()->back()->with('error', 'Data mata pelajaran tidak ada');
                     }
@@ -173,7 +172,7 @@ class NilaiController extends Controller
     public function export_format(Request $request)
     {
         $guru_mata_pelajaran = GuruMataPelajaran::find($request->guru_mata_pelajaran);
-        
-        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'Data Nilai ' . $guru_mata_pelajaran->kelas . '-' . $guru_mata_pelajaran->mata_pelajaran->nama . '.xlsx');
+
+        return Excel::download(new NilaiFormatExport($request->guru_mata_pelajaran), 'Simaku - Data Nilai ' . $guru_mata_pelajaran->kelas . '-' . $guru_mata_pelajaran->mata_pelajaran->nama . '.xlsx');
     }
 }

@@ -74,7 +74,7 @@ class RankingController extends Controller
                 $table_kkm = '';
                 $list_kejuruan = '';
 
-                
+
 
                 $data_nama_mata_pelajaran = [];
 
@@ -230,7 +230,7 @@ class RankingController extends Controller
                 $mpdf->WriteCell(6.4, 0.4, $setting->alamat, 0, 'C');
 
 
-                $mpdf->Output('Daftar Nilai Ranking SMK Muhammadiyah 1 Sukoharjo' . '.pdf', 'I');
+                $mpdf->Output('Simaku - Daftar Nilai' . '.pdf', 'I');
                 exit;
             } else {
                 return redirect()->back()->with('error', 'Data wali kelas tidak ada');
@@ -239,9 +239,9 @@ class RankingController extends Controller
             return redirect()->route('admin.setting')->with('error', 'Isi data setting terlebih dahulu');
         }
     }
-    
-     public function export_excel(Request $request)
+
+    public function export_excel(Request $request)
     {
-        return Excel::download(new RankingExport($request->tanggal_legger), 'Daftar Nilai Ranking SMK Muhammadiyah 1 Sukoharjo' . '.xlsx');
+        return Excel::download(new RankingExport($request->tanggal_legger), 'Simaku - Daftar Nilai' . '.xlsx');
     }
 }

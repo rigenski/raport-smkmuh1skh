@@ -160,6 +160,6 @@ class EkskulController extends Controller
 
         $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 
-        return Excel::download(new EkskulFormatExport($wali_kelas->id), 'Data Ekskul ' . $wali_kelas->kelas . '.xlsx');
+        return Excel::download(new EkskulFormatExport($wali_kelas->id), 'Simaku - Data Ekskul ' . $wali_kelas->kelas . '.xlsx');
     }
 }
