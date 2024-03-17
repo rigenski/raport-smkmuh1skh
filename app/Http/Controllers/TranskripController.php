@@ -13,7 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Mpdf\Mpdf;
 
-class RaportController extends Controller
+class TranskripController extends Controller
 {
     public function index(Request $request)
     {
@@ -21,29 +21,54 @@ class RaportController extends Controller
 
         $setting = Setting::all()->first();
 
+        function decrementYearInString($dateString)
+        {
+            [$startYear, $endYear] = explode('/', $dateString);
+
+            $startYear--;
+            $endYear--;
+
+            return $startYear . '/' . $endYear;
+        }
+
         if ($setting) {
             if (auth()->user()->role == 'admin') {
 
-                if ($filter->has('tahun_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
-                session(['raport-tahun_pelajaran' => $filter->tahun_pelajaran]);
-                    session(['raport-kelas' => $filter->kelas]);
-                    session(['raport-semester' => $filter->semester]);
+                if ($filter->has('tahun_pelajaran') && $filter->has('kelas')) {
+                    session(['transkrip-tahun_pelajaran' => $filter->tahun_pelajaran]);
+                    session(['transkrip-kelas' => $filter->kelas]);
+                    session(['transkrip-semester' => 1]);
 
-                    $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
+                    $tahun_pelajaran_xii = $filter->tahun_pelajaran;
+                    $tahun_pelajaran_xi = decrementYearInString($tahun_pelajaran_xii);
+                    $tahun_pelajaran_x = decrementYearInString($tahun_pelajaran_xi);
+
+                    $data_siswa_ids = [];
+
+                    $data_siswa_aktif_xii = SiswaAktif::where('tahun_pelajaran', $tahun_pelajaran_xii)->where('kelas', $filter->kelas)->get();
+
+                    foreach ($data_siswa_aktif_xii as $siswa_aktif) {
+                        array_push($data_siswa_ids, $siswa_aktif->siswa_id);
+                    }
+
+                    $data_siswa_aktif_xi = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_xi)->whereIn('siswa_id', $data_siswa_ids)->get();
+                    $data_siswa_aktif_x = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_x)->whereIn('siswa_id', $data_siswa_ids)->get();
 
                     $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
                 } else {
-                    $data_siswa_aktif = [];
+                    $data_siswa_aktif_xii = [];
+                    $data_siswa_aktif_xi = [];
+                    $data_siswa_aktif_x = [];
                     $data_guru_mata_pelajaran = [];
                 }
 
                 $data_siswa = SiswaAktif::all();
-
                 $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
 
                 $data_semester = [1, 2];
+                $data_semester_full = [1, 2, 3, 4, 5, 6];
 
-                return view('admin.raport.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_guru_mata_pelajaran'));
+                return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif_xii', 'data_siswa_aktif_xi', 'data_siswa_aktif_x', 'data_siswa', 'data_guru_mata_pelajaran', 'data_semester_full'));
             } else {
 
                 $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
@@ -53,9 +78,9 @@ class RaportController extends Controller
                 if ($wali_kelas) {
                     $kelas = $wali_kelas->kelas;
 
-                    session(['raport-tahun_pelajaran' => $setting->tahun_pelajaran]);
-                    session(['raport-kelas' => $kelas]);
-                    session(['raport-semester' => $filter->semester ? $filter->semester : '1']);
+                    session(['transkrip-tahun_pelajaran' => $setting->tahun_pelajaran]);
+                    session(['transkrip-kelas' => $kelas]);
+                    session(['transkrip-semester' => $filter->semester ? $filter->semester : '1']);
 
                     session(['ranking-tahun_pelajaran' => $setting->tahun_pelajaran]);
                     session(['ranking-kelas' => $kelas]);
@@ -78,7 +103,7 @@ class RaportController extends Controller
 
                     $data_semester = [1, 2];
 
-                    return view('admin.raport.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_guru_mata_pelajaran', 'kelas', 'semester'));
+                    return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_guru_mata_pelajaran', 'kelas', 'semester'));
                 } else {
                     return redirect()->back()->with('error', 'Data wali kelas tidak ada');
                 }
@@ -92,14 +117,15 @@ class RaportController extends Controller
     {
         date_default_timezone_set("Asia/Jakarta");
 
-        $date_now = Carbon::parse($request->tanggal_raport ? $request->tanggal_raport : now()->toDateString())->translatedFormat('d F Y');
+        $date_now = Carbon::parse($request->tanggal_transkrip ? $request->tanggal_transkrip : now()->toDateString())->translatedFormat('d F Y');
 
         $setting = Setting::all()->first();
 
+
         if ($setting) {
-            $session_tahun_pelajaran = session()->get('raport-tahun_pelajaran');
-            $session_kelas = session()->get('raport-kelas');
-            $session_semester = session()->get('raport-semester');
+            $session_tahun_pelajaran = session()->get('transkrip-tahun_pelajaran');
+            $session_kelas = session()->get('transkrip-kelas');
+            $session_semester = session()->get('transkrip-semester');
 
             $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
 
@@ -314,32 +340,14 @@ class RaportController extends Controller
                     $mpdf->SetFont('Arial', '', 7.4);
                     $mpdf->SetXY(55, 25);
                     $mpdf->MultiCell(60, 0.4, $setting->alamat, 0, 'L');
-                    // KELAS
+                    // SEMESTER
                     $mpdf->SetFont('Arial', '', 7.4);
                     $mpdf->SetXY(120, 16);
-                    $mpdf->WriteCell(6.4, 0.4, 'Kelas', 0, 'C');
+                    $mpdf->WriteCell(6.4, 0.4, 'Semester', 0, 'C');
                     $mpdf->SetXY(160, 16);
                     $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
                     $mpdf->SetFont('Arial', '', 7.4);
                     $mpdf->SetXY(162, 16);
-                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->kelas, 0, 'C');
-                    // FASE
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(120, 19);
-                    $mpdf->WriteCell(6.4, 0.4, 'Fase', 0, 'C');
-                    $mpdf->SetXY(160, 19);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(162, 19);
-                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->angkatan == 'X' ? 'E' : 'F', 0, 'C');
-                    // SEMESTER
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(120, 22);
-                    $mpdf->WriteCell(6.4, 0.4, 'Semester', 0, 'C');
-                    $mpdf->SetXY(160, 22);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(162, 22);
                     $mpdf->WriteCell(6.4, 0.4, $session_semester, 0, 'C');
                     // TAHUN PELAJARAN
                     $mpdf->SetFont('Arial', '', 7.4);
@@ -388,7 +396,7 @@ class RaportController extends Controller
                 $mpdf->Output('Simaku - Raport Siswa.pdf', 'I');
                 exit;
 
-                return redirect()->route('admin.raport')->with('success', 'Cetak Raport telah berhasil ...');
+                return redirect()->route('admin.transkrip')->with('success', 'Cetak Raport telah berhasil ...');
             } else {
                 return redirect()->back()->with('error', 'Data wali kelas tidak ada');
             }

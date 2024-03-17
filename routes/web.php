@@ -17,6 +17,7 @@ use App\Http\Controllers\RiwayatController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SiswaAktifController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\TranskripController;
 use App\Http\Controllers\WaliKelasController;
 use Illuminate\Support\Facades\Route;
 
@@ -131,6 +132,9 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,guru,wali kelas']], func
 Route::group(['middleware' => ['auth', 'checkRole:admin,wali kelas']], function () {
   Route::get('/admin/raport', [RaportController::class, 'index'])->name('admin.raport');
   Route::get('/admin/raport/print', [RaportController::class, 'print'])->name('admin.raport.print');
+
+  Route::get('/admin/transkrip', [TranskripController::class, 'index'])->name('admin.transkrip');
+  Route::get('/admin/transkrip/print', [TranskripController::class, 'print'])->name('admin.transkrip.print');
 
   Route::get('/admin/ekskul', [EkskulController::class, 'index'])->name('admin.ekskul');
   Route::post('/admin/ekskul/import', [EkskulController::class, 'import'])->name('admin.ekskul.import');
