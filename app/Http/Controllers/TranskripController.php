@@ -195,6 +195,19 @@ class TranskripController extends Controller
                 ->distinct()
                 ->get();
 
+            $siswa_aktif_ids = [];
+            foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
+                array_push($siswa_aktif_ids, $siswa_aktif_xii->id);
+            }
+
+            $data_mata_pelajaran_ijazah = NilaiIjazah::Where(function ($query) use ($tahun_pelajaran_xii, $siswa_aktif_ids) {
+                $query->where('tahun_pelajaran', $tahun_pelajaran_xii)
+                    ->whereIn('siswa_aktif_id', $siswa_aktif_ids);
+            })
+                ->select('mata_pelajaran_id')
+                ->distinct()
+                ->get();
+
             $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get()->first();
 
             $data_semester = [1, 2];
@@ -215,14 +228,23 @@ class TranskripController extends Controller
                     $table_mapel = '';
 
                     foreach ($data_jenis_mapel as $jenis_mapel) {
-                        $table_mapel .= "<tr><td colspan='9' style='border: 0.6px solid #000;padding: 4px 8px;font-weight: bold;'>" . $jenis_mapel->jenis . "</td></tr>";
+                        $table_mapel .= "<tr><td colspan='10' style='border: 0.6px solid #000;padding: 4px 8px;font-weight: bold;'>" . $jenis_mapel->jenis . "</td></tr>";
 
-                        $data_mata_pelajaran = [];
-
+                        $data_rekap_mata_pelajaran = [];
+                        $data_mata_pelajaran_ids = [];
 
                         foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran) {
+                            array_push($data_mata_pelajaran_ids, $guru_mata_pelajaran->mata_pelajaran->id);
+                        }
 
-                            if ($jenis_mapel->jenis == $guru_mata_pelajaran->mata_pelajaran->jenis) {
+                        foreach ($data_mata_pelajaran_ijazah as $mata_pelajaran_ijazah) {
+                            array_push($data_mata_pelajaran_ids, $mata_pelajaran_ijazah->mata_pelajaran->id);
+                        }
+
+                        $data_mata_pelajaran = MataPelajaran::whereIn('id', $data_mata_pelajaran_ids)->get();
+
+                        foreach ($data_mata_pelajaran as $mata_pelajaran) {
+                            if ($jenis_mapel->jenis == $mata_pelajaran->jenis) {
                                 $jumlah_nilai_1 = 0;
                                 $jumlah_nilai_2 = 0;
                                 $jumlah_nilai_3 = 0;
@@ -231,31 +253,31 @@ class TranskripController extends Controller
                                 $jumlah_nilai_6 = 0;
 
                                 foreach ($data_semester as $index => $semester) {
-                                    foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
+                                    foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $mata_pelajaran->id) as $nilai) {
                                         if ($index === 0) {
-                                            $jumlah_nilai_1 = $nilai->nilai;
+                                            $jumlah_nilai_1 = $nilai->nilai ? intval($nilai->nilai) : 0;
                                         } else if ($index === 1) {
-                                            $jumlah_nilai_2 = $nilai->nilai;
+                                            $jumlah_nilai_2 = $nilai->nilai ? intval($nilai->nilai) : 0;
                                         }
                                     }
                                 }
 
                                 foreach ($data_semester as $index => $semester) {
-                                    foreach ($data_siswa_aktif_xi->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
+                                    foreach ($data_siswa_aktif_xi->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $mata_pelajaran->id) as $nilai) {
                                         if ($index === 0) {
-                                            $jumlah_nilai_3 = $nilai->nilai;
+                                            $jumlah_nilai_3 = $nilai->nilai ? intval($nilai->nilai) : 0;
                                         } else if ($index === 1) {
-                                            $jumlah_nilai_4 = $nilai->nilai;
+                                            $jumlah_nilai_4 = $nilai->nilai ? intval($nilai->nilai) : 0;
                                         }
                                     }
                                 }
 
                                 foreach ($data_semester as $index => $semester) {
-                                    foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
+                                    foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $mata_pelajaran->id) as $nilai) {
                                         if ($index === 0) {
-                                            $jumlah_nilai_5 = $nilai->nilai;
+                                            $jumlah_nilai_5 = $nilai->nilai ? intval($nilai->nilai) : 0;
                                         } else if ($index === 1) {
-                                            $jumlah_nilai_6 = $nilai->nilai;
+                                            $jumlah_nilai_6 = $nilai->nilai ? intval($nilai->nilai) : 0;
                                         }
                                     }
                                 }
@@ -281,27 +303,33 @@ class TranskripController extends Controller
                                     $jumlah_nilai_mapel += 1;
                                 }
 
-                                $jumlah_rata_rata = round(($jumlah_nilai_1 + $jumlah_nilai_2 + $jumlah_nilai_3 + $jumlah_nilai_4 + $jumlah_nilai_5 + $jumlah_nilai_6) / $jumlah_nilai_mapel, 2);
+                                $jumlah_rata_rata = $jumlah_nilai_mapel != 0 ? round(($jumlah_nilai_1 + $jumlah_nilai_2 + $jumlah_nilai_3 + $jumlah_nilai_4 + $jumlah_nilai_5 + $jumlah_nilai_6) / $jumlah_nilai_mapel) : '-';
 
-                                array_push($data_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->nama, $jumlah_nilai_1, $jumlah_nilai_2, $jumlah_nilai_3, $jumlah_nilai_4, $jumlah_nilai_5, $jumlah_nilai_6, $jumlah_rata_rata]);
+                                $nilai_ijazah = 0;
+                                foreach ($siswa_aktif_xii->nilai_ijazah->where('mata_pelajaran_id', $mata_pelajaran->id) as $nilai) {
+                                    $nilai_ijazah = $nilai->nilai != 0 ? round($nilai->nilai) : '-';
+                                }
+
+                                array_push($data_rekap_mata_pelajaran, [$mata_pelajaran->urutan, $mata_pelajaran->nama, $jumlah_nilai_1, $jumlah_nilai_2, $jumlah_nilai_3, $jumlah_nilai_4, $jumlah_nilai_5, $jumlah_nilai_6, $jumlah_rata_rata, $nilai_ijazah]);
                             }
                         }
 
 
-                        sort($data_mata_pelajaran);
+                        sort($data_rekap_mata_pelajaran);
 
                         $no_mapel = 1;
-                        foreach ($data_mata_pelajaran as $mata_pelajaran) {
+                        foreach ($data_rekap_mata_pelajaran as $mata_pelajaran) {
                             $table_nilai = '';
 
                             foreach ($data_semester_full as $index => $semester_full) {
-                                $table_nilai .= "<td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . ($mata_pelajaran[$index + 2] != 0 ? $mata_pelajaran[$index + 2] : '-') .  "</td>";
+                                $table_nilai .= "<td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . ($mata_pelajaran[$index + 2] != 0 ? round($mata_pelajaran[$index + 2]) : '-') .  "</td>";
                             }
 
                             $table_mapel .= "<tr>
-                                    <td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $no_mapel .  "</td>
-                                    <td style='border: 0.6px solid #000;padding: 4px 8px;'>" . $mata_pelajaran[1] . "</td>" . $table_nilai . "</td>
-                                    <td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $mata_pelajaran[8] . "</td>" . "
+                                    <td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $no_mapel . "</td>
+                                    <td style='border: 0.6px solid #000;padding: 4px 8px;'>" . $mata_pelajaran[1] . "</td>" . $table_nilai .
+                                "<td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $mata_pelajaran[8] . "</td>" .
+                                "<td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $mata_pelajaran[9] . "</td>" . "
                                     </tr>";
 
                             $no_mapel++;
