@@ -25,7 +25,7 @@ class RaportController extends Controller
             if (auth()->user()->role == 'admin') {
 
                 if ($filter->has('tahun_pelajaran') && $filter->has('kelas') && $filter->has('semester')) {
-                session(['raport-tahun_pelajaran' => $filter->tahun_pelajaran]);
+                    session(['raport-tahun_pelajaran' => $filter->tahun_pelajaran]);
                     session(['raport-kelas' => $filter->kelas]);
                     session(['raport-semester' => $filter->semester]);
 
@@ -373,15 +373,15 @@ class RaportController extends Controller
                     $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
                     // TTD KEPALA SEKOLAH
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(82, 260);
+                    $mpdf->SetXY(82, 262);
                     $mpdf->WriteCell(6.4, 0.4, 'Mengetahui,', 0, 'C');
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(82, 263);
+                    $mpdf->SetXY(82, 265);
                     $mpdf->WriteCell(6.4, 0.4, 'Kepala Sekolah', 0, 'C');
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(82, 277);
+                    $mpdf->SetXY(82, 279);
                     $mpdf->WriteCell(6.4, 0.4, $setting->kepala_sekolah, 0, 'C');
-                    $mpdf->SetXY(82, 280);
+                    $mpdf->SetXY(82, 284);
                     $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
                 }
 

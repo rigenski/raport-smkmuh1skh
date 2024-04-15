@@ -21,4 +21,9 @@ class MataPelajaran extends Model
     {
         return $this->hasMany(Nilai::class);
     }
+
+    public function nilai_ijazah()
+    {
+        return $this->hasMany(NilaiIjazah::class);
+    }
 }

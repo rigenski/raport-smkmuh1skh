@@ -36,6 +36,14 @@ class SettingController extends Controller
                 $setting->logo = $name_file;
                 $setting->save();
             }
+
+            if ($request->hasFile('letterhead')) {
+                $rand = Str::random(20);
+                $name_file = $rand . "." . $request->letterhead->getClientOriginalExtension();
+                $request->file('letterhead')->move('images/setting', $name_file);
+                $setting->letterhead = $name_file;
+                $setting->save();
+            }
         } else {
             $setting = Setting::create([
                 'sekolah' => $request->nama_sekolah,
@@ -50,6 +58,14 @@ class SettingController extends Controller
                 $name_file = $rand . "." . $request->logo->getClientOriginalExtension();
                 $request->file('logo')->move('images/setting', $name_file);
                 $setting->logo = $name_file;
+                $setting->save();
+            }
+
+            if ($request->hasFile('letterhead')) {
+                $rand = Str::random(20);
+                $name_file = $rand . "." . $request->letterhead->getClientOriginalExtension();
+                $request->file('letterhead')->move('images/setting', $name_file);
+                $setting->letterhead = $name_file;
                 $setting->save();
             }
         }

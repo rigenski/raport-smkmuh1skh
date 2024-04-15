@@ -10,6 +10,7 @@ use App\Http\Controllers\GuruRaportP5Controller;
 use App\Http\Controllers\KetidakhadiranController;
 use App\Http\Controllers\MataPelajaranController;
 use App\Http\Controllers\NilaiController;
+use App\Http\Controllers\NilaiIjazahController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\RaportP5Controller;
@@ -112,6 +113,12 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,guru,wali kelas']], func
   Route::post('/admin/nilai/{siswa_aktif_id}/{mata_pelajaran_id}/store', [NilaiController::class, 'store'])->name('admin.nilai.store');
   Route::get('/admin/nilai/export-format', [NilaiController::class, 'export_format'])->name('admin.nilai.export_format');
   Route::post('/admin/nilai/{id}/update', [NilaiController::class, 'update'])->name('admin.nilai.update');
+
+  Route::get('/admin/nilai-ijazah', [NilaiIjazahController::class, 'index'])->name('admin.nilai_ijazah');
+  Route::post('/admin/nilai-ijazah/import', [NilaiIjazahController::class, 'import'])->name('admin.nilai_ijazah.import');
+  Route::post('/admin/nilai-ijazah/{siswa_aktif_id}/{mata_pelajaran_id}/store', [NilaiIjazahController::class, 'store'])->name('admin.nilai_ijazah.store');
+  Route::get('/admin/nilai-ijazah/export-format', [NilaiIjazahController::class, 'export_format'])->name('admin.nilai_ijazah.export_format');
+  Route::post('/admin/nilai-ijazah/{id}/update', [NilaiIjazahController::class, 'update'])->name('admin.nilai_ijazah.update');
 
   Route::get('/admin/raport_p5', [RaportP5Controller::class, 'index'])->name('admin.raport_p5');
   Route::get('/admin/raport_p5/print', [RaportP5Controller::class, 'print'])->name('admin.raport_p5.print');

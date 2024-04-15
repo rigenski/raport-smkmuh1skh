@@ -15,21 +15,21 @@ use Mpdf\Mpdf;
 
 class TranskripController extends Controller
 {
+    function decrementYearInString($dateString)
+    {
+        [$startYear, $endYear] = explode('/', $dateString);
+
+        $startYear--;
+        $endYear--;
+
+        return $startYear . '/' . $endYear;
+    }
+
     public function index(Request $request)
     {
         $filter = $request;
 
         $setting = Setting::all()->first();
-
-        function decrementYearInString($dateString)
-        {
-            [$startYear, $endYear] = explode('/', $dateString);
-
-            $startYear--;
-            $endYear--;
-
-            return $startYear . '/' . $endYear;
-        }
 
         if ($setting) {
             if (auth()->user()->role == 'admin') {
@@ -37,40 +37,62 @@ class TranskripController extends Controller
                 if ($filter->has('tahun_pelajaran') && $filter->has('kelas')) {
                     session(['transkrip-tahun_pelajaran' => $filter->tahun_pelajaran]);
                     session(['transkrip-kelas' => $filter->kelas]);
-                    session(['transkrip-semester' => 1]);
+                    session(['transkrip-semester' => '1']);
 
                     $tahun_pelajaran_xii = $filter->tahun_pelajaran;
-                    $tahun_pelajaran_xi = decrementYearInString($tahun_pelajaran_xii);
-                    $tahun_pelajaran_x = decrementYearInString($tahun_pelajaran_xi);
+                    $tahun_pelajaran_xi = $this->decrementYearInString($tahun_pelajaran_xii);
+                    $tahun_pelajaran_x = $this->decrementYearInString($tahun_pelajaran_xi);
 
                     $data_siswa_ids = [];
 
                     $data_siswa_aktif_xii = SiswaAktif::where('tahun_pelajaran', $tahun_pelajaran_xii)->where('kelas', $filter->kelas)->get();
 
-                    foreach ($data_siswa_aktif_xii as $siswa_aktif) {
-                        array_push($data_siswa_ids, $siswa_aktif->siswa_id);
+                    foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
+                        array_push($data_siswa_ids, $siswa_aktif_xii->siswa_id);
                     }
 
                     $data_siswa_aktif_xi = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_xi)->whereIn('siswa_id', $data_siswa_ids)->get();
                     $data_siswa_aktif_x = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_x)->whereIn('siswa_id', $data_siswa_ids)->get();
 
-                    $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $filter->tahun_pelajaran)->where('kelas', $filter->kelas)->get();
+                    $data_guru_mata_pelajaran_x = GuruMataPelajaran::where(function ($query) use ($tahun_pelajaran_x, $data_siswa_aktif_x) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_x)
+                            ->where('kelas', $data_siswa_aktif_x->first()->kelas);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
+
+                    $data_guru_mata_pelajaran_xi = GuruMataPelajaran::Where(function ($query) use ($tahun_pelajaran_xi, $data_siswa_aktif_xi) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_xi,)
+                            ->where('kelas', $data_siswa_aktif_xi->first()->kelas);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
+
+                    $data_guru_mata_pelajaran_xii = GuruMataPelajaran::Where(function ($query) use ($tahun_pelajaran_xii, $data_siswa_aktif_xii) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_xii)
+                            ->where('kelas', $data_siswa_aktif_xii->first()->kelas);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
                 } else {
-                    $data_siswa_aktif_xii = [];
-                    $data_siswa_aktif_xi = [];
                     $data_siswa_aktif_x = [];
-                    $data_guru_mata_pelajaran = [];
+                    $data_siswa_aktif_xi = [];
+                    $data_siswa_aktif_xii = [];
+                    $data_guru_mata_pelajaran_x = [];
+                    $data_guru_mata_pelajaran_xi = [];
+                    $data_guru_mata_pelajaran_xii = [];
                 }
 
                 $data_siswa = SiswaAktif::all();
                 $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
 
                 $data_semester = [1, 2];
-                $data_semester_full = [1, 2, 3, 4, 5, 6];
 
-                return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif_xii', 'data_siswa_aktif_xi', 'data_siswa_aktif_x', 'data_siswa', 'data_guru_mata_pelajaran', 'data_semester_full'));
+                return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester', 'data_siswa_aktif_xii', 'data_siswa_aktif_xi', 'data_siswa_aktif_x', 'data_siswa', 'data_guru_mata_pelajaran_x', 'data_guru_mata_pelajaran_xi', 'data_guru_mata_pelajaran_xii'));
             } else {
-
                 $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 
                 $semester = 1;
@@ -125,272 +147,245 @@ class TranskripController extends Controller
         if ($setting) {
             $session_tahun_pelajaran = session()->get('transkrip-tahun_pelajaran');
             $session_kelas = session()->get('transkrip-kelas');
-            $session_semester = session()->get('transkrip-semester');
 
-            $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
+            $tahun_pelajaran_xii = $session_tahun_pelajaran;
+            $tahun_pelajaran_xi = $this->decrementYearInString($tahun_pelajaran_xii);
+            $tahun_pelajaran_x = $this->decrementYearInString($tahun_pelajaran_xi);
 
-            $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
+            $data_siswa_ids = [];
+
+            $data_siswa_aktif_xii = SiswaAktif::where('tahun_pelajaran', $tahun_pelajaran_xii)->where('kelas', $session_kelas)->get();
+
+            foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
+                array_push($data_siswa_ids, $siswa_aktif_xii->siswa_id);
+            }
+
+            $data_siswa_aktif_xi = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_xi)->whereIn('siswa_id', $data_siswa_ids)->get();
+            $data_siswa_aktif_x = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_x)->whereIn('siswa_id', $data_siswa_ids)->get();
+
+            $data_guru_mata_pelajaran = GuruMataPelajaran::where(function ($query) use ($tahun_pelajaran_x, $data_siswa_aktif_x) {
+                $query->where('tahun_pelajaran', $tahun_pelajaran_x)
+                    ->where('kelas', $data_siswa_aktif_x->first()->kelas);
+            })
+                ->orWhere(function ($query) use ($tahun_pelajaran_xi, $data_siswa_aktif_xi) {
+                    $query->where('tahun_pelajaran', $tahun_pelajaran_xi,)
+                        ->where('kelas', $data_siswa_aktif_xi->first()->kelas);
+                })
+                ->orWhere(function ($query) use ($tahun_pelajaran_xii, $data_siswa_aktif_xii) {
+                    $query->where('tahun_pelajaran', $tahun_pelajaran_xii)
+                        ->where('kelas', $data_siswa_aktif_xii->first()->kelas);
+                })
+                ->select('mata_pelajaran_id')
+                ->distinct()
+                ->get();
 
             $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get()->first();
+
+            $data_semester = [1, 2];
+            $data_semester_full = [1, 2, 3, 4, 5, 6];
 
             if ($wali_kelas) {
                 $mpdf = new Mpdf();
 
-                foreach ($data_siswa_aktif as $siswa_aktif) {
+                foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
                     $data_jenis_mapel = MataPelajaran::all()->unique('jenis')->values()->all();
+
+                    $table_semester = '';
+
+                    foreach ($data_semester_full as $semester) {
+                        $table_semester .= "<td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $semester .  "</td>";
+                    }
 
                     $table_mapel = '';
 
                     foreach ($data_jenis_mapel as $jenis_mapel) {
-                        $table_mapel .= "<tr><td colspan='4' style='border: 0.6px solid #000;padding: 2px 8px;font-weight: bold;'>" . $jenis_mapel->jenis . "</td></tr>";
+                        $table_mapel .= "<tr><td colspan='9' style='border: 0.6px solid #000;padding: 4px 8px;font-weight: bold;'>" . $jenis_mapel->jenis . "</td></tr>";
 
                         $data_mata_pelajaran = [];
 
+
                         foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran) {
+
                             if ($jenis_mapel->jenis == $guru_mata_pelajaran->mata_pelajaran->jenis) {
-                                $jumlah_nilai = 0;
-                                $keterangan = '-';
+                                $jumlah_nilai_1 = 0;
+                                $jumlah_nilai_2 = 0;
+                                $jumlah_nilai_3 = 0;
+                                $jumlah_nilai_4 = 0;
+                                $jumlah_nilai_5 = 0;
+                                $jumlah_nilai_6 = 0;
 
-                                foreach ($siswa_aktif->nilai->where('semester', $session_semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
-                                    $nilai->update([
-                                        'status' => true
-                                    ]);
-
-                                    $jumlah_nilai = $nilai->nilai;
-
-                                    $array_keterangan = explode('_', $nilai->keterangan);
-
-                                    $keterangan = count($array_keterangan) == 2 ? $array_keterangan[0] . "<hr style='height: 1px;width: 101.4%;color: #000;margin: 4px;' />" . $array_keterangan[1] : $nilai->keterangan;
+                                foreach ($data_semester as $index => $semester) {
+                                    foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
+                                        if ($index === 0) {
+                                            $jumlah_nilai_1 = $nilai->nilai;
+                                        } else if ($index === 1) {
+                                            $jumlah_nilai_2 = $nilai->nilai;
+                                        }
+                                    }
                                 }
 
-                                array_push($data_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->nama, $jumlah_nilai, $keterangan]);
+                                foreach ($data_semester as $index => $semester) {
+                                    foreach ($data_siswa_aktif_xi->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
+                                        if ($index === 0) {
+                                            $jumlah_nilai_3 = $nilai->nilai;
+                                        } else if ($index === 1) {
+                                            $jumlah_nilai_4 = $nilai->nilai;
+                                        }
+                                    }
+                                }
+
+                                foreach ($data_semester as $index => $semester) {
+                                    foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $nilai) {
+                                        if ($index === 0) {
+                                            $jumlah_nilai_5 = $nilai->nilai;
+                                        } else if ($index === 1) {
+                                            $jumlah_nilai_6 = $nilai->nilai;
+                                        }
+                                    }
+                                }
+
+                                $jumlah_nilai_mapel = 0;
+
+                                if ($jumlah_nilai_1 != 0) {
+                                    $jumlah_nilai_mapel += 1;
+                                }
+                                if ($jumlah_nilai_2 != 0) {
+                                    $jumlah_nilai_mapel += 1;
+                                }
+                                if ($jumlah_nilai_3 != 0) {
+                                    $jumlah_nilai_mapel += 1;
+                                }
+                                if ($jumlah_nilai_4 != 0) {
+                                    $jumlah_nilai_mapel += 1;
+                                }
+                                if ($jumlah_nilai_5 != 0) {
+                                    $jumlah_nilai_mapel += 1;
+                                }
+                                if ($jumlah_nilai_6 != 0) {
+                                    $jumlah_nilai_mapel += 1;
+                                }
+
+                                $jumlah_rata_rata = round(($jumlah_nilai_1 + $jumlah_nilai_2 + $jumlah_nilai_3 + $jumlah_nilai_4 + $jumlah_nilai_5 + $jumlah_nilai_6) / $jumlah_nilai_mapel, 2);
+
+                                array_push($data_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->nama, $jumlah_nilai_1, $jumlah_nilai_2, $jumlah_nilai_3, $jumlah_nilai_4, $jumlah_nilai_5, $jumlah_nilai_6, $jumlah_rata_rata]);
                             }
                         }
+
 
                         sort($data_mata_pelajaran);
 
                         $no_mapel = 1;
                         foreach ($data_mata_pelajaran as $mata_pelajaran) {
+                            $table_nilai = '';
+
+                            foreach ($data_semester_full as $index => $semester_full) {
+                                $table_nilai .= "<td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . ($mata_pelajaran[$index + 2] != 0 ? $mata_pelajaran[$index + 2] : '-') .  "</td>";
+                            }
+
                             $table_mapel .= "<tr>
-                                    <td style='border: 0.6px solid #000;;padding: 2px 4px;width: 16px;text-align: center;'>" . $no_mapel .  "</td>
-                                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 128px;'>" . $mata_pelajaran[1] .  "</td>
-                                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 64px;text-align: center;font-size: 10px;'>" . $mata_pelajaran[2] .  "</td>
-                                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: justify;'>" . $mata_pelajaran[3] .  "</td>
+                                    <td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $no_mapel .  "</td>
+                                    <td style='border: 0.6px solid #000;padding: 4px 8px;'>" . $mata_pelajaran[1] . "</td>" . $table_nilai . "</td>
+                                    <td style='border: 0.6px solid #000;padding: 4px 8px;text-align: center;'>" . $mata_pelajaran[8] . "</td>" . "
                                     </tr>";
 
                             $no_mapel++;
                         }
                     }
 
-                    $table_ekskul = '';
-
-                    $ekskul = $siswa_aktif->ekskul->where('semester', $session_semester)->first();
-
-
-
-                    if ($ekskul) {
-
-                        $ekskul_nama = explode('_', $ekskul->nama);
-                        $ekskul_keterangan = explode('_', $ekskul->keterangan);
-
-                        for ($x = 1; $x <= count($ekskul_nama); $x++) {
-                            if ($ekskul_nama[$x - 1] !== "") {
-                                $table_ekskul .= "<tr>
-                                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 16px;text-align: center;'>" . $x .  "</td>
-                                    <td style='border: 0.6px solid #000;padding: 2px 4px;width: 192px;'>" . $ekskul_nama[$x - 1] .  "</td>
-                                    <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: justify;'>" . $ekskul_keterangan[$x - 1] .  "</td>
-                                    </tr>";
-                            }
-                        }
-                    }
-
-                    $ketidakhadiran = $siswa_aktif->ketidakhadiran->where('semester', $session_semester)->first();
-
-                    if ($ketidakhadiran) {
-
-                        $table_ketidakhadiran = "<tr>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Sakit</td>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->sakit .  " hari</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Izin</td>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->izin .  " hari</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Tanpa Keterangan</td>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>"  . $ketidakhadiran->tanpa_keterangan .  " hari</td>
-                        </tr>";
-                    } else {
-                        $table_ketidakhadiran = "<tr>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Sakit</td>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Izin</td>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
-                        </tr>
-                        <tr>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;width: 148px;text-align: center;text-align: left;'>Tanpa Keterangan</td>
-                            <td style='border: 0.6px solid #000;padding: 2px 4px;text-align: center;'>... hari</td>
-                        </tr>";
-                    }
-
-                    $table_catatan = "";
-
-                    if ($session_semester == 2) {
-                        $table_catatan = "<td style='vertical-align: top;padding-left: 12px;'>
-                            <div style='font-family: Arial;font-size: 10px;' ><b>Keputusan:</b><div>
-                            <div style='font-family: Arial;font-size: 10px;' >Berdasarkan pencapaian seluruh kompetensi, peserta didik ditetapkan :<div>
-                            <div style='padding-top:46px;'></div>
-                            <div style='font-family: Arial;font-size: 10px;' ><b>Naik / Tinggal *</b>) Kelas .....<div>
-                            <br />
-                            <div style='font-family: Arial;font-size: 10px;' ><b>*</b>) Coret yang tidak perlu<div>
-                            </td>";
-                    }
-
-
                     $html = "
                             <html>
-                            <head>
-                            </head>
-                            <body>
-                            <div style='padding-top:46px;'></div>
-                            <table style='border-collapse:collapse;border-spacing: 0; font-family: Arial;width: 100%;font-size: 8px;'>
-                                <thead>
-                                    <tr>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;;width: 16px;'>No</th>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;width: 128px;'>Mata Pelajaran</th>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;width: 64px;'>Nilai Akhir</th>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;'>Capaian Kompetensi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>" . $table_mapel . "
-                                </tbody>
-                            </table>
-                            <div style='padding-top: 8px;'></div>
-                            <table style='border-collapse:collapse;border-spacing: 0;font-family: Arial;width: 100%;font-size: 8px;'>
-                                <thead>
-                                    <tr>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;width: 16px;'>No</th>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;width: 192px;'>Ekstrakurikuler</th>
-                                        <th style='border: 0.6px solid #000;color: #000;padding: 2px 4px;'>Keterangan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>" . $table_ekskul . "
-                                </tbody>
-                            </table>
-                            <div style='padding-top: 8px;'></div>
-                            <table style='border-collapse:collapse;border-spacing: 0;margin-left: -1.5px;'>
-                                <tr>
-                                    <td>
-                                        <table style='border-collapse:collapse;border-spacing: 0;font-family: Arial;width: 256px;font-size: 8px;'>
+                                <head>
+                                </head>
+                                <body style='font-family: Arial;font-size: 10px;'>
+                                    <div style='padding: 86px 0 0 0;'></div>
+                                    <div style='margin: 0 0 8px 0;'>
+                                        <p style='margin: 0;font-size: 14px;font-weight: bold;text-align:center;'>TRANSKRIP AKADEMIK</p>
+                                        <p style='margin: 0;font-size: 14px;font-weight: bold;text-align:center;'>TAHUN PELAJARAN " . $tahun_pelajaran_xii . "</p>
+                                    </div>
+                                    <div style='margin: 0 0 4px 0;'>
+                                        <table style='width: 100%;'>
+                                            <tr>
+                                                <td style='width: 50%;'>
+                                                    <table>
+                                                        <tr>
+                                                            <td>Nama</td>
+                                                            <td>:</td>
+                                                            <td>" . $siswa_aktif_xii->siswa->nama . "</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>NIS</td>
+                                                            <td>:</td>
+                                                            <td>" . $siswa_aktif_xii->siswa->nis . "</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                                <td style='width: 50%;'>
+                                                    <table>
+                                                        <tr>
+                                                            <td>Program Keahlian</td>
+                                                            <td>:</td>
+                                                            <td>" . $siswa_aktif_xii->jurusan . "</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Tahun Lulus</td>
+                                                            <td>:</td>
+                                                            <td>" . explode('/', $tahun_pelajaran_xii)[1] . "</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div>
+                                        <table style='border-collapse:collapse;border-spacing: 0; width: 100%;'>
                                             <thead>
                                                 <tr>
-                                                    <th style='border: 0.6px solid #000;color: #000;padding: 4px 8px;' colspan='2'>Ketidakhadiran</th>
+                                                    <th rowspan='2' style='border: 0.6px solid #000;color: #000;padding: 4px 8px;width: 16px;'>No</th>
+                                                    <th rowspan='2' style='border: 0.6px solid #000;color: #000;padding: 4px 8px;width: 240px;'>Mata Pelajaran / Kompetensi</th>
+                                                    <th colspan='6' style='border: 0.6px solid #000;color: #000;padding: 4px 8px;width: auto;'>Raport Semester</th>
+                                                    <th rowspan='2' style='border: 0.6px solid #000;color: #000;padding: 4px 8px;width: 80px;'>Rata-Rata <br/>Raport</th>
+                                                    <th rowspan='2' style='border: 0.6px solid #000;color: #000;padding: 4px 8px;width: 80px;'>Nilai <br/>Ijazah</th>
+                                                </tr>
+                                                <tr>
+                                                    " . $table_semester . "
                                                 </tr>
                                             </thead>
-                                            <tbody>" . $table_ketidakhadiran . "
+                                            <tbody>" . $table_mapel . "
                                             </tbody>
                                         </table>
-                                    </td>" .
-                        $table_catatan
-                        .
-                        "</tr>
-                            </table>
-                            </body>
+                                    </div>
+                                </body>
                             </html>
                             ";
 
                     $mpdf->showImageErrors = true;
                     $mpdf->WriteHTML($html);
-                    // $mpdf->Image(asset('/images/logo-ttd-kepsek.png'), 80, 260, 40, 28, 'png', '', true, false);
-                    // NAMA
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(16, 16);
-                    $mpdf->WriteCell(6.4, 0.4, 'Nama Peserta Didik', 0, 'C');
-                    $mpdf->SetXY(52, 16);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(55, 16);
-                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->siswa->nama, 0, 'C');
-                    // NISN
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(16, 19);
-                    $mpdf->WriteCell(6.4, 0.4, 'NIS', 0, 'C');
-                    $mpdf->SetXY(52, 19);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(55, 19);
-                    $mpdf->WriteCell(6.4, 0.4, $siswa_aktif->siswa->nis, 0, 'C');
-                    // SEKOLAH
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(16, 22);
-                    $mpdf->WriteCell(6.4, 0.4, 'Sekolah', 0, 'C');
-                    $mpdf->SetXY(52, 22);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(55, 22);
-                    $mpdf->WriteCell(6.4, 0.4, $setting->sekolah, 0, 'C');
-                    // ALAMAT
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(16, 25);
-                    $mpdf->WriteCell(6.4, 0.4, 'Alamat', 0, 'C');
-                    $mpdf->SetXY(52, 25);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(55, 25);
-                    $mpdf->MultiCell(60, 0.4, $setting->alamat, 0, 'L');
-                    // SEMESTER
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(120, 16);
-                    $mpdf->WriteCell(6.4, 0.4, 'Semester', 0, 'C');
-                    $mpdf->SetXY(160, 16);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(162, 16);
-                    $mpdf->WriteCell(6.4, 0.4, $session_semester, 0, 'C');
-                    // TAHUN PELAJARAN
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(120, 25);
-                    $mpdf->WriteCell(6.4, 0.4, 'Tahun Pelajaran', 0, 'C');
-                    $mpdf->SetXY(160, 25);
-                    $mpdf->WriteCell(6.4, 0.4, ':', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 7.4);
-                    $mpdf->SetXY(162, 25);
-                    $mpdf->WriteCell(6.4, 0.4, $session_tahun_pelajaran, 0, 'C');
-
+                    $mpdf->Image(asset('/images/setting/' . $setting->letterhead), 16, 4, 'auto', 26, 'png', '', true, false);
 
                     // TTD WALI SISWA
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(20, 256);
-                    $mpdf->WriteCell(6.4, 0.4, 'Orang Tua / Wali Siswa', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(20, 267);
-                    $mpdf->WriteCell(6.4, 0.4, '............................', 0, 'C');
+                    $mpdf->SetXY(20, 253);
+                    $mpdf->WriteCell(6.4, 0.4, 'Siswa Yang Bersangkutan', 0, 'C');
+                    $mpdf->SetFont('Arial', 'B', 8);
+                    $mpdf->SetXY(28, 258);
+                    $mpdf->WriteCell(6.4, 0.4, 'LULUS', 0, 'C');
 
                     // TTD WALI KELAS
                     $mpdf->SetFont('Arial', '', 8);
                     $mpdf->SetXY(140, 253);
                     $mpdf->WriteCell(6.4, 0.4, 'Sukoharjo, ' . $date_now, 0, 'C');
                     $mpdf->SetXY(140, 256);
-                    $mpdf->WriteCell(6.4, 0.4, 'Wali Kelas', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(140, 267);
-                    $mpdf->WriteCell(6.4, 0.4, $wali_kelas->guru->nama, 0, 'C');
-                    $mpdf->SetXY(140, 270);
-                    $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
-                    // TTD KEPALA SEKOLAH
-                    $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(82, 260);
-                    $mpdf->WriteCell(6.4, 0.4, 'Mengetahui,', 0, 'C');
-                    $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(82, 263);
                     $mpdf->WriteCell(6.4, 0.4, 'Kepala Sekolah', 0, 'C');
                     $mpdf->SetFont('Arial', '', 8);
-                    $mpdf->SetXY(82, 277);
+                    $mpdf->SetXY(140, 267);
                     $mpdf->WriteCell(6.4, 0.4, $setting->kepala_sekolah, 0, 'C');
-                    $mpdf->SetXY(82, 280);
+                    $mpdf->SetXY(140, 270);
                     $mpdf->WriteCell(6.4, 0.4, 'NIP: -', 0, 'C');
+
+                    // WHITESPACE
+                    $mpdf->SetFont('Arial', '', 8);
+                    $mpdf->SetXY(20, 280);
+                    $mpdf->WriteCell(6.4, 0.4, '', 0, 'C');
                 }
 
                 $mpdf->Output('Simaku - Raport Siswa.pdf', 'I');

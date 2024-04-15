@@ -31,4 +31,9 @@ class SiswaAktif extends Model
     {
         return $this->hasMany(Ketidakhadiran::class);
     }
+
+    public function nilai_ijazah()
+    {
+        return $this->hasMany(NilaiIjazah::class);
+    }
 }

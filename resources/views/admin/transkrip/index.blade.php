@@ -12,10 +12,7 @@
                         <button type="button" class="btn btn-info ml-2" data-toggle="modal" data-target="#modal-filter">
                             Filter
                         </button>
-                        @if (
-                            (($filter->has('tahun_pelajaran') || $filter->has('kelas')) && count($data_siswa_aktif_xii)) ||
-                                count($data_siswa_aktif_xi) ||
-                                count($data_siswa_aktif_x))
+                        @if ($filter->has('tahun_pelajaran') || $filter->has('kelas'))
                             <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#modalPrint">
                                 Print PDF
                             </button>
@@ -73,29 +70,65 @@
                 @endif
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered data">
-                        <?php $data_nama_mata_pelajaran = []; ?>
-                        @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
-                            <?php array_push($data_nama_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        <?php $data_nama_mata_pelajaran_x = []; ?>
+                        @foreach ($data_guru_mata_pelajaran_x as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_x, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
                         @endforeach
-                        <?php sort($data_nama_mata_pelajaran); ?>
+                        <?php sort($data_nama_mata_pelajaran_x); ?>
+
+                        <?php $data_nama_mata_pelajaran_xi = []; ?>
+                        @foreach ($data_guru_mata_pelajaran_xi as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_xi, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_xi); ?>
+
+                        <?php $data_nama_mata_pelajaran_xii = []; ?>
+                        @foreach ($data_guru_mata_pelajaran_xii as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_xii, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_xii); ?>
+
                         <thead>
                             <tr>
-                                <th scope="col" style="min-width: 40px;">No</th>
-                                <th scope="col" style="min-width: 80px;">NIS</th>
-                                <th scope="col" style="min-width: 240px;">Nama</th>
-                                @foreach ($data_semester_full as $semester)
-                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran) }}"
+                                <th scope="col" rowspan="2" style="min-width: 40px;">No</th>
+                                <th scope="col" rowspan="2" style="min-width: 80px;">NIS</th>
+                                <th scope="col" rowspan="2" style="min-width: 240px;">Nama</th>
+                                @foreach ($data_semester as $semester)
+                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_x) }}"
                                         class="text-center border">
                                         Semester {{ $semester }}
                                     </th>
                                 @endforeach
+                                @foreach ($data_semester as $semester)
+                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_xi) }}"
+                                        class="text-center border">
+                                        Semester {{ $semester + 2 }}
+                                    </th>
+                                @endforeach
+                                @foreach ($data_semester as $semester)
+                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_xii) }}"
+                                        class="text-center border">
+                                        Semester {{ $semester + 4 }}
+                                    </th>
+                                @endforeach
                             </tr>
                             <tr>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
-                                @foreach ($data_semester_full as $semester)
-                                    @foreach ($data_nama_mata_pelajaran as $nama_mata_pelajaran)
+                                @foreach ($data_semester as $semester)
+                                    @foreach ($data_nama_mata_pelajaran_x as $nama_mata_pelajaran)
+                                        <th scope="col" class="text-center border">
+                                            {{ $nama_mata_pelajaran[1] }}</th>
+                                    @endforeach
+                                @endforeach
+
+                                @foreach ($data_semester as $semester)
+                                    @foreach ($data_nama_mata_pelajaran_xi as $nama_mata_pelajaran)
+                                        <th scope="col" class="text-center border">
+                                            {{ $nama_mata_pelajaran[1] }}</th>
+                                    @endforeach
+                                @endforeach
+
+                                @foreach ($data_semester as $semester)
+                                    @foreach ($data_nama_mata_pelajaran_xii as $nama_mata_pelajaran)
                                         <th scope="col" class="text-center border">
                                             {{ $nama_mata_pelajaran[1] }}</th>
                                     @endforeach
@@ -114,9 +147,9 @@
 
                                     @foreach ($data_semester as $semester)
                                         <?php $data_total_nilai = []; ?>
-                                        @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
+                                        @foreach ($data_guru_mata_pelajaran_x as $guru_mata_pelajaran)
                                             <?php $nilai = 0; ?>
-                                            @foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
+                                            @foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
                                                 <?php $nilai = $data_nilai->nilai; ?>
                                             @endforeach
                                             <?php array_push($data_total_nilai, [$guru_mata_pelajaran->mata_pelajaran->urutan, $nilai]); ?>
@@ -129,7 +162,7 @@
 
                                     @foreach ($data_semester as $semester)
                                         <?php $data_total_nilai = []; ?>
-                                        @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
+                                        @foreach ($data_guru_mata_pelajaran_xi as $guru_mata_pelajaran)
                                             <?php $nilai = 0; ?>
                                             @foreach ($data_siswa_aktif_xi->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
                                                 <?php $nilai = $data_nilai->nilai; ?>
@@ -142,12 +175,11 @@
                                         @endforeach
                                     @endforeach
 
-
                                     @foreach ($data_semester as $semester)
                                         <?php $data_total_nilai = []; ?>
-                                        @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
+                                        @foreach ($data_guru_mata_pelajaran_xii as $guru_mata_pelajaran)
                                             <?php $nilai = 0; ?>
-                                            @foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
+                                            @foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
                                                 <?php $nilai = $data_nilai->nilai; ?>
                                             @endforeach
                                             <?php array_push($data_total_nilai, [$guru_mata_pelajaran->mata_pelajaran->urutan, $nilai]); ?>
@@ -157,6 +189,7 @@
                                             <td>{{ $total_nilai[1] }}</td>
                                         @endforeach
                                     @endforeach
+
                                 </tr>
                                 <?php $count++; ?>
                             @endforeach
@@ -175,7 +208,9 @@
             <div class="modal-dialog">
                 <form action="{{ route('admin.transkrip') }}" method="get" class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Filter Data Transkrip </h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">Filter Data <span
+                                class="text-primary">Transkrip</span>
+                        </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -385,7 +420,7 @@
                             <tr>
                                 <th scope="col" style="width: 40px;">No</th>
                                 <th scope="col">NIS</th>
-                                <th scope="col">Nama</th>
+                            <th scope="col">Nama</th>
                                 <?php $data_nama_mata_pelajaran = []; ?>
                                 @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
                                     <?php array_push($data_nama_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>

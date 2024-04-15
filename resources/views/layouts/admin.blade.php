@@ -119,6 +119,12 @@
                                 <span>Nilai</span>
                             </a>
                         </li>
+                        <li class="@yield('nav_item-nilai_ijazah')">
+                            <a class="nav-link" href="{{ route('admin.nilai_ijazah') }}">
+                                <i class="fas fa-sort-numeric-down"></i>
+                                <span>Nilai Ijazah</span>
+                            </a>
+                        </li>
                         <li class="@yield('nav_item-raport')">
                             <a class="nav-link" href="{{ route('admin.raport') }}">
                                 <i class="fas fa-book"></i>
@@ -170,13 +176,13 @@
                                 <span>Dokumen</span>
                             </a>
                         </li>
-                        {{-- <li class="menu-header">Nilai Lanjutan</li>
+                        <li class="menu-header">Nilai Lanjutan</li>
                         <li class="@yield('nav_item-raport_p5')">
                             <a class="nav-link" href="{{ route('admin.raport_p5') }}">
                                 <i class="fas fa-book"></i>
                                 <span>Nilai P5</span>
                             </a>
-                        </li> --}}
+                        </li>
                     @elseif(auth()->user()->role === 'wali kelas')
                         <li class="menu-header">UTAMA</li>
                         <li class="@yield('nav_item-admin')">
@@ -203,6 +209,12 @@
                                 <span>Nilai</span>
                             </a>
                         </li>
+                        <li class="@yield('nav_item-nilai_ijazah')">
+                            <a class="nav-link" href="{{ route('admin.nilai_ijazah') }}">
+                                <i class="fas fa-sort-numeric-down"></i>
+                                <span>Nilai Ijazah</span>
+                            </a>
+                        </li>
                         <li class="@yield('nav_item-raport')">
                             <a class="nav-link" href="{{ route('admin.raport') }}">
                                 <i class="fas fa-book"></i>
@@ -215,13 +227,13 @@
                                 <span>Dokumen</span>
                             </a>
                         </li>
-                        {{-- <li class="menu-header">Nilai Lanjutan</li>
+                        <li class="menu-header">Nilai Lanjutan</li>
                         <li class="@yield('nav_item-raport_p5')">
                             <a class="nav-link" href="{{ route('admin.raport_p5') }}">
                                 <i class="fas fa-book"></i>
                                 <span>Nilai P5</span>
                             </a>
-                        </li> --}}
+                        </li>
                     @endif
                 </ul>
             </aside>
