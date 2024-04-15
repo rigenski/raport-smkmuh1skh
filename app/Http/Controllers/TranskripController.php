@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GuruMataPelajaran;
 use App\Models\MataPelajaran;
 use App\Models\Nilai;
+use App\Models\NilaiIjazah;
 use App\Models\Setting;
 use App\Models\Siswa;
 use App\Models\SiswaAktif;
@@ -77,6 +78,20 @@ class TranskripController extends Controller
                         ->select('mata_pelajaran_id')
                         ->distinct()
                         ->get();
+
+                    $siswa_aktif_ids = [];
+
+                    foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
+                        array_push($siswa_aktif_ids, $siswa_aktif_xii->id);
+                    }
+
+                    $data_mata_pelajaran_ijazah = NilaiIjazah::Where(function ($query) use ($tahun_pelajaran_xii, $siswa_aktif_ids) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_xii)
+                            ->whereIn('siswa_aktif_id', $siswa_aktif_ids);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
                 } else {
                     $data_siswa_aktif_x = [];
                     $data_siswa_aktif_xi = [];
@@ -84,6 +99,7 @@ class TranskripController extends Controller
                     $data_guru_mata_pelajaran_x = [];
                     $data_guru_mata_pelajaran_xi = [];
                     $data_guru_mata_pelajaran_xii = [];
+                    $data_mata_pelajaran_ijazah = [];
                 }
 
                 $data_siswa = SiswaAktif::all();
@@ -91,7 +107,7 @@ class TranskripController extends Controller
 
                 $data_semester = [1, 2];
 
-                return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester', 'data_siswa_aktif_xii', 'data_siswa_aktif_xi', 'data_siswa_aktif_x', 'data_siswa', 'data_guru_mata_pelajaran_x', 'data_guru_mata_pelajaran_xi', 'data_guru_mata_pelajaran_xii'));
+                return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester', 'data_siswa_aktif_xii', 'data_siswa_aktif_xi', 'data_siswa_aktif_x', 'data_siswa', 'data_guru_mata_pelajaran_x', 'data_guru_mata_pelajaran_xi', 'data_guru_mata_pelajaran_xii', 'data_mata_pelajaran_ijazah'));
             } else {
                 $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 

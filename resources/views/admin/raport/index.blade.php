@@ -135,7 +135,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="tahun_pelajaran">Tahun Pelajaran</label>
                             <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                                 @if ($filter->has('tahun_pelajaran'))
@@ -156,7 +156,7 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="angkatan">Angkatan</label>
                             <select class="form-control" autocomplete="off" id="angkatan" name="angkatan">
                                 @foreach ($data_angkatan as $angkatan)
@@ -164,12 +164,12 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="kelas">Kelas</label>
                             <select class="form-control" autocomplete="off" id="kelas" name="kelas">
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="semester">Semester</label>
                             <select class="form-control" autocomplete="off" name="semester">
                                 @if ($filter->has('semester'))
@@ -461,7 +461,7 @@
                     </div>
                     <div class="modal-body">
                         <form action="{{ route('admin.raport') }}" method="get">
-                            <div class="form-group">
+                            <div class="form-group mb-2">
                                 <label for="semester">Semester</label>
                                 <select class="form-control" autocomplete="off" name="semester">
                                     @if ($filter->has('semester'))

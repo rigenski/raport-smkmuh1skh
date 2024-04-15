@@ -32,11 +32,7 @@
                 </div>
             </div>
             <div class="card-body">
-                @if (
-                    $filter->has('tahun_pelajaran') ||
-                        $filter->has('kelas') ||
-                        $filter->has('mata_pelajaran') ||
-                        $filter->has('semester'))
+                @if ($filter->has('tahun_pelajaran') || $filter->has('kelas') || $filter->has('mata_pelajaran'))
                     <div class="mb-4">
                         <table class="mb-2">
                             <thead>
@@ -93,13 +89,13 @@
                                     @if ($siswa_aktif->nilai_id !== null)
                                         <td>
                                             <a href="#modal-edit" data-toggle="modal"
-                                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->nilai_id }}/update'); $('#modal-edit #form-edit #nilai').attr('value', '{{ $siswa_aktif->nilai }}');"
+                                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai-ijazah/{{ $siswa_aktif->nilai_id }}/update'); $('#modal-edit #form-edit #nilai').attr('value', '{{ $siswa_aktif->nilai }}');"
                                                 class="btn btn-warning m-1">Ubah</a>
                                         </td>
                                     @else
                                         <td>
                                             <a href="#modal-edit" data-toggle="modal"
-                                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai/{{ $siswa_aktif->siswa_aktif_id }}/{{ $mata_pelajaran->id }}/store');"
+                                                onclick="$('#modal-edit #form-edit').attr('action', 'nilai-ijazah/{{ $siswa_aktif->siswa_aktif_id }}/{{ $mata_pelajaran->id }}/store');"
                                                 class="btn btn-warning m-1">Ubah</a>
                                         </td>
                                     @endif
@@ -117,7 +113,7 @@
 
         <!-- Modal Filter -->
         <div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-hidden="true">
             <div class="modal-dialog">
                 <form class="modal-content" action="{{ route('admin.nilai_ijazah') }}" method="get">
                     <div class="modal-header">
@@ -128,7 +124,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="tahun_pelajaran">Tahun Pelajaran</label>
                             <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                                 @if ($filter->has('tahun_pelajaran'))
@@ -149,12 +145,23 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="mata_pelajaran">Mata Pelajaran</label>
-                            <select class="form-control" autocomplete="off" id="mata_pelajaran"
-                                name="mata_pelajaran"></select>
+                            <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
+                                @foreach ($data_mata_pelajaran as $item)
+                                    @if ($item->nama === $filter->mata_pelajaran)
+                                        <option value="{{ $item->nama }}" selected>
+                                            {{ $item->nama }}
+                                        </option>
+                                    @else
+                                        <option value="{{ $item->nama }}">
+                                            {{ $item->nama }}
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="kelas">Kelas</label>
                             <select class="form-control" autocomplete="off" id="kelas" name="kelas"></select>
                         </div>
@@ -169,7 +176,7 @@
 
         <!-- Modal Edit -->
         <div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-hidden="true">
             <div class="modal-dialog">
                 <form id="form-edit" class="modal-content" action="" method="post">
                     @csrf
@@ -182,7 +189,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="nilai">Nilai <span class="text-danger">*</span></label>
                             <input type="text" required class="form-control @error('nilai') is-invalid @enderror"
                                 id="nilai" name="nilai" value="">
@@ -204,11 +211,9 @@
 
     @section('script')
         <script>
-            const data_mata_pelajaran = @json($data_mata_pelajaran);
             const data_siswa = @json($data_siswa);
 
             const elTahunPelajaran = document.getElementById('tahun_pelajaran');
-            const elMataPelajaran = document.getElementById('mata_pelajaran');
             const elKelas = document.getElementById('kelas');
 
             const changeKelas = () => {
@@ -248,41 +253,11 @@
                 elKelas.innerHTML = kelas_option;
             }
 
-            const changeMataPelajaran = () => {
-                const tahun_pelajaran = elTahunPelajaran.value;
-
-                const selected = (data) => {
-                    return data.tahun_pelajaran == tahun_pelajaran;
-                }
-
-                const data_mata_pelajaran_filter = data_mata_pelajaran.filter(selected);
-
-                const mata_pelajaran_selected = [];
-
-                data_mata_pelajaran_filter.map((data) => {
-                    mata_pelajaran_selected.push(data.nama);
-                })
-
-                const delete_duplicate = (value, index, self) => {
-                    return self.indexOf(value) === index;
-                }
-
-                const data_mata_pelajaran_filter2 = mata_pelajaran_selected.filter(delete_duplicate);
-
-                elMataPelajaran.innerHTML = '';
-
-                data_mata_pelajaran_filter2.map((data) => {
-                    elMataPelajaran.innerHTML += `<option value="${data}">${data}</option>`;
-                })
-            }
-
             elTahunPelajaran.addEventListener('change', () => {
-                changeMataPelajaran();
                 changeKelas();
             })
 
             window.onload = () => {
-                changeMataPelajaran();
                 changeKelas();
             }
         </script>
@@ -311,6 +286,10 @@
                         <button type="button" class="btn btn-primary ml-2" data-toggle="modal"
                             data-target="#modal-import">
                             Import
+                        </button>
+                        <button type="button" class="btn btn-danger ml-2" data-toggle="modal"
+                            data-target="#modal-reset">
+                            Reset
                         </button>
                     </div>
                 </div>
@@ -411,7 +390,7 @@
     @section('modal')
         <!-- Modal Filter -->
         <div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-hidden="true">
             <div class="modal-dialog">
                 <form class="modal-content" action="{{ route('admin.nilai_ijazah') }}" method="get">
                     <div class="modal-header">
@@ -423,7 +402,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="mata_pelajaran">Mata Pelajaran</label>
                             <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
                                 @foreach ($data_mata_pelajaran as $item)
@@ -450,7 +429,7 @@
 
         <!-- Modal Import -->
         <div class="modal fade" id="modal-import" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-hidden="true">
             <div class="modal-dialog">
                 <form class="modal-content" action="{{ route('admin.nilai_ijazah.import') }}" method="post"
                     enctype="multipart/form-data">
@@ -464,7 +443,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="nama">File <span class="text-danger">*</span></label>
                             <input type="file" class="form-control" required id="excel" name="data_nilai"
                                 accept=".xlsx, .xls">
@@ -483,7 +462,7 @@
 
         <!-- Modal Format Import -->
         <div class="modal fade" id="modalFormatImport" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-hidden="true">
             <div class="modal-dialog">
                 <form class="modal-content" action="{{ route('admin.nilai_ijazah.export_format') }}" method="get">
                     <div class="modal-header">
@@ -495,7 +474,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="mata_pelajaran">Mata Pelajaran</label>
                             <select class="form-control" autocomplete="off" id="mata_pelajaran" name="mata_pelajaran">
                                 @foreach ($data_mata_pelajaran as $item)
@@ -516,7 +495,7 @@
 
         <!-- Modal Edit -->
         <div class="modal fade" id="modal-edit" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            aria-hidden="true">
             <div class="modal-dialog">
                 <form id="form-edit" class="modal-content" action="" method="post">
                     @csrf
@@ -529,7 +508,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="nilai">Nilai <span class="text-danger">*</span></label>
                             <input type="text" required class="form-control @error('nilai') is-invalid @enderror"
                                 id="nilai" name="nilai" value="">
@@ -543,6 +522,26 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Kembali</button>
                         <button type="submit" class="btn btn-primary">Ubah</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Delete -->
+        <div class="modal fade" id="modal-reset" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="form-delete" class="modal-content" action="{{ route('admin.nilai_ijazah.reset') }}"
+                    method="get">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Reset <span class="text-primary"> Nilai
+                                Ijazah</span></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
+                        <button type="submit" class="btn btn-danger">Reset</button>
                     </div>
                 </form>
             </div>

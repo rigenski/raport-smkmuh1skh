@@ -88,6 +88,12 @@
                         @endforeach
                         <?php sort($data_nama_mata_pelajaran_xii); ?>
 
+                        <?php $data_nama_mata_pelajaran_ijazah = []; ?>
+                        @foreach ($data_mata_pelajaran_ijazah as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_ijazah, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_ijazah); ?>
+
                         <thead>
                             <tr>
                                 <th scope="col" rowspan="2" style="min-width: 40px;">No</th>
@@ -111,6 +117,8 @@
                                         Semester {{ $semester + 4 }}
                                     </th>
                                 @endforeach
+                                <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_ijazah) }}"
+                                    class="text-center border">Nilai Ijazah</th>
                             </tr>
                             <tr>
                                 @foreach ($data_semester as $semester)
@@ -132,6 +140,11 @@
                                         <th scope="col" class="text-center border">
                                             {{ $nama_mata_pelajaran[1] }}</th>
                                     @endforeach
+                                @endforeach
+
+                                @foreach ($data_nama_mata_pelajaran_ijazah as $nama_mata_pelajaran)
+                                    <th scope="col" class="text-center border">
+                                        {{ $nama_mata_pelajaran[1] }}</th>
                                 @endforeach
                             </tr>
                         </thead>
@@ -190,6 +203,19 @@
                                         @endforeach
                                     @endforeach
 
+                                    <?php $data_total_nilai = []; ?>
+                                    @foreach ($data_mata_pelajaran_ijazah as $mata_pelajaran_ijazah)
+                                        <?php $nilai = 0; ?>
+                                        @foreach ($siswa_aktif_xii->nilai_ijazah->where('mata_pelajaran_id', $mata_pelajaran_ijazah->mata_pelajaran->id) as $data_nilai)
+                                            <?php $nilai = $data_nilai->nilai; ?>
+                                        @endforeach
+                                        <?php array_push($data_total_nilai, [$mata_pelajaran_ijazah->mata_pelajaran->urutan, $nilai]); ?>
+                                    @endforeach
+                                    <?php sort($data_total_nilai); ?>
+                                    @foreach ($data_total_nilai as $total_nilai)
+                                        <td>{{ $total_nilai[1] }}</td>
+                                    @endforeach
+
                                 </tr>
                                 <?php $count++; ?>
                             @endforeach
@@ -216,7 +242,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="tahun_pelajaran">Tahun Pelajaran</label>
                             <select class="form-control" autocomplete="off" id="tahun_pelajaran" name="tahun_pelajaran">
                                 @if ($filter->has('tahun_pelajaran'))
@@ -237,7 +263,7 @@
                                 @endif
                             </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group mb-2">
                             <label for="kelas">Kelas</label>
                             <select class="form-control" autocomplete="off" id="kelas" name="kelas">
                             </select>
@@ -420,7 +446,7 @@
                             <tr>
                                 <th scope="col" style="width: 40px;">No</th>
                                 <th scope="col">NIS</th>
-                            <th scope="col">Nama</th>
+                                <th scope="col">Nama</th>
                                 <?php $data_nama_mata_pelajaran = []; ?>
                                 @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
                                     <?php array_push($data_nama_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\NilaiIjazahFormatExport;
-use App\Models\GuruMataPelajaran;
 use App\Models\MataPelajaran;
-use App\Models\Nilai;
 use App\Models\NilaiIjazah;
 use App\Models\Setting;
 use App\Models\SiswaAktif;
@@ -20,14 +18,13 @@ class NilaiIjazahController extends Controller
     public function index(Request $request)
     {
         $filter = $request;
-
         $setting = Setting::all()->first();
 
         if ($setting) {
 
             if (auth()->user()->role == 'admin') {
 
-                if ($filter->has('tahun_pelajaran') && $filter->has('kelas') && $filter->has('mata_pelajaran') && $filter->has('semester')) {
+                if ($filter->has('tahun_pelajaran') && $filter->has('kelas') && $filter->has('mata_pelajaran')) {
                     $mata_pelajaran = MataPelajaran::where('nama', $filter->mata_pelajaran)->get()->first();
 
                     if ($mata_pelajaran) {
@@ -52,13 +49,11 @@ class NilaiIjazahController extends Controller
                 }
 
 
-                $data_siswa = SiswaAktif::all();
-
                 $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
 
-                $data_mata_pelajaran = DB::table('guru_mata_pelajaran')
-                    ->join('mata_pelajaran', 'guru_mata_pelajaran.mata_pelajaran_id', '=', 'mata_pelajaran.id')
-                    ->get();
+                $data_siswa = SiswaAktif::all();
+
+                $data_mata_pelajaran = MataPelajaran::all();
 
                 $data_semester = [1, 2];
 
@@ -114,10 +109,10 @@ class NilaiIjazahController extends Controller
             return redirect()->route('admin.nilai')->with('error', 'Data nilai ijazah gagal diperbarui');
         }
 
-        $session_tahun_pelajaran = session()->get('nilai-tahun_pelajaran');
+        $tahun_pelajaran = session()->get('nilai-tahun_pelajaran');
 
         NilaiIjazah::create([
-            "tahun_pelajaran" => $session_tahun_pelajaran,
+            "tahun_pelajaran" => $tahun_pelajaran,
             "nilai" => $request->nilai,
             "siswa_aktif_id" => $siswa_aktif_id,
             "mata_pelajaran_id" => $mata_pelajaran_id,
@@ -145,6 +140,14 @@ class NilaiIjazahController extends Controller
         return redirect()->back()->with('success', 'Data nilai ijazah berhasil diperbarui');
     }
 
+    public function export_format(Request $request)
+    {
+        $kelas = session()->get('nilai-kelas');
+        $mata_pelajaran = MataPelajaran::find($request->mata_pelajaran);
+
+        return Excel::download(new NilaiIjazahFormatExport($kelas, $mata_pelajaran), 'Simaku - Data Nilai ijazah Ijazah ' . $kelas . '-' . $mata_pelajaran->nama . '.xlsx');
+    }
+
     public function import()
     {
         try {
@@ -156,11 +159,21 @@ class NilaiIjazahController extends Controller
         return redirect()->back()->with('success', 'Data nilai ijazah berhasil diimport');
     }
 
-    public function export_format(Request $request)
+    public function reset()
     {
+        $tahun_pelajaran = session()->get('nilai-tahun_pelajaran');
         $kelas = session()->get('nilai-kelas');
-        $mata_pelajaran = MataPelajaran::find($request->mata_pelajaran);
+        $mata_pelajaran = session()->get('nilai-mata_pelajaran');
 
-        return Excel::download(new NilaiIjazahFormatExport($kelas, $mata_pelajaran), 'Simaku - Data Nilai ijazah Ijazah ' . $kelas . '-' . $mata_pelajaran->nama . '.xlsx');
+        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $tahun_pelajaran)->where('kelas', $kelas)->get();
+
+        foreach ($data_siswa_aktif as $siswa_aktif) {
+            $nilai_ijazah = NilaiIjazah::where('tahun_pelajaran', $tahun_pelajaran)->where('mata_pelajaran_id', $mata_pelajaran->id)->where('siswa_aktif_id', $siswa_aktif->id)->get()->first();
+            if ($nilai_ijazah) {
+                $nilai_ijazah->delete();
+            }
+        }
+
+        return redirect()->back()->with('success', 'Data nilai ijazah berhasil direset');
     }
 }

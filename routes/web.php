@@ -119,6 +119,7 @@ Route::group(['middleware' => ['auth', 'checkRole:admin,guru,wali kelas']], func
   Route::post('/admin/nilai-ijazah/{siswa_aktif_id}/{mata_pelajaran_id}/store', [NilaiIjazahController::class, 'store'])->name('admin.nilai_ijazah.store');
   Route::get('/admin/nilai-ijazah/export-format', [NilaiIjazahController::class, 'export_format'])->name('admin.nilai_ijazah.export_format');
   Route::post('/admin/nilai-ijazah/{id}/update', [NilaiIjazahController::class, 'update'])->name('admin.nilai_ijazah.update');
+  Route::get('/admin/nilai-ijazah/reset', [NilaiIjazahController::class, 'reset'])->name('admin.nilai_ijazah.reset');
 
   Route::get('/admin/raport_p5', [RaportP5Controller::class, 'index'])->name('admin.raport_p5');
   Route::get('/admin/raport_p5/print', [RaportP5Controller::class, 'print'])->name('admin.raport_p5.print');
