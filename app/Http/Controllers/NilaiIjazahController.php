@@ -145,7 +145,7 @@ class NilaiIjazahController extends Controller
         $kelas = session()->get('nilai-kelas');
         $mata_pelajaran = MataPelajaran::find($request->mata_pelajaran);
 
-        return Excel::download(new NilaiIjazahFormatExport($kelas, $mata_pelajaran), 'Simaku - Data Nilai ijazah Ijazah ' . $kelas . '-' . $mata_pelajaran->nama . '.xlsx');
+        return Excel::download(new NilaiIjazahFormatExport($kelas, $mata_pelajaran), 'Simaku - Data Nilai Ijazah ' . $kelas . '-' . $mata_pelajaran->nama . '.xlsx');
     }
 
     public function import()

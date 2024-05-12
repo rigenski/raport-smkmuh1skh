@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
         view()->composer(
             ['layouts.admin'],
             function ($view) {
-                $view->with('setting', Setting::all());
+                $view->with('setting', Setting::all()->first());
             }
         );
 

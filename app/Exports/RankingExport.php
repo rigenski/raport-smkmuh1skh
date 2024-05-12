@@ -34,18 +34,18 @@ class RankingExport implements FromView, ShouldAutoSize
         $setting = Setting::all()->first();
 
         if ($setting) {
-            
+
             $session_tahun_pelajaran = session()->get('ranking-tahun_pelajaran');
             $session_kelas = session()->get('ranking-kelas');
             $session_semester = session()->get('ranking-semester');
-            
+
             $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
-            
+
             $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->get();
-            
+
             $wali_kelas = WaliKelas::where('tahun_pelajaran', $session_tahun_pelajaran)->where('kelas', $session_kelas)->first();
 
-            if($wali_kelas) {   
+            if ($wali_kelas) {
 
                 $table_siswa = '';
                 $table_mapel = '';
@@ -127,14 +127,14 @@ class RankingExport implements FromView, ShouldAutoSize
 
                     $table_siswa .= "<tr><td>" . $no . "</td>
                             <td>" . $siswa_aktif->siswa->nis . "</td>
-                            <td>" . $siswa_aktif->siswa->nama . "</td>" . $table_nilai . "<td>" . $jmlh_nilai  . "</td>" . "<td>" . substr($rata_nilai, 0, 4)  . "</td>" . "<td>" . $hasil_ranking  . "</td>" . "<td>" . ($ketidakhadiran ? $ketidakhadiran->sakit . '|' . $ketidakhadiran->izin . '|' . $ketidakhadiran->tanpa_keterangan : '-|-|-') . "</td>"
+                            <td>" . $siswa_aktif->siswa->nama . "</td>" . $table_nilai . "<td>" . $jmlh_nilai  . "</td>" . "<td>" . round($rata_nilai, 2)  . "</td>" . "<td>" . $hasil_ranking  . "</td>" . "<td>" . ($ketidakhadiran ? $ketidakhadiran->sakit . '|' . $ketidakhadiran->izin . '|' . $ketidakhadiran->tanpa_keterangan : '-|-|-') . "</td>"
                         . "</tr>";
 
                     $no++;
                     $i++;
                 }
 
-                return view('admin/ranking/legger-table', compact('setting','session_kelas', 'session_semester', 'session_tahun_pelajaran', 'date_now', 'date_legger', 'wali_kelas', 'table_mapel', 'table_kkm', 'table_siswa'));
+                return view('admin/ranking/legger-table', compact('setting', 'session_kelas', 'session_semester', 'session_tahun_pelajaran', 'date_now', 'date_legger', 'wali_kelas', 'table_mapel', 'table_kkm', 'table_siswa'));
             } else {
                 return redirect()->back()->with('error', 'Data wali kelas tidak ada');
             }

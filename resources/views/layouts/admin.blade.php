@@ -146,7 +146,7 @@
                         </li>
                         <li class="@yield('nav_item-transkrip')">
                             <a class="nav-link" href="{{ route('admin.transkrip') }}">
-                                <i class="fas fa-book"></i>
+                                <i class="fas fa-book-open"></i>
                                 <span>Transkrip</span>
                             </a>
                         </li>
@@ -224,12 +224,21 @@
                                 <span>Raport</span>
                             </a>
                         </li>
-                        <li class="@yield('nav_item-dokumen')">
-                            <a class="nav-link" href="{{ route('admin.dokumen') }}">
-                                <i class="fas fa-file"></i>
-                                <span>Dokumen</span>
-                            </a>
-                        </li>
+                        @if (str_contains(auth()->user()->guru->wali_kelas->where('tahun_pelajaran', $setting->tahun_pelajaran)->first()->kelas,
+                                'XII'))
+                            <li class="@yield('nav_item-transkrip')">
+                                <a class="nav-link" href="{{ route('admin.transkrip') }}">
+                                    <i class="fas fa-book-open"></i>
+                                    <span>Transkrip</span>
+                                </a>
+                            </li>
+                            <li class="@yield('nav_item-dokumen')">
+                                <a class="nav-link" href="{{ route('admin.dokumen') }}">
+                                    <i class="fas fa-file"></i>
+                                    <span>Dokumen</span>
+                                </a>
+                            </li>
+                        @endif
                         {{-- <li class="menu-header">Nilai Lanjutan</li>
                         <li class="@yield('nav_item-raport_p5')">
                             <a class="nav-link" href="{{ route('admin.raport_p5') }}">
@@ -248,7 +257,7 @@
                 <div class="section-header">
                     <div class="d-flex justify-content-between align-items-center w-100">
                         <h1 class="m-0">@yield('title')</h1>
-                        <h5 class="m-0 text-primary">{{ count($setting) ? $setting[0]->tahun_pelajaran : '-' }}</h5>
+                        <h5 class="m-0 text-primary">{{ $setting ? $setting->tahun_pelajaran : '-' }}</h5>
                     </div>
                 </div>
                 <div class="section-body">

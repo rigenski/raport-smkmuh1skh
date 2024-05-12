@@ -38,7 +38,6 @@ class TranskripController extends Controller
                 if ($filter->has('tahun_pelajaran') && $filter->has('kelas')) {
                     session(['transkrip-tahun_pelajaran' => $filter->tahun_pelajaran]);
                     session(['transkrip-kelas' => $filter->kelas]);
-                    session(['transkrip-semester' => '1']);
 
                     $tahun_pelajaran_xii = $filter->tahun_pelajaran;
                     $tahun_pelajaran_xi = $this->decrementYearInString($tahun_pelajaran_xii);
@@ -111,37 +110,71 @@ class TranskripController extends Controller
             } else {
                 $wali_kelas = WaliKelas::where('guru_id', auth()->user()->guru->id)->where('tahun_pelajaran', $setting->tahun_pelajaran)->get()->first();
 
-                $semester = 1;
-
                 if ($wali_kelas) {
                     $kelas = $wali_kelas->kelas;
 
                     session(['transkrip-tahun_pelajaran' => $setting->tahun_pelajaran]);
                     session(['transkrip-kelas' => $kelas]);
-                    session(['transkrip-semester' => $filter->semester ? $filter->semester : '1']);
 
-                    session(['ranking-tahun_pelajaran' => $setting->tahun_pelajaran]);
-                    session(['ranking-kelas' => $kelas]);
-                    session(['ranking-semester' => $filter->semester ? $filter->semester : '1']);
+                    $tahun_pelajaran_xii = $setting->tahun_pelajaran;
+                    $tahun_pelajaran_xi = $this->decrementYearInString($tahun_pelajaran_xii);
+                    $tahun_pelajaran_x = $this->decrementYearInString($tahun_pelajaran_xi);
 
-                    if ($filter->has('semester')) {
+                    $data_siswa_ids = [];
 
-                        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
+                    $data_siswa_aktif_xii = SiswaAktif::where('tahun_pelajaran', $tahun_pelajaran_xii)->where('kelas', $kelas)->get();
 
-                        $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
-                    } else {
-                        $data_siswa_aktif = SiswaAktif::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
-
-                        $data_guru_mata_pelajaran = GuruMataPelajaran::where('tahun_pelajaran', $setting->tahun_pelajaran)->where('kelas', $kelas)->get();
+                    foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
+                        array_push($data_siswa_ids, $siswa_aktif_xii->siswa_id);
                     }
 
-                    $data_siswa = SiswaAktif::all();
+                    $data_siswa_aktif_xi = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_xi)->whereIn('siswa_id', $data_siswa_ids)->get();
+                    $data_siswa_aktif_x = SiswaAktif::with('siswa')->where('tahun_pelajaran', $tahun_pelajaran_x)->whereIn('siswa_id', $data_siswa_ids)->get();
 
+                    $data_guru_mata_pelajaran_x = GuruMataPelajaran::where(function ($query) use ($tahun_pelajaran_x, $data_siswa_aktif_x) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_x)
+                            ->where('kelas', $data_siswa_aktif_x->first()->kelas);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
+
+                    $data_guru_mata_pelajaran_xi = GuruMataPelajaran::Where(function ($query) use ($tahun_pelajaran_xi, $data_siswa_aktif_xi) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_xi,)
+                            ->where('kelas', $data_siswa_aktif_xi->first()->kelas);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
+
+                    $data_guru_mata_pelajaran_xii = GuruMataPelajaran::Where(function ($query) use ($tahun_pelajaran_xii, $data_siswa_aktif_xii) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_xii)
+                            ->where('kelas', $data_siswa_aktif_xii->first()->kelas);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
+
+                    $siswa_aktif_ids = [];
+
+                    foreach ($data_siswa_aktif_xii as $siswa_aktif_xii) {
+                        array_push($siswa_aktif_ids, $siswa_aktif_xii->id);
+                    }
+
+                    $data_mata_pelajaran_ijazah = NilaiIjazah::Where(function ($query) use ($tahun_pelajaran_xii, $siswa_aktif_ids) {
+                        $query->where('tahun_pelajaran', $tahun_pelajaran_xii)
+                            ->whereIn('siswa_aktif_id', $siswa_aktif_ids);
+                    })
+                        ->select('mata_pelajaran_id')
+                        ->distinct()
+                        ->get();
+
+                    $data_siswa = SiswaAktif::all();
                     $data_angkatan = SiswaAktif::all()->unique('angkatan')->values()->all();
 
                     $data_semester = [1, 2];
 
-                    return view('admin.transkrip.index', compact('filter', 'setting', 'data_angkatan', 'data_semester',  'data_siswa_aktif', 'data_siswa', 'data_guru_mata_pelajaran', 'kelas', 'semester'));
+                    return view('admin.transkrip.index', compact('kelas', 'setting', 'data_angkatan', 'data_semester', 'data_siswa_aktif_xii', 'data_siswa_aktif_xi', 'data_siswa_aktif_x', 'data_siswa', 'data_guru_mata_pelajaran_x', 'data_guru_mata_pelajaran_xi', 'data_guru_mata_pelajaran_xii', 'data_mata_pelajaran_ijazah'));
                 } else {
                     return redirect()->back()->with('error', 'Data wali kelas tidak ada');
                 }
@@ -303,9 +336,9 @@ class TranskripController extends Controller
                                     $jumlah_nilai_mapel += 1;
                                 }
 
-                                $jumlah_rata_rata = $jumlah_nilai_mapel != 0 ? round(($jumlah_nilai_1 + $jumlah_nilai_2 + $jumlah_nilai_3 + $jumlah_nilai_4 + $jumlah_nilai_5 + $jumlah_nilai_6) / $jumlah_nilai_mapel) : '-';
+                                $jumlah_rata_rata = $jumlah_nilai_mapel != 0 ? round(($jumlah_nilai_1 + $jumlah_nilai_2 + $jumlah_nilai_3 + $jumlah_nilai_4 + $jumlah_nilai_5 + $jumlah_nilai_6) / $jumlah_nilai_mapel, 1) : '-';
 
-                                $nilai_ijazah = 0;
+                                $nilai_ijazah = '-';
                                 foreach ($siswa_aktif_xii->nilai_ijazah->where('mata_pelajaran_id', $mata_pelajaran->id) as $nilai) {
                                     $nilai_ijazah = $nilai->nilai != 0 ? round($nilai->nilai) : '-';
                                 }
@@ -335,6 +368,7 @@ class TranskripController extends Controller
                             $no_mapel++;
                         }
                     }
+
 
                     $html = "
                             <html>
@@ -404,7 +438,8 @@ class TranskripController extends Controller
 
                     $mpdf->showImageErrors = true;
                     $mpdf->WriteHTML($html);
-                    $mpdf->Image(asset('/images/setting/' . $setting->letterhead), 16, 4, 'auto', 26, 'png', '', true, false);
+                    $mpdf->Image(asset('/images/setting/' . $setting->letterhead), 16, 4, 180, 26, 'png', '', true, false);
+
 
                     // TTD WALI SISWA
                     $mpdf->SetFont('Arial', '', 8);
@@ -432,7 +467,7 @@ class TranskripController extends Controller
                     $mpdf->WriteCell(6.4, 0.4, '', 0, 'C');
                 }
 
-                $mpdf->Output('Simaku - Raport Siswa.pdf', 'I');
+                $mpdf->Output('Simaku - Transkrip Kelas ' . $session_kelas . '.pdf', 'I');
                 exit;
 
                 return redirect()->route('admin.transkrip')->with('success', 'Cetak Raport telah berhasil ...');

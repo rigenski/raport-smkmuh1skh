@@ -152,7 +152,7 @@ class RankingController extends Controller
                     $table_siswa .= "<tr style='border: none;font-family: Arial;'>
             <td style='text-align: center;padding: 2px 4px;'>" . $no . "</td>
             <td style='text-align: center;padding: 2px 4px;'>" . $siswa_aktif->siswa->nis . "</td>
-            <td style='text-align: left;padding: 2px 4px;'>" . $siswa_aktif->siswa->nama . "</td>" . $table_nilai . "<td style='text-align: center;padding: 2px 4px;width: 34px;'>" . $jmlh_nilai  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . substr($rata_nilai, 0, 4)  . "</td>" . "<td style='text-align: center;padding: 2px 4px;width: 34px;'>" . $hasil_ranking  . "</td>" . "<td style='text-align: center;padding: 2px 4px;width: 34px;'>" . ($ketidakhadiran ? $ketidakhadiran->sakit . '|' . $ketidakhadiran->izin . '|' . $ketidakhadiran->tanpa_keterangan : '-|-|-') . "</td>"
+            <td style='text-align: left;padding: 2px 4px;'>" . $siswa_aktif->siswa->nama . "</td>" . $table_nilai . "<td style='text-align: center;padding: 2px 4px;width: 34px;'>" . $jmlh_nilai  . "</td>" . "<td style='text-align: center;padding: 2px 4px;'>" . round($rata_nilai, 2)  . "</td>" . "<td style='text-align: center;padding: 2px 4px;width: 34px;'>" . $hasil_ranking  . "</td>" . "<td style='text-align: center;padding: 2px 4px;width: 34px;'>" . ($ketidakhadiran ? $ketidakhadiran->sakit . '|' . $ketidakhadiran->izin . '|' . $ketidakhadiran->tanpa_keterangan : '-|-|-') . "</td>"
                         . "</tr>";
 
                     $no++;
@@ -230,7 +230,7 @@ class RankingController extends Controller
                 $mpdf->WriteCell(6.4, 0.4, $setting->alamat, 0, 'C');
 
 
-                $mpdf->Output('Simaku - Daftar Nilai' . '.pdf', 'I');
+                $mpdf->Output('Simaku - Daftar Nilai ' . $session_kelas . '.pdf', 'I');
                 exit;
             } else {
                 return redirect()->back()->with('error', 'Data wali kelas tidak ada');
@@ -242,6 +242,8 @@ class RankingController extends Controller
 
     public function export_excel(Request $request)
     {
-        return Excel::download(new RankingExport($request->tanggal_legger), 'Simaku - Daftar Nilai' . '.xlsx');
+        $session_kelas = session()->get('ranking-kelas');
+
+        return Excel::download(new RankingExport($request->tanggal_legger), 'Simaku - Daftar Nilai' . $session_kelas . '.xlsx');
     }
 }

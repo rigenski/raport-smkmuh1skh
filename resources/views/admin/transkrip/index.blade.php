@@ -161,7 +161,7 @@
                                     @foreach ($data_semester as $semester)
                                         <?php $data_total_nilai = []; ?>
                                         @foreach ($data_guru_mata_pelajaran_x as $guru_mata_pelajaran)
-                                            <?php $nilai = 0; ?>
+                                            <?php $nilai = '-'; ?>
                                             @foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
                                                 <?php $nilai = $data_nilai->nilai; ?>
                                             @endforeach
@@ -176,7 +176,7 @@
                                     @foreach ($data_semester as $semester)
                                         <?php $data_total_nilai = []; ?>
                                         @foreach ($data_guru_mata_pelajaran_xi as $guru_mata_pelajaran)
-                                            <?php $nilai = 0; ?>
+                                            <?php $nilai = '-'; ?>
                                             @foreach ($data_siswa_aktif_xi->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
                                                 <?php $nilai = $data_nilai->nilai; ?>
                                             @endforeach
@@ -191,7 +191,7 @@
                                     @foreach ($data_semester as $semester)
                                         <?php $data_total_nilai = []; ?>
                                         @foreach ($data_guru_mata_pelajaran_xii as $guru_mata_pelajaran)
-                                            <?php $nilai = 0; ?>
+                                            <?php $nilai = '-'; ?>
                                             @foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
                                                 <?php $nilai = $data_nilai->nilai; ?>
                                             @endforeach
@@ -205,7 +205,7 @@
 
                                     <?php $data_total_nilai = []; ?>
                                     @foreach ($data_mata_pelajaran_ijazah as $mata_pelajaran_ijazah)
-                                        <?php $nilai = 0; ?>
+                                        <?php $nilai = '-'; ?>
                                         @foreach ($siswa_aktif_xii->nilai_ijazah->where('mata_pelajaran_id', $mata_pelajaran_ijazah->mata_pelajaran->id) as $data_nilai)
                                             <?php $nilai = $data_nilai->nilai; ?>
                                         @endforeach
@@ -372,34 +372,10 @@
             <div class="card-header row">
                 <div class="col-12 col-sm-8 p-0 my-1">
                     <div class="d-flex align-items-start">
-                        <button type="button" class="btn btn-info ml-2" data-toggle="modal"
-                            data-target="#modal-filter">
-                            Filter
+                        <button type="button" class="btn btn-primary ml-2" data-toggle="modal"
+                            data-target="#modalPrint">
+                            Print PDF
                         </button>
-                        @if (count($data_siswa_aktif_xii))
-                            <button type="button" class="btn btn-primary ml-2" data-toggle="modal"
-                                data-target="#modalPrint">
-                                Print Transkrip
-                            </button>
-                            <button type="button" class="btn btn-primary ml-2" data-toggle="modal"
-                                data-target="#modalPrintPDF">
-                                Print Ranking
-                            </button>
-                            <button type="button" class="btn btn-primary ml-2" data-toggle="modal"
-                                data-target="#modalPrintExcel">
-                                Export Ranking
-                            </button>
-                        @else
-                            <button type="button" class="btn btn-primary ml-2" disabled>
-                                Print Transkrip
-                            </button>
-                            <button type="button" class="btn btn-primary ml-2" disabled>
-                                Print Ranking
-                            </button>
-                            <button type="button" class="btn btn-primary ml-2" disabled>
-                                Export Ranking
-                            </button>
-                        @endif
                     </div>
                 </div>
                 <div class="col-12 col-sm-4 p-0 my-1">
@@ -436,48 +412,160 @@
                         <tr>
                             <td class="h6">Kelas</td>
                             <td class="h6 px-2">:</td>
-                            <td class="h6 text-primary"><b>{{ $kelas }}</b></td>
+                            <td class="h6 text-primary">
+                                <b>{{ $kelas }}</b>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered data">
+                        <?php $data_nama_mata_pelajaran_x = []; ?>
+                        @foreach ($data_guru_mata_pelajaran_x as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_x, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_x); ?>
+
+                        <?php $data_nama_mata_pelajaran_xi = []; ?>
+                        @foreach ($data_guru_mata_pelajaran_xi as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_xi, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_xi); ?>
+
+                        <?php $data_nama_mata_pelajaran_xii = []; ?>
+                        @foreach ($data_guru_mata_pelajaran_xii as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_xii, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_xii); ?>
+
+                        <?php $data_nama_mata_pelajaran_ijazah = []; ?>
+                        @foreach ($data_mata_pelajaran_ijazah as $guru_mata_pelajaran)
+                            <?php array_push($data_nama_mata_pelajaran_ijazah, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                        @endforeach
+                        <?php sort($data_nama_mata_pelajaran_ijazah); ?>
+
                         <thead>
                             <tr>
-                                <th scope="col" style="width: 40px;">No</th>
-                                <th scope="col">NIS</th>
-                                <th scope="col">Nama</th>
-                                <?php $data_nama_mata_pelajaran = []; ?>
-                                @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
-                                    <?php array_push($data_nama_mata_pelajaran, [$guru_mata_pelajaran->mata_pelajaran->urutan, $guru_mata_pelajaran->mata_pelajaran->kode]); ?>
+                                <th scope="col" rowspan="2" style="min-width: 40px;">No</th>
+                                <th scope="col" rowspan="2" style="min-width: 80px;">NIS</th>
+                                <th scope="col" rowspan="2" style="min-width: 240px;">Nama</th>
+                                @foreach ($data_semester as $semester)
+                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_x) }}"
+                                        class="text-center border">
+                                        Semester {{ $semester }}
+                                    </th>
                                 @endforeach
-                                <?php sort($data_nama_mata_pelajaran); ?>
-                                @foreach ($data_nama_mata_pelajaran as $nama_mata_pelajaran)
-                                    <th>{{ $nama_mata_pelajaran[1] }}</th>
+                                @foreach ($data_semester as $semester)
+                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_xi) }}"
+                                        class="text-center border">
+                                        Semester {{ $semester + 2 }}
+                                    </th>
+                                @endforeach
+                                @foreach ($data_semester as $semester)
+                                    <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_xii) }}"
+                                        class="text-center border">
+                                        Semester {{ $semester + 4 }}
+                                    </th>
+                                @endforeach
+                                <th scope="col" colspan="{{ count($data_nama_mata_pelajaran_ijazah) }}"
+                                    class="text-center border">Nilai Ijazah</th>
+                            </tr>
+                            <tr>
+                                @foreach ($data_semester as $semester)
+                                    @foreach ($data_nama_mata_pelajaran_x as $nama_mata_pelajaran)
+                                        <th scope="col" class="text-center border">
+                                            {{ $nama_mata_pelajaran[1] }}</th>
+                                    @endforeach
+                                @endforeach
+
+                                @foreach ($data_semester as $semester)
+                                    @foreach ($data_nama_mata_pelajaran_xi as $nama_mata_pelajaran)
+                                        <th scope="col" class="text-center border">
+                                            {{ $nama_mata_pelajaran[1] }}</th>
+                                    @endforeach
+                                @endforeach
+
+                                @foreach ($data_semester as $semester)
+                                    @foreach ($data_nama_mata_pelajaran_xii as $nama_mata_pelajaran)
+                                        <th scope="col" class="text-center border">
+                                            {{ $nama_mata_pelajaran[1] }}</th>
+                                    @endforeach
+                                @endforeach
+
+                                @foreach ($data_nama_mata_pelajaran_ijazah as $nama_mata_pelajaran)
+                                    <th scope="col" class="text-center border">
+                                        {{ $nama_mata_pelajaran[1] }}</th>
                                 @endforeach
                             </tr>
                         </thead>
                         <tbody>
                             <?php $count = 1; ?>
-                            @foreach ($data_siswa_aktif as $siswa_aktif)
+                            @foreach ($data_siswa_aktif_xii as $siswa_aktif_xii)
                                 <tr>
                                     <td>
                                         <?= $count ?>
                                     </td>
-                                    <td>{{ $siswa_aktif->siswa->nis }}</td>
-                                    <td>{{ $siswa_aktif->siswa->nama }}</td>
+                                    <td>{{ $siswa_aktif_xii->siswa->nis }}</td>
+                                    <td>{{ $siswa_aktif_xii->siswa->nama }}</td>
+
+                                    @foreach ($data_semester as $semester)
+                                        <?php $data_total_nilai = []; ?>
+                                        @foreach ($data_guru_mata_pelajaran_x as $guru_mata_pelajaran)
+                                            <?php $nilai = '-'; ?>
+                                            @foreach ($data_siswa_aktif_x->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
+                                                <?php $nilai = $data_nilai->nilai; ?>
+                                            @endforeach
+                                            <?php array_push($data_total_nilai, [$guru_mata_pelajaran->mata_pelajaran->urutan, $nilai]); ?>
+                                        @endforeach
+                                        <?php sort($data_total_nilai); ?>
+                                        @foreach ($data_total_nilai as $total_nilai)
+                                            <td>{{ $total_nilai[1] }}</td>
+                                        @endforeach
+                                    @endforeach
+
+                                    @foreach ($data_semester as $semester)
+                                        <?php $data_total_nilai = []; ?>
+                                        @foreach ($data_guru_mata_pelajaran_xi as $guru_mata_pelajaran)
+                                            <?php $nilai = '-'; ?>
+                                            @foreach ($data_siswa_aktif_xi->where('siswa_id', $siswa_aktif_xii->siswa_id)->first()->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
+                                                <?php $nilai = $data_nilai->nilai; ?>
+                                            @endforeach
+                                            <?php array_push($data_total_nilai, [$guru_mata_pelajaran->mata_pelajaran->urutan, $nilai]); ?>
+                                        @endforeach
+                                        <?php sort($data_total_nilai); ?>
+                                        @foreach ($data_total_nilai as $total_nilai)
+                                            <td>{{ $total_nilai[1] }}</td>
+                                        @endforeach
+                                    @endforeach
+
+                                    @foreach ($data_semester as $semester)
+                                        <?php $data_total_nilai = []; ?>
+                                        @foreach ($data_guru_mata_pelajaran_xii as $guru_mata_pelajaran)
+                                            <?php $nilai = '-'; ?>
+                                            @foreach ($siswa_aktif_xii->nilai->where('semester', $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
+                                                <?php $nilai = $data_nilai->nilai; ?>
+                                            @endforeach
+                                            <?php array_push($data_total_nilai, [$guru_mata_pelajaran->mata_pelajaran->urutan, $nilai]); ?>
+                                        @endforeach
+                                        <?php sort($data_total_nilai); ?>
+                                        @foreach ($data_total_nilai as $total_nilai)
+                                            <td>{{ $total_nilai[1] }}</td>
+                                        @endforeach
+                                    @endforeach
+
                                     <?php $data_total_nilai = []; ?>
-                                    @foreach ($data_guru_mata_pelajaran as $guru_mata_pelajaran)
-                                        <?php $nilai = 0; ?>
-                                        @foreach ($siswa_aktif->nilai->where('semester', $filter->semester ? $filter->semester : $semester)->where('mata_pelajaran_id', $guru_mata_pelajaran->mata_pelajaran->id) as $data_nilai)
+                                    @foreach ($data_mata_pelajaran_ijazah as $mata_pelajaran_ijazah)
+                                        <?php $nilai = '-'; ?>
+                                        @foreach ($siswa_aktif_xii->nilai_ijazah->where('mata_pelajaran_id', $mata_pelajaran_ijazah->mata_pelajaran->id) as $data_nilai)
                                             <?php $nilai = $data_nilai->nilai; ?>
                                         @endforeach
-                                        <?php array_push($data_total_nilai, [$guru_mata_pelajaran->mata_pelajaran->urutan, $nilai]); ?>
+                                        <?php array_push($data_total_nilai, [$mata_pelajaran_ijazah->mata_pelajaran->urutan, $nilai]); ?>
                                     @endforeach
                                     <?php sort($data_total_nilai); ?>
                                     @foreach ($data_total_nilai as $total_nilai)
                                         <td>{{ $total_nilai[1] }}</td>
                                     @endforeach
+
                                 </tr>
                                 <?php $count++; ?>
                             @endforeach
@@ -496,6 +584,7 @@
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">Yakin Cetak Transkrip Kelas <span
                                 class="text-primary"> {{ $kelas }}</span></h5>
+                        </span></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -505,87 +594,6 @@
                         <input type="date" required
                             class="form-control @error('tanggal_transkrip') is-invalid @enderror" id="tanggal_transkrip"
                             name="tanggal_transkrip" value="">
-                    </div>
-                    <div class="modal-footer">
-                        <form id="form-delete" action="{{ route('admin.transkrip.print') }}" method="get">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Tidak</button>
-                            <button type="submit" class="btn btn-primary">Cetak</button>
-                        </form>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Modal Filter -->
-        <div class="modal fade" id="modal-filter" data-backdrop="static" data-keyboard="false" tabindex="-1"
-            aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Filter</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('admin.transkrip') }}" method="get">
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Kembali</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Modal Export -->
-        <div class="modal fade" id="modalPrintPDF" tabindex="-1" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <form class="modal-content" id="form-print" action="{{ route('admin.ranking.print') }}" method="get">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span
-                                class="text-primary"> {{ $filter->kelas ? $filter->kelas : '' }} </span>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <label for="tanggal_legger">Tanggal Legger <span class="text-danger">*</span></label>
-                        <input type="date" required class="form-control @error('tanggal_legger') is-invalid @enderror"
-                            id="tanggal_legger" name="tanggal_legger" value="">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
-                        <button type="submit" class="btn btn-primary">Cetak</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-
-        <!-- Modal Export Excel -->
-        <div class="modal fade" id="modalPrintExcel" tabindex="-1" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog">
-                <form class="modal-content" id="form-print" action="{{ route('admin.ranking.export_excel') }}"
-                    method="get">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Yakin Export Legger Kelas <span
-                                class="text-primary"> {{ $filter->kelas ? $filter->kelas : '' }} </span>
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <label for="tanggal_legger">Tanggal Legger <span class="text-danger">*</span></label>
-                        <input type="date" required class="form-control @error('tanggal_legger') is-invalid @enderror"
-                            id="tanggal_legger" name="tanggal_legger" value="">
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary mr-2" data-dismiss="modal">Tidak</button>
